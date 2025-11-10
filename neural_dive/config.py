@@ -1,0 +1,67 @@
+"""
+Configuration constants for Neural Dive game.
+Centralizes magic numbers for easy tuning.
+"""
+
+# Game dimensions
+DEFAULT_MAP_WIDTH = 50
+DEFAULT_MAP_HEIGHT = 25
+MAX_FLOORS = 3
+
+# Player stats
+STARTING_COHERENCE = 100
+MAX_COHERENCE = 100
+
+# Conversation rewards and penalties
+CORRECT_ANSWER_COHERENCE_GAIN = 10
+WRONG_ANSWER_COHERENCE_PENALTY = 25
+ENEMY_WRONG_ANSWER_PENALTY = 35
+HELPER_COHERENCE_RESTORE = 20
+QUEST_COMPLETION_COHERENCE_BONUS = 50
+
+# Player starting position
+PLAYER_START_X = 5
+PLAYER_START_Y = 5
+
+# Stairs positions (used when descending/ascending)
+STAIRS_DOWN_DEFAULT_X = 45
+STAIRS_DOWN_DEFAULT_Y = 20
+STAIRS_UP_DEFAULT_X = 10
+STAIRS_UP_DEFAULT_Y = 5
+
+# NPC placement
+NPC_MIN_DISTANCE_FROM_PLAYER = 5
+NPC_PLACEMENT_ATTEMPTS = 100
+
+# Terminal placement
+TERMINAL_PLACEMENT_ATTEMPTS = 50
+TERMINAL_X_OFFSET = 3
+TERMINAL_Y_OFFSET = 3
+TERMINAL_X_BONUS = 5
+TERMINAL_Y_BONUS = 5
+
+# Gate placement
+GATE_PLACEMENT_ATTEMPTS = 20
+GATE_X_OFFSET = 3
+GATE_Y_OFFSET = 3
+
+# Rendering
+OVERLAY_MAX_WIDTH = 60
+OVERLAY_MAX_HEIGHT = 25
+COMPLETION_OVERLAY_MAX_HEIGHT = 30
+UI_BOTTOM_OFFSET = 4
+
+# Floor completion requirements
+FLOOR_REQUIRED_NPCS = {
+    1: {"ALGO_SPIRIT", "HEAP_MASTER", "PATTERN_ARCHITECT"},
+    2: {"WEB_ARCHITECT", "CRYPTO_GUARDIAN", "SYSTEM_CORE", "SCALE_MASTER"},
+    3: set(),  # No requirements for final floor - boss rush with optional NPCs
+}
+
+# Quest system
+QUEST_TARGET_NPCS = {
+    "ALGO_SPIRIT",
+    "NET_DAEMON",
+    "COMPILER_SAGE",
+    "DB_GUARDIAN",
+}

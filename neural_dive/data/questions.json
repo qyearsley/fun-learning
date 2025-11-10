@@ -1,0 +1,1365 @@
+{
+  "big_o": {
+    "question_text": "What is the time complexity of binary search on a sorted array?",
+    "topic": "algorithms",
+    "answers": [
+      {
+        "text": "O(n)",
+        "correct": false,
+        "response": "Not quite. Binary search eliminates half the search space each step."
+      },
+      {
+        "text": "O(log n)",
+        "correct": true,
+        "response": "Correct! Each comparison halves the search space.",
+        "reward_knowledge": "binary_search"
+      },
+      {
+        "text": "O(n log n)",
+        "correct": false,
+        "response": "That's typical for comparison sorts, not binary search."
+      },
+      {
+        "text": "O(1)",
+        "correct": false,
+        "response": "Only if you're incredibly lucky on the first try!"
+      }
+    ]
+  },
+  "hash_table": {
+    "question_text": "What is the average-case time complexity for hash table lookups?",
+    "topic": "data_structures",
+    "answers": [
+      {
+        "text": "O(n)",
+        "correct": false,
+        "response": "That would be the worst case with many collisions."
+      },
+      {
+        "text": "O(log n)",
+        "correct": false,
+        "response": "That's for balanced trees, not hash tables."
+      },
+      {
+        "text": "O(1)",
+        "correct": true,
+        "response": "Excellent! Hash tables provide constant-time average-case lookup.",
+        "reward_knowledge": "hashing"
+      },
+      {
+        "text": "O(n\u00b2)",
+        "correct": false,
+        "response": "Way too slow! Hash tables are much more efficient."
+      }
+    ]
+  },
+  "tree_height": {
+    "question_text": "In a balanced binary search tree with n nodes, what is the height?",
+    "topic": "data_structures",
+    "answers": [
+      {
+        "text": "O(n)",
+        "correct": false,
+        "response": "That's an unbalanced tree - basically a linked list."
+      },
+      {
+        "text": "O(log n)",
+        "correct": true,
+        "response": "Perfect! Balanced trees maintain logarithmic height.",
+        "reward_knowledge": "trees"
+      },
+      {
+        "text": "O(\u221an)",
+        "correct": false,
+        "response": "Interesting guess, but not quite right."
+      },
+      {
+        "text": "O(1)",
+        "correct": false,
+        "response": "The height must grow as we add more nodes."
+      }
+    ]
+  },
+  "deadlock": {
+    "question_text": "Which is NOT a necessary condition for deadlock?",
+    "topic": "systems",
+    "answers": [
+      {
+        "text": "Mutual exclusion",
+        "correct": false,
+        "response": "Mutual exclusion IS required for deadlock."
+      },
+      {
+        "text": "Hold and wait",
+        "correct": false,
+        "response": "Hold and wait IS a deadlock condition."
+      },
+      {
+        "text": "Preemption",
+        "correct": true,
+        "response": "Correct! NO preemption is required. If resources can be preempted, deadlock can be avoided.",
+        "reward_knowledge": "concurrency"
+      },
+      {
+        "text": "Circular wait",
+        "correct": false,
+        "response": "Circular wait IS a necessary condition."
+      }
+    ]
+  },
+  "cache": {
+    "question_text": "In a cache with LRU replacement, what happens on a cache miss?",
+    "topic": "systems",
+    "answers": [
+      {
+        "text": "Random page evicted",
+        "correct": false,
+        "response": "LRU is not random - it's based on recency."
+      },
+      {
+        "text": "Oldest page evicted",
+        "correct": false,
+        "response": "It's not about absolute age, but recent use."
+      },
+      {
+        "text": "Least recently used evicted",
+        "correct": true,
+        "response": "Yes! LRU evicts the page with the oldest last access time.",
+        "reward_knowledge": "caching"
+      },
+      {
+        "text": "Most recently used evicted",
+        "correct": false,
+        "response": "That would be MRU, the opposite of LRU!"
+      }
+    ]
+  },
+  "tcp_handshake": {
+    "question_text": "In TCP's three-way handshake, what is the correct sequence?",
+    "topic": "networking",
+    "answers": [
+      {
+        "text": "SYN, ACK, FIN",
+        "correct": false,
+        "response": "FIN is for closing, not establishing connections."
+      },
+      {
+        "text": "SYN, SYN-ACK, ACK",
+        "correct": true,
+        "response": "Perfect! This establishes a reliable TCP connection.",
+        "reward_knowledge": "networking"
+      },
+      {
+        "text": "ACK, SYN, ACK",
+        "correct": false,
+        "response": "You can't ACK before SYN - no connection exists yet!"
+      },
+      {
+        "text": "SYN, SYN, ACK",
+        "correct": false,
+        "response": "The server responds with SYN-ACK, not just SYN."
+      }
+    ]
+  },
+  "compiler_phases": {
+    "question_text": "Which compiler phase comes immediately after lexical analysis?",
+    "topic": "compilers",
+    "answers": [
+      {
+        "text": "Code generation",
+        "correct": false,
+        "response": "Code generation is near the end of compilation."
+      },
+      {
+        "text": "Optimization",
+        "correct": false,
+        "response": "Optimization happens after semantic analysis."
+      },
+      {
+        "text": "Parsing (syntax analysis)",
+        "correct": true,
+        "response": "Correct! Parsing builds the syntax tree from tokens.",
+        "reward_knowledge": "compilers"
+      },
+      {
+        "text": "Semantic analysis",
+        "correct": false,
+        "response": "Semantic analysis comes after parsing."
+      }
+    ]
+  },
+  "acid": {
+    "question_text": "In database ACID properties, what does the 'I' stand for?",
+    "topic": "databases",
+    "answers": [
+      {
+        "text": "Integrity",
+        "correct": false,
+        "response": "Close, but that's not the official term."
+      },
+      {
+        "text": "Isolation",
+        "correct": true,
+        "response": "Yes! Isolation ensures concurrent transactions don't interfere.",
+        "reward_knowledge": "databases"
+      },
+      {
+        "text": "Indexing",
+        "correct": false,
+        "response": "Indexing is important but not part of ACID."
+      },
+      {
+        "text": "Idempotency",
+        "correct": false,
+        "response": "That's a different concept."
+      }
+    ]
+  },
+  "p_vs_np": {
+    "question_text": "What would it mean if P = NP?",
+    "topic": "theory",
+    "answers": [
+      {
+        "text": "Sorting would be O(1)",
+        "correct": false,
+        "response": "No, that's not related to P vs NP.",
+        "enemy_penalty": 45
+      },
+      {
+        "text": "Every efficiently verifiable problem would be efficiently solvable",
+        "correct": true,
+        "response": "Correct! This would revolutionize computer science.",
+        "reward_knowledge": "complexity_theory",
+        "enemy_penalty": 45
+      },
+      {
+        "text": "Turing machines would be obsolete",
+        "correct": false,
+        "response": "P vs NP doesn't affect the model of computation.",
+        "enemy_penalty": 45
+      },
+      {
+        "text": "Only applies to quantum computers",
+        "correct": false,
+        "response": "P and NP are classical complexity classes.",
+        "enemy_penalty": 45
+      }
+    ]
+  },
+  "dp_memoization": {
+    "question_text": "What is the key difference between memoization and tabulation in dynamic programming?",
+    "topic": "algorithms",
+    "answers": [
+      {
+        "text": "Memoization is iterative, tabulation is recursive",
+        "correct": false,
+        "response": "Actually it's the opposite! Memoization uses recursion with caching."
+      },
+      {
+        "text": "Memoization is top-down (recursive), tabulation is bottom-up (iterative)",
+        "correct": true,
+        "response": "Correct! Memoization caches recursive calls, tabulation builds solutions iteratively.",
+        "reward_knowledge": "dynamic_programming"
+      },
+      {
+        "text": "They are the same thing, just different names",
+        "correct": false,
+        "response": "They're both DP techniques but with different approaches."
+      },
+      {
+        "text": "Memoization is for graphs, tabulation is for strings",
+        "correct": false,
+        "response": "Both can be used for any DP problem, regardless of data type."
+      }
+    ]
+  },
+  "heap_operations": {
+    "question_text": "In a binary heap, what is the time complexity to extract the minimum element?",
+    "topic": "data_structures",
+    "answers": [
+      {
+        "text": "O(1)",
+        "correct": false,
+        "response": "Finding the min is O(1), but extraction requires reheapifying."
+      },
+      {
+        "text": "O(log n)",
+        "correct": true,
+        "response": "Correct! We remove the root and bubble down to maintain heap property.",
+        "reward_knowledge": "heaps"
+      },
+      {
+        "text": "O(n)",
+        "correct": false,
+        "response": "That would be too slow for a heap. Heaps are efficient!"
+      },
+      {
+        "text": "O(n log n)",
+        "correct": false,
+        "response": "That's typical for sorting, not a single heap operation."
+      }
+    ]
+  },
+  "quicksort": {
+    "question_text": "What is the average-case time complexity of Quicksort?",
+    "topic": "algorithms",
+    "answers": [
+      {
+        "text": "O(n\u00b2)",
+        "correct": false,
+        "response": "That's the worst case with bad pivots. Average case is better!"
+      },
+      {
+        "text": "O(n log n)",
+        "correct": true,
+        "response": "Correct! With good pivots, we divide-and-conquer efficiently.",
+        "reward_knowledge": "sorting"
+      },
+      {
+        "text": "O(n)",
+        "correct": false,
+        "response": "Only possible for special cases like counting sort."
+      },
+      {
+        "text": "O(log n)",
+        "correct": false,
+        "response": "We still need to touch every element at least once."
+      }
+    ]
+  },
+  "avl_rotation": {
+    "question_text": "In an AVL tree, when does a left-right (LR) rotation occur?",
+    "topic": "data_structures",
+    "answers": [
+      {
+        "text": "When the left subtree is heavier and its right child caused the imbalance",
+        "correct": true,
+        "response": "Correct! LR rotation handles the zig-zag case: left-heavy with right-heavy child.",
+        "reward_knowledge": "balanced_trees"
+      },
+      {
+        "text": "When inserting into the right subtree",
+        "correct": false,
+        "response": "LR specifically involves the left subtree with a complication."
+      },
+      {
+        "text": "When the tree height exceeds log n",
+        "correct": false,
+        "response": "AVL rotations are triggered by balance factors, not absolute height."
+      },
+      {
+        "text": "Only during deletion, never insertion",
+        "correct": false,
+        "response": "LR rotations can happen during both insertion and deletion."
+      }
+    ]
+  },
+  "http_methods": {
+    "question_text": "Which HTTP method is idempotent and safe (no side effects)?",
+    "topic": "networking",
+    "answers": [
+      {
+        "text": "POST",
+        "correct": false,
+        "response": "POST creates resources and has side effects - not safe or idempotent."
+      },
+      {
+        "text": "GET",
+        "correct": true,
+        "response": "Correct! GET retrieves data without modifying state - both safe and idempotent.",
+        "reward_knowledge": "http"
+      },
+      {
+        "text": "PUT",
+        "correct": false,
+        "response": "PUT is idempotent but not safe - it modifies resources."
+      },
+      {
+        "text": "DELETE",
+        "correct": false,
+        "response": "DELETE is idempotent but not safe - it removes resources."
+      }
+    ]
+  },
+  "encryption_types": {
+    "question_text": "What's the key advantage of asymmetric encryption over symmetric?",
+    "topic": "security",
+    "answers": [
+      {
+        "text": "It's faster to compute",
+        "correct": false,
+        "response": "Actually asymmetric encryption is much slower than symmetric!"
+      },
+      {
+        "text": "It requires shorter keys",
+        "correct": false,
+        "response": "Asymmetric keys are typically much longer (2048-4096 bits vs 128-256)."
+      },
+      {
+        "text": "You can share public keys without compromising security",
+        "correct": true,
+        "response": "Correct! No need to securely exchange keys - the public key can be public!",
+        "reward_knowledge": "cryptography"
+      },
+      {
+        "text": "It provides better confidentiality",
+        "correct": false,
+        "response": "Both provide confidentiality; the key difference is key distribution."
+      }
+    ]
+  },
+  "password_hashing": {
+    "question_text": "Why should you use bcrypt/Argon2 instead of SHA-256 for password hashing?",
+    "topic": "security",
+    "answers": [
+      {
+        "text": "SHA-256 is too slow",
+        "correct": false,
+        "response": "Actually SHA-256 is too FAST - attackers can brute force quickly!"
+      },
+      {
+        "text": "Bcrypt/Argon2 are intentionally slow and include salt",
+        "correct": true,
+        "response": "Correct! Slow hashing + salt makes brute force attacks impractical.",
+        "reward_knowledge": "password_security"
+      },
+      {
+        "text": "SHA-256 doesn't produce a hash",
+        "correct": false,
+        "response": "SHA-256 does hash, but it's designed for speed, not password storage."
+      },
+      {
+        "text": "Bcrypt works with quantum computers",
+        "correct": false,
+        "response": "That's not the key advantage - it's about being computationally expensive."
+      }
+    ]
+  },
+  "ipc_methods": {
+    "question_text": "Which IPC method allows processes to share memory without copying data?",
+    "topic": "systems",
+    "answers": [
+      {
+        "text": "Pipes",
+        "correct": false,
+        "response": "Pipes copy data through kernel buffers - not true memory sharing."
+      },
+      {
+        "text": "Sockets",
+        "correct": false,
+        "response": "Sockets also copy data, even on the same machine."
+      },
+      {
+        "text": "Shared memory",
+        "correct": true,
+        "response": "Correct! Processes map the same physical memory pages into their address space.",
+        "reward_knowledge": "ipc"
+      },
+      {
+        "text": "Message queues",
+        "correct": false,
+        "response": "Message queues copy data between processes."
+      }
+    ]
+  },
+  "inodes": {
+    "question_text": "What does an inode in a Unix filesystem store?",
+    "topic": "systems",
+    "answers": [
+      {
+        "text": "The file name and directory structure",
+        "correct": false,
+        "response": "File names are stored in directory entries, not inodes!"
+      },
+      {
+        "text": "File metadata (permissions, timestamps, pointers to data blocks)",
+        "correct": true,
+        "response": "Correct! Inodes store everything about a file except its name and data.",
+        "reward_knowledge": "filesystems"
+      },
+      {
+        "text": "Only the file size",
+        "correct": false,
+        "response": "Inodes store much more: permissions, owner, timestamps, block pointers..."
+      },
+      {
+        "text": "The actual file contents",
+        "correct": false,
+        "response": "Contents are in data blocks; inodes point to those blocks."
+      }
+    ]
+  },
+  "message_queues": {
+    "question_text": "What's a key advantage of message queues over direct RPC calls?",
+    "topic": "distributed_systems",
+    "answers": [
+      {
+        "text": "They're faster than RPC",
+        "correct": false,
+        "response": "Message queues actually add latency due to buffering."
+      },
+      {
+        "text": "Decoupling and asynchronous processing",
+        "correct": true,
+        "response": "Correct! Producers and consumers don't need to be online simultaneously.",
+        "reward_knowledge": "message_queues"
+      },
+      {
+        "text": "They guarantee exactly-once delivery",
+        "correct": false,
+        "response": "Most queues provide at-least-once; exactly-once is very hard!"
+      },
+      {
+        "text": "They eliminate the need for error handling",
+        "correct": false,
+        "response": "You still need error handling - failures can happen anywhere!"
+      }
+    ]
+  },
+  "cap_theorem": {
+    "question_text": "In CAP theorem, what does 'partition tolerance' mean?",
+    "topic": "distributed_systems",
+    "answers": [
+      {
+        "text": "The system can split data across multiple partitions",
+        "correct": false,
+        "response": "That's sharding, not partition tolerance!"
+      },
+      {
+        "text": "The system continues operating despite network failures between nodes",
+        "correct": true,
+        "response": "Correct! P means the system works even when nodes can't communicate.",
+        "reward_knowledge": "distributed_systems"
+      },
+      {
+        "text": "The system tolerates disk partition failures",
+        "correct": false,
+        "response": "CAP is about network partitions, not disk partitions."
+      },
+      {
+        "text": "You can partition your database for better performance",
+        "correct": false,
+        "response": "That's horizontal scaling, not partition tolerance."
+      }
+    ]
+  },
+  "cpu_pipelining": {
+    "question_text": "What problem does branch prediction solve in CPU pipelining?",
+    "topic": "architecture",
+    "answers": [
+      {
+        "text": "It prevents race conditions",
+        "correct": false,
+        "response": "That's about concurrency, not pipeline efficiency."
+      },
+      {
+        "text": "It reduces pipeline stalls from conditional branches",
+        "correct": true,
+        "response": "Correct! By guessing which branch to take, we keep the pipeline full.",
+        "reward_knowledge": "cpu_architecture"
+      },
+      {
+        "text": "It increases clock speed",
+        "correct": false,
+        "response": "Branch prediction doesn't change clock speed, it improves throughput."
+      },
+      {
+        "text": "It adds more cores to the CPU",
+        "correct": false,
+        "response": "That's multi-core architecture, not branch prediction."
+      }
+    ]
+  },
+  "gpu_vs_cpu": {
+    "question_text": "Why are GPUs better than CPUs for training neural networks?",
+    "topic": "architecture",
+    "answers": [
+      {
+        "text": "GPUs have higher clock speeds",
+        "correct": false,
+        "response": "Actually CPU cores typically run faster than GPU cores!"
+      },
+      {
+        "text": "GPUs excel at parallel matrix operations",
+        "correct": true,
+        "response": "Correct! Thousands of cores can process matrix multiplications simultaneously.",
+        "reward_knowledge": "gpu_computing"
+      },
+      {
+        "text": "GPUs have more RAM",
+        "correct": false,
+        "response": "System RAM is typically much larger than GPU memory."
+      },
+      {
+        "text": "GPUs are better at branch prediction",
+        "correct": false,
+        "response": "GPUs actually have simpler control flow - CPUs are better at branching."
+      }
+    ]
+  },
+  "halting_problem": {
+    "question_text": "What does the halting problem prove?",
+    "topic": "theory",
+    "answers": [
+      {
+        "text": "Some programs will always crash",
+        "correct": false,
+        "response": "It's not about crashes, it's about decidability."
+      },
+      {
+        "text": "No algorithm can determine if arbitrary programs halt for all inputs",
+        "correct": true,
+        "response": "Correct! This is a fundamental limit of computation - undecidability exists.",
+        "reward_knowledge": "computability_theory"
+      },
+      {
+        "text": "All Turing machines eventually halt",
+        "correct": false,
+        "response": "Many Turing machines loop forever - that's the whole point!"
+      },
+      {
+        "text": "P = NP",
+        "correct": false,
+        "response": "The halting problem is about decidability, not complexity classes."
+      }
+    ]
+  },
+  "backpropagation": {
+    "question_text": "What is backpropagation in neural networks?",
+    "topic": "ai_ml",
+    "answers": [
+      {
+        "text": "Running the network in reverse to generate outputs",
+        "correct": false,
+        "response": "That's not quite right - it's about learning, not inference."
+      },
+      {
+        "text": "Computing gradients by applying chain rule from output to input",
+        "correct": true,
+        "response": "Correct! We propagate error gradients backward to update weights.",
+        "reward_knowledge": "neural_networks"
+      },
+      {
+        "text": "Adding more layers to make the network deeper",
+        "correct": false,
+        "response": "That's network architecture, not the training algorithm."
+      },
+      {
+        "text": "Removing neurons that don't contribute to accuracy",
+        "correct": false,
+        "response": "That's pruning, not backpropagation."
+      }
+    ]
+  },
+  "overfitting": {
+    "question_text": "What does it mean when a model overfits the training data?",
+    "topic": "ai_ml",
+    "answers": [
+      {
+        "text": "The model is too simple to capture patterns",
+        "correct": false,
+        "response": "That's underfitting! Overfitting is the opposite problem."
+      },
+      {
+        "text": "The model memorizes training data but fails to generalize",
+        "correct": true,
+        "response": "Correct! High training accuracy but poor test performance indicates overfitting.",
+        "reward_knowledge": "machine_learning"
+      },
+      {
+        "text": "The model trains too quickly",
+        "correct": false,
+        "response": "Training speed doesn't directly cause overfitting."
+      },
+      {
+        "text": "The model has perfect accuracy on both train and test sets",
+        "correct": false,
+        "response": "That would be ideal! Overfitting shows a gap between train and test performance."
+      }
+    ]
+  },
+  "tls_handshake": {
+    "question_text": "During TLS handshake, what does the server send in the certificate?",
+    "topic": "security",
+    "answers": [
+      {
+        "text": "The server's private key",
+        "correct": false,
+        "response": "Never! Private keys must stay private. Only the public key is shared."
+      },
+      {
+        "text": "The server's public key signed by a Certificate Authority",
+        "correct": true,
+        "response": "Correct! The CA signature proves the public key belongs to the claimed server.",
+        "reward_knowledge": "tls_ssl"
+      },
+      {
+        "text": "The symmetric session key",
+        "correct": false,
+        "response": "The session key is negotiated after certificate verification."
+      },
+      {
+        "text": "The client's public key",
+        "correct": false,
+        "response": "The server sends its own certificate, not the client's."
+      }
+    ]
+  },
+  "dns_resolution": {
+    "question_text": "What is the purpose of DNS caching?",
+    "topic": "networking",
+    "answers": [
+      {
+        "text": "To encrypt DNS queries",
+        "correct": false,
+        "response": "That's DNSSEC or DNS-over-HTTPS, not caching."
+      },
+      {
+        "text": "To reduce latency and load on DNS servers",
+        "correct": true,
+        "response": "Correct! Caching means we don't need to query authoritative servers every time.",
+        "reward_knowledge": "dns"
+      },
+      {
+        "text": "To prevent DNS spoofing attacks",
+        "correct": false,
+        "response": "Caching can actually make spoofing easier if cache is poisoned!"
+      },
+      {
+        "text": "To assign IP addresses to new domains",
+        "correct": false,
+        "response": "That's domain registration, not caching."
+      }
+    ]
+  },
+  "singleton_pattern": {
+    "question_text": "What is the main purpose of the Singleton design pattern?",
+    "topic": "design_patterns",
+    "answers": [
+      {
+        "text": "To ensure a class has only one instance with global access point",
+        "correct": true,
+        "response": "Correct! Singleton ensures only one instance exists and provides global access, useful for configuration managers, database connections, or logging.",
+        "reward_knowledge": "design_patterns_creational"
+      },
+      {
+        "text": "To create families of related objects without specifying concrete classes",
+        "correct": false,
+        "response": "That's the Abstract Factory pattern, not Singleton. Singleton focuses on limiting instantiation to one object.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "To define an interface for creating objects in a superclass",
+        "correct": false,
+        "response": "That's the Factory Method pattern. Singleton is about ensuring single instantiation, not about creating multiple objects.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "To attach additional responsibilities to objects dynamically",
+        "correct": false,
+        "response": "That's the Decorator pattern. Singleton is about controlling instantiation to ensure only one object exists.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "observer_pattern": {
+    "question_text": "In the Observer pattern, what happens when the subject's state changes?",
+    "topic": "design_patterns",
+    "answers": [
+      {
+        "text": "All registered observers are automatically notified",
+        "correct": true,
+        "response": "Correct! Observer pattern implements a publish-subscribe mechanism where subjects notify all observers automatically. Perfect for event systems, UI updates, and reactive programming.",
+        "reward_knowledge": "design_patterns_behavioral"
+      },
+      {
+        "text": "Observers must poll the subject to check for changes",
+        "correct": false,
+        "response": "No, that would defeat the purpose. Observer pattern uses push notifications, not polling, making it more efficient.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "Only the first observer in the list is notified",
+        "correct": false,
+        "response": "Observer pattern notifies ALL registered observers, not just one. It's a one-to-many relationship.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "The subject creates new observer instances automatically",
+        "correct": false,
+        "response": "Observers register themselves with the subject. The subject doesn't create observers, it notifies existing ones.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "strategy_pattern": {
+    "question_text": "What problem does the Strategy design pattern solve?",
+    "topic": "design_patterns",
+    "answers": [
+      {
+        "text": "It allows selecting an algorithm at runtime from a family of algorithms",
+        "correct": true,
+        "response": "Correct! Strategy pattern encapsulates algorithms and makes them interchangeable. Great for payment methods, sorting strategies, or compression algorithms.",
+        "reward_knowledge": "design_patterns_behavioral_advanced"
+      },
+      {
+        "text": "It provides a simplified interface to a complex subsystem",
+        "correct": false,
+        "response": "That's the Facade pattern. Strategy is about making algorithms interchangeable, not about simplifying interfaces.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "It converts the interface of a class into another interface clients expect",
+        "correct": false,
+        "response": "That's the Adapter pattern. Strategy focuses on encapsulating and selecting algorithms, not interface conversion.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "It defines a skeleton of an algorithm, deferring steps to subclasses",
+        "correct": false,
+        "response": "That's the Template Method pattern. Strategy encapsulates entire algorithms, not just algorithm steps.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "factory_pattern": {
+    "question_text": "What's the key advantage of the Factory pattern over direct object construction?",
+    "topic": "design_patterns",
+    "answers": [
+      {
+        "text": "It decouples object creation from usage, allowing flexibility",
+        "correct": true,
+        "response": "Correct! Factory pattern centralizes object creation, making it easy to change implementations, add new types, or inject dependencies without changing client code.",
+        "reward_knowledge": "design_patterns_creational_advanced"
+      },
+      {
+        "text": "It makes object creation faster and more efficient",
+        "correct": false,
+        "response": "Factory pattern isn't about performance. It's about flexibility and maintainability through decoupling.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "It automatically prevents memory leaks",
+        "correct": false,
+        "response": "Factory pattern doesn't directly address memory management. Its benefit is in decoupling creation logic.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "It guarantees thread-safety for all objects",
+        "correct": false,
+        "response": "Factory pattern doesn't inherently provide thread-safety. That requires additional synchronization mechanisms.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "tdd_cycle": {
+    "question_text": "What is the correct order of the TDD (Test-Driven Development) cycle?",
+    "topic": "testing",
+    "answers": [
+      {
+        "text": "Red (failing test) \u2192 Green (make it pass) \u2192 Refactor",
+        "correct": true,
+        "response": "Correct! TDD follows Red-Green-Refactor: write a failing test first, implement minimal code to pass it, then refactor while keeping tests green.",
+        "reward_knowledge": "tdd_methodology"
+      },
+      {
+        "text": "Write code \u2192 Write tests \u2192 Debug",
+        "correct": false,
+        "response": "That's traditional testing, not TDD. TDD writes tests BEFORE implementation, driving design from requirements.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "Design \u2192 Implement \u2192 Test \u2192 Deploy",
+        "correct": false,
+        "response": "That's a waterfall approach. TDD is iterative with very short cycles: test-first, then implement.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "Refactor \u2192 Write test \u2192 Implement",
+        "correct": false,
+        "response": "Close, but the order is wrong. TDD starts with a failing test (Red), then implements (Green), then refactors.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "mocking_vs_stubs": {
+    "question_text": "What's the key difference between mocks and stubs in testing?",
+    "topic": "testing",
+    "answers": [
+      {
+        "text": "Mocks verify behavior (calls made), stubs just provide responses",
+        "correct": true,
+        "response": "Correct! Mocks assert that specific methods were called with specific arguments. Stubs just return canned responses. Mocks test interaction, stubs isolate dependencies.",
+        "reward_knowledge": "test_doubles"
+      },
+      {
+        "text": "Stubs are for unit tests, mocks are for integration tests",
+        "correct": false,
+        "response": "Both can be used in unit tests. The difference is behavior verification (mocks) vs state verification (stubs).",
+        "reward_knowledge": null
+      },
+      {
+        "text": "Mocks are slower but more accurate than stubs",
+        "correct": false,
+        "response": "Performance isn't the distinction. Mocks verify interactions happened; stubs provide data without verification.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "They are the same thing, just different terminology",
+        "correct": false,
+        "response": "No, they're distinct! Mocks verify behavior (was this method called?), stubs just return values.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "test_pyramid": {
+    "question_text": "In the test pyramid, which layer should have the most tests?",
+    "topic": "testing",
+    "answers": [
+      {
+        "text": "Unit tests (bottom layer)",
+        "correct": true,
+        "response": "Correct! The test pyramid has many fast unit tests at the bottom, fewer integration tests in the middle, and few slow E2E tests at the top. Fast feedback is key!",
+        "reward_knowledge": "testing_strategy"
+      },
+      {
+        "text": "Integration tests (middle layer)",
+        "correct": false,
+        "response": "No, integration tests should be fewer than unit tests but more than E2E. They're slower and harder to maintain.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "End-to-end tests (top layer)",
+        "correct": false,
+        "response": "E2E tests should be the fewest! They're slow, brittle, and expensive. Focus on fast unit tests for most coverage.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "All layers should have equal numbers of tests",
+        "correct": false,
+        "response": "That's the ice cream cone anti-pattern! Unit tests should vastly outnumber integration and E2E tests.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "load_balancing": {
+    "question_text": "Which load balancing algorithm is best when backend servers have different capacities?",
+    "topic": "system_design",
+    "answers": [
+      {
+        "text": "Weighted round-robin",
+        "correct": true,
+        "response": "Correct! Weighted round-robin assigns more requests to more powerful servers. Servers with higher capacity get proportionally more traffic.",
+        "reward_knowledge": "load_balancing"
+      },
+      {
+        "text": "Simple round-robin",
+        "correct": false,
+        "response": "Simple round-robin treats all servers equally, which wastes capacity if servers have different specs. Use weighted instead.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "Random selection",
+        "correct": false,
+        "response": "Random selection doesn't account for server capacity differences. It could overload weak servers and underutilize strong ones.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "Consistent hashing",
+        "correct": false,
+        "response": "Consistent hashing is for distributed caching/sharding, not for balancing loads across servers of different capacities.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "caching_strategy": {
+    "question_text": "What's the difference between write-through and write-back caching?",
+    "topic": "system_design",
+    "answers": [
+      {
+        "text": "Write-through writes to cache and DB immediately; write-back writes to cache first, DB later",
+        "correct": true,
+        "response": "Correct! Write-through is safer (no data loss) but slower. Write-back is faster but risks data loss if cache fails before writeback. Choose based on consistency needs!",
+        "reward_knowledge": "caching_strategies"
+      },
+      {
+        "text": "Write-through is for reads; write-back is for writes",
+        "correct": false,
+        "response": "Both are write strategies! Write-through synchronously updates DB, write-back asynchronously updates DB later.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "Write-back requires more memory than write-through",
+        "correct": false,
+        "response": "Memory isn't the key difference. The difference is WHEN the database is updated: immediately (through) or deferred (back).",
+        "reward_knowledge": null
+      },
+      {
+        "text": "They are the same, just different names",
+        "correct": false,
+        "response": "Very different! Write-through is synchronous and safe. Write-back is asynchronous and faster but can lose data.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "microservices_vs_monolith": {
+    "question_text": "What's a key advantage of microservices over a monolithic architecture?",
+    "topic": "system_design",
+    "answers": [
+      {
+        "text": "Independent deployment and scaling of individual services",
+        "correct": true,
+        "response": "Correct! Microservices allow teams to deploy and scale services independently. Update payments without redeploying the entire app. Great for large teams and rapid iteration.",
+        "reward_knowledge": "microservices_architecture"
+      },
+      {
+        "text": "Microservices are always faster than monoliths",
+        "correct": false,
+        "response": "Actually, microservices can be slower due to network overhead between services. The advantage is flexibility, not raw speed.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "Microservices eliminate the need for databases",
+        "correct": false,
+        "response": "Microservices still need data storage! They typically use database-per-service, not eliminate databases.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "Microservices are simpler to develop and debug",
+        "correct": false,
+        "response": "Actually the opposite! Microservices add complexity (distributed systems, network failures, data consistency). Use when the benefits outweigh the complexity.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "database_sharding": {
+    "question_text": "What is database sharding?",
+    "topic": "system_design",
+    "answers": [
+      {
+        "text": "Horizontally partitioning data across multiple database instances",
+        "correct": true,
+        "response": "Correct! Sharding splits data by rows across multiple DBs (e.g., users 1-1M on shard1, 1M-2M on shard2). Enables massive scale but adds complexity for cross-shard queries.",
+        "reward_knowledge": "database_scaling"
+      },
+      {
+        "text": "Creating read replicas for better read performance",
+        "correct": false,
+        "response": "That's replication, not sharding. Sharding partitions data; replication copies it. Both are scaling strategies but solve different problems.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "Vertically splitting tables by columns into separate databases",
+        "correct": false,
+        "response": "That's vertical partitioning. Sharding is horizontal partitioning (splitting rows), not columns.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "Caching database queries to reduce load",
+        "correct": false,
+        "response": "That's query caching. Sharding is about distributing data across multiple database servers to handle more data and traffic.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "api_rate_limiting": {
+    "question_text": "What's the primary purpose of API rate limiting?",
+    "topic": "system_design",
+    "answers": [
+      {
+        "text": "Prevent abuse and ensure fair resource allocation across clients",
+        "correct": true,
+        "response": "Correct! Rate limiting protects your API from abuse, DDoS attacks, and ensures fair usage. Common strategies: token bucket, leaky bucket, fixed/sliding window.",
+        "reward_knowledge": "api_design"
+      },
+      {
+        "text": "Make APIs faster by reducing total request volume",
+        "correct": false,
+        "response": "Rate limiting doesn't make individual requests faster. It protects infrastructure from overload and ensures fairness.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "Authenticate users before allowing API access",
+        "correct": false,
+        "response": "That's authentication, not rate limiting. Rate limiting controls request frequency, not identity verification.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "Automatically scale servers based on demand",
+        "correct": false,
+        "response": "That's auto-scaling. Rate limiting controls request rates to prevent overload, not provision resources.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "docker_vs_vm": {
+    "question_text": "What's a key difference between Docker containers and virtual machines?",
+    "topic": "devops",
+    "answers": [
+      {
+        "text": "Containers share the host OS kernel; VMs include a full OS",
+        "correct": true,
+        "response": "Correct! Containers are lightweight (MBs, start in seconds) by sharing the kernel. VMs include a full OS (GBs, start in minutes). Containers are faster but less isolated.",
+        "reward_knowledge": "containerization"
+      },
+      {
+        "text": "VMs are faster to start than containers",
+        "correct": false,
+        "response": "Opposite! Containers start in seconds; VMs take minutes. Containers don't boot an OS, they just start processes.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "Containers provide better security isolation than VMs",
+        "correct": false,
+        "response": "Actually VMs provide stronger isolation since they don't share the kernel. Containers share the kernel, which can be a security risk.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "Docker can only run Linux applications",
+        "correct": false,
+        "response": "Docker can run Linux, Windows, and Mac containers (with appropriate host OS). The OS-sharing principle applies regardless of platform.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "kubernetes_pods": {
+    "question_text": "What is a Kubernetes Pod?",
+    "topic": "devops",
+    "answers": [
+      {
+        "text": "The smallest deployable unit, containing one or more containers",
+        "correct": true,
+        "response": "Correct! A Pod wraps containers that need to work together, sharing network/storage. Pods are ephemeral and managed by higher-level controllers like Deployments.",
+        "reward_knowledge": "kubernetes"
+      },
+      {
+        "text": "A cluster of multiple Kubernetes nodes",
+        "correct": false,
+        "response": "That's a Kubernetes cluster. A Pod is much smaller: the smallest unit containing containers.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "A single Docker container running on Kubernetes",
+        "correct": false,
+        "response": "Close, but Pods can contain multiple containers, not just one. They share the same network namespace.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "The control plane that manages worker nodes",
+        "correct": false,
+        "response": "That's the Kubernetes control plane (master nodes). Pods are workload units that run on worker nodes.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "blue_green_deployment": {
+    "question_text": "How does blue-green deployment minimize downtime?",
+    "topic": "devops",
+    "answers": [
+      {
+        "text": "It maintains two identical environments and switches traffic between them",
+        "correct": true,
+        "response": "Correct! Blue (old) and green (new) environments run in parallel. Deploy to green, test it, then switch traffic instantly. Rollback is just switching back. Zero downtime!",
+        "reward_knowledge": "deployment_strategies"
+      },
+      {
+        "text": "It gradually rolls out changes to a percentage of users",
+        "correct": false,
+        "response": "That's canary deployment. Blue-green switches all traffic at once between two environments.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "It deploys updates to servers one at a time",
+        "correct": false,
+        "response": "That's rolling deployment. Blue-green maintains full duplicate environments and switches traffic instantly.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "It automatically tests code before deploying to production",
+        "correct": false,
+        "response": "That's CI/CD pipeline testing. Blue-green is about traffic switching between environments, not testing.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "ci_cd_pipeline": {
+    "question_text": "What's the key difference between Continuous Integration (CI) and Continuous Deployment (CD)?",
+    "topic": "devops",
+    "answers": [
+      {
+        "text": "CI merges code frequently and runs tests; CD automatically deploys to production",
+        "correct": true,
+        "response": "Correct! CI ensures code integrates cleanly with automated tests. CD takes it further by automatically deploying passing builds to production. CD requires excellent testing confidence!",
+        "reward_knowledge": "ci_cd"
+      },
+      {
+        "text": "CI is for development; CD is for operations teams",
+        "correct": false,
+        "response": "Both are DevOps practices used by the whole team. CI focuses on integration/testing; CD focuses on automated deployment.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "CI requires Docker; CD requires Kubernetes",
+        "correct": false,
+        "response": "Neither requires specific tools. CI/CD are practices, not tools. You can implement them with various technologies.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "CD is just faster CI",
+        "correct": false,
+        "response": "CD extends CI by adding automated deployment. CI = integrate + test. CD = integrate + test + deploy automatically.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "decision_tree_splits": {
+    "question_text": "In decision trees, what criterion is commonly used to decide how to split nodes?",
+    "topic": "machine_learning",
+    "answers": [
+      {
+        "text": "Information gain or Gini impurity",
+        "correct": true,
+        "response": "Correct! Information gain (based on entropy) and Gini impurity both measure how well a split separates classes. The split that maximizes separation is chosen. ID3 uses info gain, CART uses Gini.",
+        "reward_knowledge": "decision_trees"
+      },
+      {
+        "text": "Gradient descent on the loss function",
+        "correct": false,
+        "response": "Gradient descent is for neural networks, not decision trees. Trees use greedy splitting based on information gain or Gini.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "Random selection of features",
+        "correct": false,
+        "response": "Random forests use random feature subsets, but individual trees still choose the best split within that subset using info gain/Gini.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "Cross-validation error",
+        "correct": false,
+        "response": "Cross-validation evaluates the final model, not individual splits. Splits are chosen greedily based on purity measures.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "activation_functions": {
+    "question_text": "Why is ReLU (Rectified Linear Unit) preferred over sigmoid in deep neural networks?",
+    "topic": "machine_learning",
+    "answers": [
+      {
+        "text": "ReLU avoids vanishing gradient problem and is computationally faster",
+        "correct": true,
+        "response": "Correct! ReLU(x) = max(0,x) has gradient 1 for positive values (no vanishing gradient) and is just a comparison (vs expensive exp in sigmoid). Enables training deeper networks!",
+        "reward_knowledge": "neural_networks_advanced"
+      },
+      {
+        "text": "ReLU always outputs values between 0 and 1",
+        "correct": false,
+        "response": "That's sigmoid! ReLU outputs 0 for negative inputs and x for positive (unbounded). This prevents gradient vanishing.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "ReLU is differentiable everywhere",
+        "correct": false,
+        "response": "ReLU is not differentiable at x=0 (though we use subgradient). Its benefit is avoiding vanishing gradients, not perfect differentiability.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "ReLU guarantees no overfitting",
+        "correct": false,
+        "response": "No activation function prevents overfitting. ReLU's benefits are faster training and avoiding vanishing gradients.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "svm_kernel_trick": {
+    "question_text": "What does the kernel trick enable in Support Vector Machines (SVM)?",
+    "topic": "machine_learning",
+    "answers": [
+      {
+        "text": "It allows SVM to learn non-linear decision boundaries without explicitly computing high-dimensional features",
+        "correct": true,
+        "response": "Correct! Kernel trick (e.g., RBF kernel) implicitly maps data to high dimensions where it's linearly separable, without the computational cost. Elegant math: K(x,y) = \u03c6(x)\u00b7\u03c6(y)!",
+        "reward_knowledge": "svm"
+      },
+      {
+        "text": "It speeds up training by using fewer support vectors",
+        "correct": false,
+        "response": "Kernel trick is about handling non-linearity, not reducing support vectors. The number of SVs depends on the data.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "It automatically prevents overfitting in SVM",
+        "correct": false,
+        "response": "Kernel trick enables non-linear boundaries but doesn't prevent overfitting. You still need regularization (C parameter).",
+        "reward_knowledge": null
+      },
+      {
+        "text": "It converts SVM into a neural network",
+        "correct": false,
+        "response": "SVM and neural networks are different algorithms. Kernel trick is specific to SVM for handling non-linearity.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "transformer_attention": {
+    "question_text": "What is the key innovation of the attention mechanism in Transformers?",
+    "topic": "machine_learning",
+    "answers": [
+      {
+        "text": "It allows the model to focus on relevant parts of the input when processing each token",
+        "correct": true,
+        "response": "Correct! Attention computes weighted relationships between all input tokens. 'The animal didn't cross the street because it was too tired' - 'it' attends strongly to 'animal'. Revolutionized NLP!",
+        "reward_knowledge": "transformers"
+      },
+      {
+        "text": "It eliminates the need for training data",
+        "correct": false,
+        "response": "Transformers still need training data! Attention is about dynamically weighting input relationships, not unsupervised learning.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "It makes models smaller and faster than RNNs",
+        "correct": false,
+        "response": "Transformers are often LARGER than RNNs! Their advantage is parallelization and better long-range dependencies, not size.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "It removes the need for backpropagation",
+        "correct": false,
+        "response": "Transformers still use backpropagation for training. Attention is a layer type, not a training algorithm.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "regularization_ml": {
+    "question_text": "How does dropout regularization help prevent overfitting in neural networks?",
+    "topic": "machine_learning",
+    "answers": [
+      {
+        "text": "It randomly disables neurons during training, forcing the network to learn robust features",
+        "correct": true,
+        "response": "Correct! Dropout randomly drops neurons (e.g., 50% probability) each training step. This prevents co-adaptation and forces redundant representations. Like training an ensemble! Turn off during inference.",
+        "reward_knowledge": "ml_regularization"
+      },
+      {
+        "text": "It reduces the number of layers in the network",
+        "correct": false,
+        "response": "Dropout doesn't change architecture. It temporarily disables random neurons during training to prevent overfitting.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "It stops training when validation error increases",
+        "correct": false,
+        "response": "That's early stopping, not dropout. Both prevent overfitting but in different ways.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "It adds noise to the training data",
+        "correct": false,
+        "response": "Data augmentation adds noise to data. Dropout adds noise to the model by disabling neurons. Both help regularization but differently.",
+        "reward_knowledge": null
+      }
+    ]
+  }
+}
