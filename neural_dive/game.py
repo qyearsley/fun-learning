@@ -43,7 +43,7 @@ from neural_dive.config import (
     FLOOR_REQUIRED_NPCS,
     QUEST_TARGET_NPCS,
 )
-from neural_dive.entities import Entity, Stairs, InfoTerminal, Gate
+from neural_dive.entities import Entity, Stairs, InfoTerminal
 from neural_dive.models import Conversation, Question, Answer
 from neural_dive.enums import NPCType
 from neural_dive.map_generation import create_map
@@ -103,7 +103,6 @@ class Game:
         self.npcs: List[Entity] = []
         self.stairs: List[Stairs] = []
         self.terminals: List[InfoTerminal] = []
-        self.gates: List[Gate] = []
 
         # All NPCs across all floors (for persistence)
         self.all_npcs: List[Entity] = []
@@ -155,7 +154,6 @@ class Game:
         self.npcs = []
         self.stairs = []
         self.terminals = []
-        self.gates = []
 
         # Generate NPCs for this floor
         self._generate_npcs()
@@ -165,9 +163,6 @@ class Game:
 
         # Generate stairs
         self._generate_stairs()
-
-        # Generate knowledge gates
-        self._generate_gates()
 
     def _generate_npcs(self):
         """Generate and place NPCs for the current floor."""
@@ -231,8 +226,8 @@ class Game:
         # Terminal definitions by floor
         terminal_defs = {
             1: [("big_o_hint", 8, 8), ("lore_layer1", 12, 10)],
-            2: [("data_structures", 8, 8), ("tcp_hint", 12, 10), ("lore_layer2", 8, 12)],
-            3: [("concurrency_hint", 8, 8)],
+            2: [("data_structures", 8, 8), ("tcp_hint", 12, 10), ("devops_guide", 15, 8), ("lore_layer2", 8, 12)],
+            3: [("concurrency_hint", 8, 8), ("database_basics", 12, 8)],
         }
 
         if self.current_floor not in terminal_defs:
@@ -293,37 +288,6 @@ class Game:
                     Stairs(STAIRS_UP_DEFAULT_X, STAIRS_UP_DEFAULT_Y, "up")
                 )
 
-    def _generate_gates(self):
-        """Generate knowledge-locked gates for the current floor."""
-        # Gate definitions by floor
-        gate_defs = {
-            1: [("binary_search", 35, 12)],
-            2: [("hashing", 20, 10), ("trees", 35, 15)],
-            3: [],  # No gates on final floor
-        }
-
-        if self.current_floor not in gate_defs:
-            return
-
-        for required_knowledge, x, y in gate_defs[self.current_floor]:
-            # Randomize position slightly if random mode
-            if self.random_npcs:
-                for _ in range(GATE_PLACEMENT_ATTEMPTS):
-                    gx = self.rand.randint(
-                        max(2, x - GATE_X_OFFSET),
-                        min(self.map_width - 2, x + GATE_X_OFFSET)
-                    )
-                    gy = self.rand.randint(
-                        max(2, y - GATE_Y_OFFSET),
-                        min(self.map_height - 2, y + GATE_Y_OFFSET)
-                    )
-                    if self.game_map[gy][gx] != "#":
-                        x, y = gx, gy
-                        break
-
-            gate = Gate(x, y, required_knowledge)
-            self.gates.append(gate)
-
     def is_walkable(self, x: int, y: int) -> bool:
         """
         Check if a position is walkable.
@@ -345,11 +309,6 @@ class Game:
         if self.game_map[y][x] == "#":
             return False
 
-        # Check for locked gates
-        for gate in self.gates:
-            if gate.x == x and gate.y == y and not gate.unlocked:
-                return False
-
         return True
 
     def move_player(self, dx: int, dy: int) -> bool:
@@ -370,24 +329,6 @@ class Game:
 
         new_x = self.player.x + dx
         new_y = self.player.y + dy
-
-        # Check for gates at new position
-        for gate in self.gates:
-            if gate.x == new_x and gate.y == new_y:
-                if not gate.unlocked:
-                    # Check if player has required knowledge
-                    if gate.required_knowledge in self.knowledge_modules:
-                        # Unlock the gate!
-                        gate.unlocked = True
-                        self.message = (
-                            f"Gate unlocked with [{gate.required_knowledge}] knowledge!"
-                        )
-                        return False  # Don't move yet, just show message
-                    else:
-                        self.message = (
-                            f"Gate locked! Requires [{gate.required_knowledge}] knowledge."
-                        )
-                        return False
 
         # Try to move
         if self.is_walkable(new_x, new_y):

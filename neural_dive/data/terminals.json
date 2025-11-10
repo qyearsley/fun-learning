@@ -66,5 +66,33 @@
       "4. Circular Wait - circular chain of waiting processes",
       "Break ANY one condition to prevent deadlock!"
     ]
+  },
+  "database_basics": {
+    "title": "Database Fundamentals",
+    "content": [
+      "ACID Properties: Atomicity, Consistency, Isolation, Durability",
+      "SQL Joins:",
+      "  INNER JOIN - only matching rows from both tables",
+      "  LEFT JOIN - all from left, matching from right (NULL if no match)",
+      "  RIGHT JOIN - all from right, matching from left",
+      "  FULL OUTER JOIN - all rows from both (NULLs where no match)",
+      "Indexes speed up reads but slow down writes.",
+      "Transactions group operations - all succeed or all fail!"
+    ]
+  },
+  "devops_guide": {
+    "title": "DevOps & Deployment",
+    "content": [
+      "Containers vs VMs: Containers share OS kernel (lighter, faster)",
+      "CI/CD Pipeline: Continuous Integration + Continuous Deployment",
+      "  CI: Auto-test on every commit",
+      "  CD: Auto-deploy passing builds to production",
+      "Deployment Strategies:",
+      "  Blue-Green: Two environments, instant switch",
+      "  Canary: Gradual rollout to subset of users",
+      "  Rolling: Update servers one at a time",
+      "Kubernetes: Container orchestration (Pods are the smallest unit)",
+      "Docker: Containerization platform"
+    ]
   }
 }

@@ -64,6 +64,7 @@ def create_randomized_conversation(
     randomize_question_order: bool = True,
     randomize_answer_order: bool = True,
     seed: Optional[int] = None,
+    num_questions: int = 3,
 ) -> Conversation:
     """
     Create a copy of a conversation with randomized questions and answers.
@@ -73,15 +74,23 @@ def create_randomized_conversation(
         randomize_question_order: Whether to shuffle questions
         randomize_answer_order: Whether to shuffle answers within questions
         seed: Optional random seed for reproducibility
+        num_questions: Number of questions to select from available pool (default: 3)
 
     Returns:
         New Conversation object with randomized content
     """
+    if seed is not None:
+        random.seed(seed)
+
     new_conv = copy.deepcopy(conversation)
+
+    # Select a random subset of questions if we have more than num_questions
+    if len(new_conv.questions) > num_questions:
+        new_conv.questions = random.sample(new_conv.questions, num_questions)
 
     # Randomize question order if requested
     if randomize_question_order and len(new_conv.questions) > 1:
-        new_conv.questions = randomize_questions(new_conv.questions, seed)
+        random.shuffle(new_conv.questions)
 
     # Randomize answer order for each question if requested
     if randomize_answer_order:
@@ -169,8 +178,14 @@ def format_conversation_response(
     if is_complete:
         separator = "═" * 40
         if is_enemy:
-            result += f"\n\n{separator}\n✓ CONVERSATION COMPLETE ✓\n{separator}\n\n{npc_name}: You have passed my security check. You may proceed."
+            completion_message = f"{npc_name}: You have passed my security check. You may proceed."
         else:
-            result += f"\n\n{separator}\n✓ CONVERSATION COMPLETE ✓\n{separator}\n\n{npc_name}: You have proven your worth. I grant you passage."
+            completion_message = f"{npc_name}: You have proven your worth. I grant you passage."
+
+        # Wrap the completion message to fit within a reasonable width
+        wrapped_lines = wrap_text(completion_message, 70)
+        wrapped_message = "\n".join(wrapped_lines)
+
+        result += f"\n\n{separator}\n✓ CONVERSATION COMPLETE ✓\n{separator}\n\n{wrapped_message}"
 
     return result

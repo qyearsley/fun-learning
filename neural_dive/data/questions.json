@@ -327,33 +327,6 @@
       }
     ]
   },
-  "avl_rotation": {
-    "question_text": "In an AVL tree, when does a left-right (LR) rotation occur?",
-    "topic": "data_structures",
-    "answers": [
-      {
-        "text": "When the left subtree is heavier and its right child caused the imbalance",
-        "correct": true,
-        "response": "Correct! LR rotation handles the zig-zag case: left-heavy with right-heavy child.",
-        "reward_knowledge": "balanced_trees"
-      },
-      {
-        "text": "When inserting into the right subtree",
-        "correct": false,
-        "response": "LR specifically involves the left subtree with a complication."
-      },
-      {
-        "text": "When the tree height exceeds log n",
-        "correct": false,
-        "response": "AVL rotations are triggered by balance factors, not absolute height."
-      },
-      {
-        "text": "Only during deletion, never insertion",
-        "correct": false,
-        "response": "LR rotations can happen during both insertion and deletion."
-      }
-    ]
-  },
   "http_methods": {
     "question_text": "Which HTTP method is idempotent and safe (no side effects)?",
     "topic": "networking",
@@ -1242,36 +1215,6 @@
       }
     ]
   },
-  "activation_functions": {
-    "question_text": "Why is ReLU (Rectified Linear Unit) preferred over sigmoid in deep neural networks?",
-    "topic": "machine_learning",
-    "answers": [
-      {
-        "text": "ReLU avoids vanishing gradient problem and is computationally faster",
-        "correct": true,
-        "response": "Correct! ReLU(x) = max(0,x) has gradient 1 for positive values (no vanishing gradient) and is just a comparison (vs expensive exp in sigmoid). Enables training deeper networks!",
-        "reward_knowledge": "neural_networks_advanced"
-      },
-      {
-        "text": "ReLU always outputs values between 0 and 1",
-        "correct": false,
-        "response": "That's sigmoid! ReLU outputs 0 for negative inputs and x for positive (unbounded). This prevents gradient vanishing.",
-        "reward_knowledge": null
-      },
-      {
-        "text": "ReLU is differentiable everywhere",
-        "correct": false,
-        "response": "ReLU is not differentiable at x=0 (though we use subgradient). Its benefit is avoiding vanishing gradients, not perfect differentiability.",
-        "reward_knowledge": null
-      },
-      {
-        "text": "ReLU guarantees no overfitting",
-        "correct": false,
-        "response": "No activation function prevents overfitting. ReLU's benefits are faster training and avoiding vanishing gradients.",
-        "reward_knowledge": null
-      }
-    ]
-  },
   "svm_kernel_trick": {
     "question_text": "What does the kernel trick enable in Support Vector Machines (SVM)?",
     "topic": "machine_learning",
@@ -1359,6 +1302,610 @@
         "correct": false,
         "response": "Data augmentation adds noise to data. Dropout adds noise to the model by disabling neurons. Both help regularization but differently.",
         "reward_knowledge": null
+      }
+    ]
+  },
+  "git_basics": {
+    "question_text": "What is the difference between 'git pull' and 'git fetch'?",
+    "topic": "version_control",
+    "answers": [
+      {
+        "text": "pull fetches and merges; fetch only downloads changes",
+        "correct": true,
+        "response": "Correct! 'git fetch' downloads changes but doesn't modify your working directory. 'git pull' = fetch + merge.",
+        "reward_knowledge": "git_fundamentals"
+      },
+      {
+        "text": "They do exactly the same thing",
+        "correct": false,
+        "response": "Not quite! fetch only downloads, while pull also merges the changes into your current branch.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "pull is for pushing code, fetch is for getting code",
+        "correct": false,
+        "response": "Both are for getting code from remote. 'git push' is for sending code.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "fetch is deprecated, always use pull",
+        "correct": false,
+        "response": "Fetch is very useful! It lets you see remote changes before merging them.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "rest_methods": {
+    "question_text": "In a RESTful API, which HTTP method should be used to update part of a resource?",
+    "topic": "web_development",
+    "answers": [
+      {
+        "text": "PATCH",
+        "correct": true,
+        "response": "Correct! PATCH is for partial updates. PUT replaces the entire resource. POST creates new resources.",
+        "reward_knowledge": "rest_api"
+      },
+      {
+        "text": "GET",
+        "correct": false,
+        "response": "GET is for retrieving data, not modifying it. GET should be safe and idempotent.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "DELETE",
+        "correct": false,
+        "response": "DELETE removes resources entirely, it doesn't update them.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "POST",
+        "correct": false,
+        "response": "POST is typically for creating new resources, not updating existing ones.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "oop_encapsulation": {
+    "question_text": "What is encapsulation in object-oriented programming?",
+    "topic": "programming_fundamentals",
+    "answers": [
+      {
+        "text": "Bundling data and methods that operate on that data within a single unit",
+        "correct": true,
+        "response": "Correct! Encapsulation hides internal state and requires interaction through methods, improving modularity and maintainability.",
+        "reward_knowledge": "oop_principles"
+      },
+      {
+        "text": "Creating multiple instances of the same class",
+        "correct": false,
+        "response": "That's instantiation. Encapsulation is about data hiding and bundling.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "Inheriting properties from a parent class",
+        "correct": false,
+        "response": "That's inheritance. Encapsulation is about bundling data with methods and hiding internals.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "Using the same method name with different parameters",
+        "correct": false,
+        "response": "That's method overloading. Encapsulation is about data hiding and bundling behavior.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "sql_joins": {
+    "question_text": "What does an INNER JOIN return in SQL?",
+    "topic": "databases",
+    "answers": [
+      {
+        "text": "Only rows that have matching values in both tables",
+        "correct": true,
+        "response": "Correct! INNER JOIN returns the intersection of two tables based on the join condition.",
+        "reward_knowledge": "sql_basics"
+      },
+      {
+        "text": "All rows from both tables, with NULLs where no match exists",
+        "correct": false,
+        "response": "That's a FULL OUTER JOIN. INNER JOIN only returns matching rows.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "All rows from the left table, with NULLs for non-matching right rows",
+        "correct": false,
+        "response": "That's a LEFT JOIN. INNER JOIN only returns rows with matches in both tables.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "A Cartesian product of all rows from both tables",
+        "correct": false,
+        "response": "That's a CROSS JOIN. INNER JOIN filters for matching rows only.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "exception_handling": {
+    "question_text": "Why is it generally bad practice to catch all exceptions with a bare 'except' clause?",
+    "topic": "programming_fundamentals",
+    "answers": [
+      {
+        "text": "It can hide bugs and catch system exits, making debugging harder",
+        "correct": true,
+        "response": "Correct! Catching all exceptions can mask KeyboardInterrupt, SystemExit, and unexpected bugs. Be specific about what you catch!",
+        "reward_knowledge": "error_handling"
+      },
+      {
+        "text": "It makes the code run slower",
+        "correct": false,
+        "response": "Performance isn't the main issue. The problem is hiding bugs and catching things you shouldn't.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "You should never use try-except blocks",
+        "correct": false,
+        "response": "Exception handling is important! Just be specific about which exceptions you're catching.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "It's actually a best practice",
+        "correct": false,
+        "response": "No, it's an anti-pattern! You should catch specific exceptions you know how to handle.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "async_programming": {
+    "question_text": "What is the main benefit of asynchronous programming?",
+    "topic": "programming_fundamentals",
+    "answers": [
+      {
+        "text": "It allows a program to handle multiple operations concurrently without blocking",
+        "correct": true,
+        "response": "Correct! Async programming lets you start an I/O operation and do other work while waiting, improving efficiency for I/O-bound tasks.",
+        "reward_knowledge": "async_programming"
+      },
+      {
+        "text": "It makes code run faster by using multiple CPU cores",
+        "correct": false,
+        "response": "That's parallelism/multi-threading. Async is about not blocking on I/O, not using more CPUs.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "It eliminates all race conditions",
+        "correct": false,
+        "response": "Async code can still have race conditions! You still need proper synchronization for shared state.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "It's only useful for web servers",
+        "correct": false,
+        "response": "Async is useful anywhere you have I/O: file operations, databases, network calls, user input, etc.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "code_review": {
+    "question_text": "What is the primary goal of code reviews?",
+    "topic": "software_engineering",
+    "answers": [
+      {
+        "text": "Improve code quality, catch bugs, and share knowledge",
+        "correct": true,
+        "response": "Correct! Code reviews find bugs, improve design, enforce standards, and help the team learn. It's collaboration, not criticism!",
+        "reward_knowledge": "software_practices"
+      },
+      {
+        "text": "To find someone to blame when things go wrong",
+        "correct": false,
+        "response": "No! Code reviews are collaborative, not punitive. The goal is to improve the code, not blame people.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "To slow down development and add bureaucracy",
+        "correct": false,
+        "response": "Good reviews catch bugs before production, saving time overall. They're an investment in quality.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "Only senior developers should review code",
+        "correct": false,
+        "response": "Everyone benefits from reviews! Junior devs can catch bugs too, and they learn by reviewing.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "arrays_vs_linked_lists": {
+    "question_text": "When is a linked list preferred over an array?",
+    "topic": "data_structures",
+    "answers": [
+      {
+        "text": "When you need frequent insertions/deletions at the beginning or middle",
+        "correct": true,
+        "response": "Correct! Linked lists have O(1) insertion/deletion once you're at a position. Arrays require shifting elements O(n).",
+        "reward_knowledge": "data_structures_basics"
+      },
+      {
+        "text": "When you need fast random access by index",
+        "correct": false,
+        "response": "Arrays are better for random access O(1). Linked lists require O(n) traversal to reach an index.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "When memory efficiency is critical",
+        "correct": false,
+        "response": "Arrays are more memory efficient! Linked lists need extra space for pointers/references.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "Linked lists are always better than arrays",
+        "correct": false,
+        "response": "Each has trade-offs! Arrays: fast random access. Linked lists: fast insertion/deletion.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "http_status_codes": {
+    "question_text": "What does HTTP status code 404 indicate?",
+    "topic": "web_development",
+    "answers": [
+      {
+        "text": "The requested resource was not found",
+        "correct": true,
+        "response": "Correct! 404 Not Found means the server couldn't find the requested resource. It's a client error (4xx).",
+        "reward_knowledge": "http_basics"
+      },
+      {
+        "text": "The server encountered an internal error",
+        "correct": false,
+        "response": "That's 500 Internal Server Error. 404 means the resource doesn't exist.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "The request was successful",
+        "correct": false,
+        "response": "Success is 200 OK. 404 means the resource wasn't found.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "The client is not authorized to access the resource",
+        "correct": false,
+        "response": "That's 401 Unauthorized or 403 Forbidden. 404 means the resource doesn't exist.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "stack_vs_heap": {
+    "question_text": "What's the key difference between stack and heap memory?",
+    "topic": "systems",
+    "answers": [
+      {
+        "text": "Stack is for local variables with automatic allocation; heap is for dynamic allocation",
+        "correct": true,
+        "response": "Correct! Stack: LIFO, automatic, fast, limited size. Heap: manual allocation, slower, larger, risk of memory leaks.",
+        "reward_knowledge": "memory_management"
+      },
+      {
+        "text": "Stack is slower but safer than heap",
+        "correct": false,
+        "response": "Stack is actually faster! It's also safer (automatic deallocation), but more limited in size.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "Heap is used for function calls, stack is for objects",
+        "correct": false,
+        "response": "Opposite! Stack is for function calls and local vars. Heap is for dynamically allocated objects.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "They're the same thing, just different names",
+        "correct": false,
+        "response": "Very different! Stack: automatic, limited. Heap: manual, flexible, requires careful management.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "api_versioning": {
+    "question_text": "Why is API versioning important?",
+    "topic": "web_development",
+    "answers": [
+      {
+        "text": "It allows breaking changes without disrupting existing clients",
+        "correct": true,
+        "response": "Correct! Versioning (e.g., /api/v1/, /api/v2/) lets you evolve your API while maintaining backward compatibility for existing users.",
+        "reward_knowledge": "api_best_practices"
+      },
+      {
+        "text": "It makes APIs run faster",
+        "correct": false,
+        "response": "Versioning doesn't affect performance. It's about maintaining compatibility while evolving the API.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "It's required by HTTP specification",
+        "correct": false,
+        "response": "HTTP doesn't require versioning. It's a best practice to manage API evolution gracefully.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "It prevents security vulnerabilities",
+        "correct": false,
+        "response": "Versioning helps with compatibility, not security. Security requires separate measures like authentication and input validation.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "recursion_vs_iteration": {
+    "question_text": "When might recursion be preferred over iteration?",
+    "topic": "algorithms",
+    "answers": [
+      {
+        "text": "When the problem has a natural recursive structure like tree traversal",
+        "correct": true,
+        "response": "Correct! Recursion is elegant for naturally recursive problems: trees, graphs, divide-and-conquer. But watch out for stack overflow!",
+        "reward_knowledge": "algorithm_techniques"
+      },
+      {
+        "text": "Recursion is always faster than iteration",
+        "correct": false,
+        "response": "Actually iteration is usually faster! Recursion has function call overhead. But it can be more readable.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "Recursion uses less memory than iteration",
+        "correct": false,
+        "response": "Recursion uses more memory (call stack)! Each call adds a stack frame. Iteration uses constant space.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "You should always use recursion instead of loops",
+        "correct": false,
+        "response": "Each has its place! Recursion is elegant for some problems, but iteration is often more efficient.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "json_vs_xml": {
+    "question_text": "What's a key advantage of JSON over XML for data exchange?",
+    "topic": "web_development",
+    "answers": [
+      {
+        "text": "JSON is more concise and easier to parse in JavaScript",
+        "correct": true,
+        "response": "Correct! JSON is lighter, more readable, and native to JavaScript. Perfect for web APIs and configuration files.",
+        "reward_knowledge": "data_formats"
+      },
+      {
+        "text": "JSON supports comments",
+        "correct": false,
+        "response": "JSON doesn't support comments! That's actually a limitation. XML allows comments.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "JSON is more secure than XML",
+        "correct": false,
+        "response": "Neither is inherently more secure. Both need proper validation to prevent injection attacks.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "JSON can represent more complex data structures",
+        "correct": false,
+        "response": "Both can represent complex data. JSON is simpler; XML has more features like attributes and namespaces.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "dry_principle": {
+    "question_text": "What does the DRY principle stand for in software development?",
+    "topic": "software_engineering",
+    "answers": [
+      {
+        "text": "Don't Repeat Yourself",
+        "correct": true,
+        "response": "Correct! DRY means avoid duplicating code and knowledge. Extract common logic into reusable functions/classes. Makes code easier to maintain!",
+        "reward_knowledge": "coding_principles"
+      },
+      {
+        "text": "Debug, Run, Yield",
+        "correct": false,
+        "response": "Not a real principle! DRY = Don't Repeat Yourself. Avoid code duplication.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "Data Requires Yieldability",
+        "correct": false,
+        "response": "Made up! DRY = Don't Repeat Yourself. Extract repeated code into reusable components.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "Deploy Rapidly, Yearly",
+        "correct": false,
+        "response": "No! DRY = Don't Repeat Yourself. Eliminate duplication to make code more maintainable.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "null_vs_undefined": {
+    "question_text": "In JavaScript, what's the difference between null and undefined?",
+    "topic": "programming_fundamentals",
+    "answers": [
+      {
+        "text": "undefined means uninitialized; null is an explicit absence of value",
+        "correct": true,
+        "response": "Correct! undefined: variable declared but not assigned. null: intentionally set to 'no value'. Both are falsy but semantically different.",
+        "reward_knowledge": "javascript_fundamentals"
+      },
+      {
+        "text": "They're exactly the same thing",
+        "correct": false,
+        "response": "Similar but different! null is intentional; undefined means not yet initialized. typeof null is 'object' (bug!), typeof undefined is 'undefined'.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "null is a number, undefined is a string",
+        "correct": false,
+        "response": "Neither! null is its own type (though typeof says 'object'). undefined is also its own type.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "You should never use null in JavaScript",
+        "correct": false,
+        "response": "null is useful for explicitly indicating 'no value'. It communicates intent better than undefined.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "solid_srp": {
+    "question_text": "What does the 'S' in SOLID principles stand for?",
+    "topic": "software_engineering",
+    "answers": [
+      {
+        "text": "Single Responsibility Principle",
+        "correct": true,
+        "response": "Correct! Each class should have one reason to change. Don't mix concerns like business logic and persistence in one class.",
+        "reward_knowledge": "solid_principles"
+      },
+      {
+        "text": "Simple Reusability Pattern",
+        "correct": false,
+        "response": "Not quite! S = Single Responsibility Principle. A class should have only one reason to change.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "Structured Programming",
+        "correct": false,
+        "response": "No. S = Single Responsibility Principle. Each class should have one, well-defined purpose.",
+        "reward_knowledge": null
+      },
+      {
+        "text": "Synchronized Operations",
+        "correct": false,
+        "response": "Incorrect! S = Single Responsibility Principle. Each class should do one thing well.",
+        "reward_knowledge": null
+      }
+    ]
+  },
+  "turing_completeness": {
+    "question_text": "What does it mean for a system to be Turing complete?",
+    "topic": "theory",
+    "answers": [
+      {
+        "text": "It can simulate any Turing machine given enough time and memory",
+        "correct": true,
+        "response": "Correct! Turing completeness means the system can compute anything computable. Even simple systems like Rule 110 cellular automata are Turing complete!",
+        "reward_knowledge": "computability",
+        "enemy_penalty": 45
+      },
+      {
+        "text": "It can solve the halting problem",
+        "correct": false,
+        "response": "No! The halting problem is undecidable even for Turing complete systems. Turing completeness is about computational power, not decidability.",
+        "enemy_penalty": 45
+      },
+      {
+        "text": "It always terminates for any input",
+        "correct": false,
+        "response": "Opposite! Turing complete systems can run forever. That's why the halting problem is undecidable.",
+        "enemy_penalty": 45
+      },
+      {
+        "text": "It can only execute a fixed set of programs",
+        "correct": false,
+        "response": "No! Turing completeness means universal computation - any computable function can be computed.",
+        "enemy_penalty": 45
+      }
+    ]
+  },
+  "gradient_descent": {
+    "question_text": "What is the purpose of gradient descent in training neural networks?",
+    "topic": "ai_ml",
+    "answers": [
+      {
+        "text": "To iteratively minimize the loss function by updating weights in the direction of steepest descent",
+        "correct": true,
+        "response": "Correct! Gradient descent follows the negative gradient (slope) to find local minima of the loss function. Learning rate controls step size.",
+        "reward_knowledge": "optimization",
+        "enemy_penalty": 45
+      },
+      {
+        "text": "To increase the loss function value",
+        "correct": false,
+        "response": "Opposite! We want to MINIMIZE loss, not maximize it. That's why we follow the negative gradient.",
+        "enemy_penalty": 45
+      },
+      {
+        "text": "To add more layers to the network",
+        "correct": false,
+        "response": "Gradient descent is an optimization algorithm, not an architecture modification technique.",
+        "enemy_penalty": 45
+      },
+      {
+        "text": "To eliminate the need for training data",
+        "correct": false,
+        "response": "No! Gradient descent requires training data to compute loss and gradients. It's a supervised learning technique.",
+        "enemy_penalty": 45
+      }
+    ]
+  },
+  "finite_automata": {
+    "question_text": "What type of language can a deterministic finite automaton (DFA) recognize?",
+    "topic": "theory",
+    "answers": [
+      {
+        "text": "Regular languages",
+        "correct": true,
+        "response": "Correct! DFAs recognize exactly the regular languages - same power as regular expressions and NFAs. They have finite memory (just the current state).",
+        "reward_knowledge": "automata_theory",
+        "enemy_penalty": 45
+      },
+      {
+        "text": "Context-free languages",
+        "correct": false,
+        "response": "That's pushdown automata! DFAs can't count or match nested structures. They recognize regular languages only.",
+        "enemy_penalty": 45
+      },
+      {
+        "text": "All computable languages",
+        "correct": false,
+        "response": "That would require Turing completeness. DFAs have finite memory and can only recognize regular languages.",
+        "enemy_penalty": 45
+      },
+      {
+        "text": "Context-sensitive languages",
+        "correct": false,
+        "response": "That requires a linear bounded automaton. DFAs are much weaker - they recognize only regular languages.",
+        "enemy_penalty": 45
+      }
+    ]
+  },
+  "universal_approximation": {
+    "question_text": "What does the Universal Approximation Theorem tell us about neural networks?",
+    "topic": "ai_ml",
+    "answers": [
+      {
+        "text": "A neural network with one hidden layer can approximate any continuous function",
+        "correct": true,
+        "response": "Correct! With enough hidden neurons, even shallow networks are universal function approximators. But deeper networks often learn more efficiently!",
+        "reward_knowledge": "neural_theory",
+        "enemy_penalty": 45
+      },
+      {
+        "text": "Neural networks can perfectly fit any dataset without error",
+        "correct": false,
+        "response": "No! The theorem is about approximation capacity, not optimization. Training might not find the optimal weights, and we want generalization, not perfect fit!",
+        "enemy_penalty": 45
+      },
+      {
+        "text": "All neural networks will converge to the same solution",
+        "correct": false,
+        "response": "False! Training is non-convex with many local minima. Different initializations lead to different solutions.",
+        "enemy_penalty": 45
+      },
+      {
+        "text": "Deep networks are unnecessary since shallow ones suffice",
+        "correct": false,
+        "response": "Misleading! While shallow networks have representational power, deep networks learn efficiently with exponentially fewer neurons for some functions.",
+        "enemy_penalty": 45
       }
     ]
   }

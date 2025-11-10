@@ -89,16 +89,6 @@ def _draw_entities(term: "Terminal", game: "Game"):
             term.move_xy(terminal.x, terminal.y) + terminal_color(terminal.char), end=""
         )
 
-    # Draw gates
-    for gate in game.gates:
-        if gate.unlocked:
-            # Show unlocked gates as open
-            print(term.move_xy(gate.x, gate.y) + term.green("·"), end="")
-        else:
-            # Show locked gates as solid blocks
-            gate_color = getattr(term, f"bold_{gate.color}", term.bold_magenta)
-            print(term.move_xy(gate.x, gate.y) + gate_color(gate.char), end="")
-
     # Draw stairs
     for stair in game.stairs:
         stair_color = getattr(term, f"bold_{stair.color}", term.bold_yellow)

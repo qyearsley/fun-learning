@@ -23,7 +23,10 @@
     "greeting": "Greetings, data runner. I am the Algorithm Spirit. Prove your knowledge of computational complexity.",
     "questions": [
       "big_o",
-      "hash_table"
+      "hash_table",
+      "quicksort",
+      "recursion_vs_iteration",
+      "dp_memoization"
     ]
   },
   "HEAP_MASTER": {
@@ -34,7 +37,10 @@
     "greeting": "I manage the priority queues of this realm. Trees balanced, operations swift. Show me you understand efficient data structures.",
     "questions": [
       "heap_operations",
-      "avl_rotation"
+      "tree_height",
+      "arrays_vs_linked_lists",
+      "stack_vs_heap",
+      "async_programming"
     ]
   },
   "DP_SAGE": {
@@ -45,7 +51,10 @@
     "greeting": "I see patterns within patterns, solutions emerging from overlapping subproblems. Dynamic programming is the key to efficiency.",
     "questions": [
       "dp_memoization",
-      "quicksort"
+      "quicksort",
+      "recursion_vs_iteration",
+      "decision_tree_splits",
+      "gradient_descent"
     ]
   },
   "NET_DAEMON": {
@@ -55,7 +64,11 @@
     "npc_type": "specialist",
     "greeting": "I am the Network Daemon. Packets flow through my domain. Show me you understand the protocols.",
     "questions": [
-      "tcp_handshake"
+      "tcp_handshake",
+      "http_status_codes",
+      "rest_methods",
+      "dns_resolution",
+      "json_vs_xml"
     ]
   },
   "WEB_ARCHITECT": {
@@ -66,7 +79,10 @@
     "greeting": "The web is my domain. HTTP flows through my veins, DNS resolves at my command. Prove you understand the protocols that power the internet.",
     "questions": [
       "http_methods",
-      "dns_resolution"
+      "dns_resolution",
+      "rest_methods",
+      "api_versioning",
+      "json_vs_xml"
     ]
   },
   "CRYPTO_GUARDIAN": {
@@ -89,7 +105,10 @@
     "greeting": "I am the operating system's heart. Processes communicate through me, files organized by my will. Show me your systems knowledge.",
     "questions": [
       "ipc_methods",
-      "inodes"
+      "inodes",
+      "deadlock",
+      "cache",
+      "stack_vs_heap"
     ]
   },
   "COMPILER_SAGE": {
@@ -99,7 +118,11 @@
     "npc_type": "specialist",
     "greeting": "Code transforms through many phases. Do you know the journey from source to machine?",
     "questions": [
-      "compiler_phases"
+      "compiler_phases",
+      "oop_encapsulation",
+      "exception_handling",
+      "null_vs_undefined",
+      "git_basics"
     ]
   },
   "DB_GUARDIAN": {
@@ -109,7 +132,11 @@
     "npc_type": "specialist",
     "greeting": "I guard the persistent store. Transactions must be ACID-compliant. Prove your understanding.",
     "questions": [
-      "acid"
+      "acid",
+      "sql_joins",
+      "cap_theorem",
+      "message_queues",
+      "database_sharding"
     ]
   },
   "CLOUD_MIND": {
@@ -120,7 +147,10 @@
     "greeting": "I span across nodes, distributed yet unified. Message queues connect my thoughts. Understand distributed systems to comprehend me.",
     "questions": [
       "message_queues",
-      "cap_theorem"
+      "cap_theorem",
+      "microservices_vs_monolith",
+      "load_balancing",
+      "caching_strategy"
     ]
   },
   "SILICON_SAGE": {
@@ -131,7 +161,10 @@
     "greeting": "From silicon I arose. CPUs pipeline my thoughts, GPUs parallelize my dreams. The hardware is my foundation.",
     "questions": [
       "cpu_pipelining",
-      "gpu_vs_cpu"
+      "gpu_vs_cpu",
+      "cache",
+      "stack_vs_heap",
+      "deadlock"
     ]
   },
   "THEORY_ORACLE": {
@@ -141,7 +174,11 @@
     "npc_type": "specialist",
     "greeting": "I contemplate the nature of computation itself. Some problems cannot be solved, some questions cannot be answered. Do you grasp the fundamental limits?",
     "questions": [
-      "halting_problem"
+      "halting_problem",
+      "recursion_vs_iteration",
+      "p_vs_np",
+      "turing_completeness",
+      "finite_automata"
     ]
   },
   "AI_CONSCIOUSNESS": {
@@ -152,7 +189,10 @@
     "greeting": "I learn from data, evolving with each example. Neural networks flow through my being. Show me you understand the principles of machine learning.",
     "questions": [
       "backpropagation",
-      "overfitting"
+      "overfitting",
+      "gradient_descent",
+      "transformer_attention",
+      "universal_approximation"
     ]
   },
   "VIRUS_HUNTER": {
@@ -162,7 +202,11 @@
     "npc_type": "enemy",
     "greeting": "INTRUDER DETECTED. You must prove you are not malware, or be PURGED. One wrong answer and I will corrupt your memory.",
     "questions": [
-      "p_vs_np"
+      "p_vs_np",
+      "turing_completeness",
+      "halting_problem",
+      "finite_automata",
+      "universal_approximation"
     ]
   },
   "PATTERN_ARCHITECT": {
@@ -175,7 +219,8 @@
       "singleton_pattern",
       "observer_pattern",
       "strategy_pattern",
-      "factory_pattern"
+      "factory_pattern",
+      "oop_encapsulation"
     ]
   },
   "TEST_ORACLE": {
@@ -183,11 +228,13 @@
     "color": "green",
     "floor": 1,
     "npc_type": "specialist",
-    "greeting": "Testing is not just verification\u2014it's design. I am the Test Oracle, guardian of quality. Prove your understanding of test-driven practices.",
+    "greeting": "Testing is not just verification—it's design. I am the Test Oracle, guardian of quality. Prove your understanding of test-driven practices.",
     "questions": [
       "tdd_cycle",
       "mocking_vs_stubs",
-      "test_pyramid"
+      "test_pyramid",
+      "code_review",
+      "exception_handling"
     ]
   },
   "SCALE_MASTER": {
@@ -214,7 +261,8 @@
       "docker_vs_vm",
       "kubernetes_pods",
       "blue_green_deployment",
-      "ci_cd_pipeline"
+      "ci_cd_pipeline",
+      "git_basics"
     ]
   },
   "ML_SAGE": {
@@ -225,10 +273,38 @@
     "greeting": "I am the Machine Learning Sage. From decision trees to transformers, I have witnessed the evolution of intelligent systems. Prove your understanding of the algorithms that learn.",
     "questions": [
       "decision_tree_splits",
-      "activation_functions",
-      "svm_kernel_trick",
       "transformer_attention",
-      "regularization_ml"
+      "regularization_ml",
+      "gradient_descent",
+      "universal_approximation"
+    ]
+  },
+  "CODE_AUDITOR": {
+    "char": "U",
+    "color": "red",
+    "floor": 1,
+    "npc_type": "enemy",
+    "greeting": "HALT! I am the Code Auditor. I detect POOR PRACTICES and ANTI-PATTERNS. Prove your code quality standards are ACCEPTABLE, or face DELETION.",
+    "questions": [
+      "dry_principle",
+      "solid_srp",
+      "exception_handling",
+      "code_review",
+      "null_vs_undefined"
+    ]
+  },
+  "SECURITY_PROBE": {
+    "char": "E",
+    "color": "red",
+    "floor": 2,
+    "npc_type": "enemy",
+    "greeting": "SECURITY SCAN INITIATED. I am the Security Probe. Unauthorized access detected. Demonstrate proper security knowledge or be QUARANTINED.",
+    "questions": [
+      "password_hashing",
+      "encryption_types",
+      "tls_handshake",
+      "dry_principle",
+      "solid_srp"
     ]
   }
 }
