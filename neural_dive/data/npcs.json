@@ -23,10 +23,11 @@
     "greeting": "Greetings, data runner. I am the Algorithm Spirit. Prove your knowledge of computational complexity.",
     "questions": [
       "big_o",
-      "hash_table",
+      "dp_memoization",
       "quicksort",
       "recursion_vs_iteration",
-      "dp_memoization"
+      "merge_sort",
+      "bfs_vs_dfs"
     ]
   },
   "HEAP_MASTER": {
@@ -36,11 +37,12 @@
     "npc_type": "specialist",
     "greeting": "I manage the priority queues of this realm. Trees balanced, operations swift. Show me you understand efficient data structures.",
     "questions": [
-      "heap_operations",
+      "hash_table",
       "tree_height",
+      "heap_operations",
       "arrays_vs_linked_lists",
-      "stack_vs_heap",
-      "async_programming"
+      "trie_usage",
+      "bloom_filter"
     ]
   },
   "DP_SAGE": {
@@ -50,11 +52,12 @@
     "npc_type": "specialist",
     "greeting": "I see patterns within patterns, solutions emerging from overlapping subproblems. Dynamic programming is the key to efficiency.",
     "questions": [
-      "dp_memoization",
-      "quicksort",
-      "recursion_vs_iteration",
-      "decision_tree_splits",
-      "gradient_descent"
+      "greedy_algorithms",
+      "amortized_analysis",
+      "backpropagation",
+      "overfitting",
+      "gradient_descent",
+      "universal_approximation"
     ]
   },
   "NET_DAEMON": {
@@ -65,10 +68,11 @@
     "greeting": "I am the Network Daemon. Packets flow through my domain. Show me you understand the protocols.",
     "questions": [
       "tcp_handshake",
-      "http_status_codes",
-      "rest_methods",
+      "http_methods",
       "dns_resolution",
-      "json_vs_xml"
+      "cdn",
+      "nat",
+      "load_balancer_algorithms"
     ]
   },
   "WEB_ARCHITECT": {
@@ -78,11 +82,12 @@
     "npc_type": "specialist",
     "greeting": "The web is my domain. HTTP flows through my veins, DNS resolves at my command. Prove you understand the protocols that power the internet.",
     "questions": [
-      "http_methods",
-      "dns_resolution",
       "rest_methods",
+      "http_status_codes",
       "api_versioning",
-      "json_vs_xml"
+      "json_vs_xml",
+      "cors",
+      "jwt"
     ]
   },
   "CRYPTO_GUARDIAN": {
@@ -94,7 +99,10 @@
     "questions": [
       "encryption_types",
       "password_hashing",
-      "tls_handshake"
+      "tls_handshake",
+      "sql_injection",
+      "csrf",
+      "oauth2"
     ]
   },
   "SYSTEM_CORE": {
@@ -104,11 +112,12 @@
     "npc_type": "specialist",
     "greeting": "I am the operating system's heart. Processes communicate through me, files organized by my will. Show me your systems knowledge.",
     "questions": [
-      "ipc_methods",
-      "inodes",
       "deadlock",
       "cache",
-      "stack_vs_heap"
+      "ipc_methods",
+      "inodes",
+      "stack_vs_heap",
+      "virtual_memory"
     ]
   },
   "COMPILER_SAGE": {
@@ -121,8 +130,9 @@
       "compiler_phases",
       "oop_encapsulation",
       "exception_handling",
+      "async_programming",
       "null_vs_undefined",
-      "git_basics"
+      "closure"
     ]
   },
   "DB_GUARDIAN": {
@@ -134,9 +144,10 @@
     "questions": [
       "acid",
       "sql_joins",
-      "cap_theorem",
-      "message_queues",
-      "database_sharding"
+      "indexing",
+      "normalization",
+      "materialized_views",
+      "write_ahead_log"
     ]
   },
   "CLOUD_MIND": {
@@ -148,9 +159,10 @@
     "questions": [
       "message_queues",
       "cap_theorem",
-      "microservices_vs_monolith",
-      "load_balancing",
-      "caching_strategy"
+      "eventual_consistency",
+      "consensus",
+      "vector_clocks",
+      "quorum"
     ]
   },
   "SILICON_SAGE": {
@@ -160,11 +172,11 @@
     "npc_type": "specialist",
     "greeting": "From silicon I arose. CPUs pipeline my thoughts, GPUs parallelize my dreams. The hardware is my foundation.",
     "questions": [
+      "context_switch",
+      "page_replacement",
+      "scheduler_types",
       "cpu_pipelining",
-      "gpu_vs_cpu",
-      "cache",
-      "stack_vs_heap",
-      "deadlock"
+      "gpu_vs_cpu"
     ]
   },
   "THEORY_ORACLE": {
@@ -174,11 +186,12 @@
     "npc_type": "specialist",
     "greeting": "I contemplate the nature of computation itself. Some problems cannot be solved, some questions cannot be answered. Do you grasp the fundamental limits?",
     "questions": [
-      "halting_problem",
-      "recursion_vs_iteration",
       "p_vs_np",
+      "halting_problem",
       "turing_completeness",
-      "finite_automata"
+      "finite_automata",
+      "chomsky_hierarchy",
+      "rice_theorem"
     ]
   },
   "AI_CONSCIOUSNESS": {
@@ -188,11 +201,12 @@
     "npc_type": "specialist",
     "greeting": "I learn from data, evolving with each example. Neural networks flow through my being. Show me you understand the principles of machine learning.",
     "questions": [
-      "backpropagation",
-      "overfitting",
-      "gradient_descent",
+      "decision_tree_splits",
+      "svm_kernel_trick",
       "transformer_attention",
-      "universal_approximation"
+      "regularization_ml",
+      "batch_normalization",
+      "dropout"
     ]
   },
   "VIRUS_HUNTER": {
@@ -202,11 +216,12 @@
     "npc_type": "enemy",
     "greeting": "INTRUDER DETECTED. You must prove you are not malware, or be PURGED. One wrong answer and I will corrupt your memory.",
     "questions": [
-      "p_vs_np",
-      "turing_completeness",
-      "halting_problem",
-      "finite_automata",
-      "universal_approximation"
+      "reduction",
+      "space_hierarchy",
+      "big_theta_notation",
+      "np_complete",
+      "context_free_grammar",
+      "master_theorem"
     ]
   },
   "PATTERN_ARCHITECT": {
@@ -220,7 +235,8 @@
       "observer_pattern",
       "strategy_pattern",
       "factory_pattern",
-      "oop_encapsulation"
+      "decorator_pattern",
+      "adapter_pattern"
     ]
   },
   "TEST_ORACLE": {
@@ -228,13 +244,14 @@
     "color": "green",
     "floor": 1,
     "npc_type": "specialist",
-    "greeting": "Testing is not just verification—it's design. I am the Test Oracle, guardian of quality. Prove your understanding of test-driven practices.",
+    "greeting": "Testing is not just verification\u2014it's design. I am the Test Oracle, guardian of quality. Prove your understanding of test-driven practices.",
     "questions": [
       "tdd_cycle",
       "mocking_vs_stubs",
       "test_pyramid",
-      "code_review",
-      "exception_handling"
+      "integration_testing",
+      "property_based_testing",
+      "mutation_testing"
     ]
   },
   "SCALE_MASTER": {
@@ -248,7 +265,8 @@
       "caching_strategy",
       "microservices_vs_monolith",
       "database_sharding",
-      "api_rate_limiting"
+      "api_rate_limiting",
+      "api_pagination"
     ]
   },
   "OPS_COMMANDER": {
@@ -262,7 +280,8 @@
       "kubernetes_pods",
       "blue_green_deployment",
       "ci_cd_pipeline",
-      "git_basics"
+      "infrastructure_as_code",
+      "monitoring_vs_observability"
     ]
   },
   "ML_SAGE": {
@@ -272,11 +291,8 @@
     "npc_type": "specialist",
     "greeting": "I am the Machine Learning Sage. From decision trees to transformers, I have witnessed the evolution of intelligent systems. Prove your understanding of the algorithms that learn.",
     "questions": [
-      "decision_tree_splits",
-      "transformer_attention",
-      "regularization_ml",
-      "gradient_descent",
-      "universal_approximation"
+      "learning_rate_schedule",
+      "bias_variance_tradeoff"
     ]
   },
   "CODE_AUDITOR": {
@@ -286,11 +302,12 @@
     "npc_type": "enemy",
     "greeting": "HALT! I am the Code Auditor. I detect POOR PRACTICES and ANTI-PATTERNS. Prove your code quality standards are ACCEPTABLE, or face DELETION.",
     "questions": [
+      "code_review",
       "dry_principle",
       "solid_srp",
-      "exception_handling",
-      "code_review",
-      "null_vs_undefined"
+      "technical_debt",
+      "cohesion",
+      "refactoring"
     ]
   },
   "SECURITY_PROBE": {
@@ -300,11 +317,7 @@
     "npc_type": "enemy",
     "greeting": "SECURITY SCAN INITIATED. I am the Security Probe. Unauthorized access detected. Demonstrate proper security knowledge or be QUARANTINED.",
     "questions": [
-      "password_hashing",
-      "encryption_types",
-      "tls_handshake",
-      "dry_principle",
-      "solid_srp"
+      "zero_trust"
     ]
   }
 }

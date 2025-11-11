@@ -1126,32 +1126,29 @@
     ]
   },
   "blue_green_deployment": {
-    "question_text": "How does blue-green deployment minimize downtime?",
+    "question_text": "What is blue-green deployment?",
     "topic": "devops",
     "answers": [
       {
-        "text": "It maintains two identical environments and switches traffic between them",
+        "text": "Color-coded servers",
+        "correct": false,
+        "response": "It's not about actual colors!"
+      },
+      {
+        "text": "Two identical environments for zero-downtime",
         "correct": true,
-        "response": "Correct! Blue (old) and green (new) environments run in parallel. Deploy to green, test it, then switch traffic instantly. Rollback is just switching back. Zero downtime!",
-        "reward_knowledge": "deployment_strategies"
+        "response": "Correct! Blue-green enables instant switchover.",
+        "reward_knowledge": "blue_green"
       },
       {
-        "text": "It gradually rolls out changes to a percentage of users",
+        "text": "Slow gradual rollout",
         "correct": false,
-        "response": "That's canary deployment. Blue-green switches all traffic at once between two environments.",
-        "reward_knowledge": null
+        "response": "That's more like canary deployment."
       },
       {
-        "text": "It deploys updates to servers one at a time",
+        "text": "Backup strategy only",
         "correct": false,
-        "response": "That's rolling deployment. Blue-green maintains full duplicate environments and switches traffic instantly.",
-        "reward_knowledge": null
-      },
-      {
-        "text": "It automatically tests code before deploying to production",
-        "correct": false,
-        "response": "That's CI/CD pipeline testing. Blue-green is about traffic switching between environments, not testing.",
-        "reward_knowledge": null
+        "response": "It's a deployment strategy!"
       }
     ]
   },
@@ -1906,6 +1903,1896 @@
         "correct": false,
         "response": "Misleading! While shallow networks have representational power, deep networks learn efficiently with exponentially fewer neurons for some functions.",
         "enemy_penalty": 45
+      }
+    ]
+  },
+  "merge_sort": {
+    "question_text": "What is the space complexity of merge sort?",
+    "topic": "algorithms",
+    "answers": [
+      {
+        "text": "O(1)",
+        "correct": false,
+        "response": "Merge sort requires additional space for merging."
+      },
+      {
+        "text": "O(log n)",
+        "correct": false,
+        "response": "Not quite. Think about the auxiliary space needed."
+      },
+      {
+        "text": "O(n)",
+        "correct": true,
+        "response": "Correct! Merge sort needs O(n) auxiliary space.",
+        "reward_knowledge": "merge_sort"
+      },
+      {
+        "text": "O(n\u00b2)",
+        "correct": false,
+        "response": "Too much! Merge sort is more space-efficient than that."
+      }
+    ]
+  },
+  "bfs_vs_dfs": {
+    "question_text": "Which graph traversal guarantees finding the shortest path in an unweighted graph?",
+    "topic": "algorithms",
+    "answers": [
+      {
+        "text": "Depth-First Search",
+        "correct": false,
+        "response": "DFS explores as deep as possible first."
+      },
+      {
+        "text": "Breadth-First Search",
+        "correct": true,
+        "response": "Correct! BFS explores level by level, finding shortest paths.",
+        "reward_knowledge": "graph_traversal"
+      },
+      {
+        "text": "Both are equivalent",
+        "correct": false,
+        "response": "They have different properties!"
+      },
+      {
+        "text": "Neither guarantees it",
+        "correct": false,
+        "response": "One of them does guarantee it."
+      }
+    ]
+  },
+  "greedy_algorithms": {
+    "question_text": "Which problem can be solved optimally using a greedy algorithm?",
+    "topic": "algorithms",
+    "answers": [
+      {
+        "text": "0/1 Knapsack",
+        "correct": false,
+        "response": "0/1 Knapsack requires dynamic programming."
+      },
+      {
+        "text": "Traveling Salesman",
+        "correct": false,
+        "response": "TSP is NP-hard, greedy doesn't guarantee optimal."
+      },
+      {
+        "text": "Huffman Coding",
+        "correct": true,
+        "response": "Yes! Huffman coding is a classic greedy algorithm.",
+        "reward_knowledge": "greedy"
+      },
+      {
+        "text": "Longest Common Subsequence",
+        "correct": false,
+        "response": "LCS needs dynamic programming."
+      }
+    ]
+  },
+  "amortized_analysis": {
+    "question_text": "What does amortized time complexity measure?",
+    "topic": "algorithms",
+    "answers": [
+      {
+        "text": "Worst case only",
+        "correct": false,
+        "response": "Amortized analysis considers sequences of operations."
+      },
+      {
+        "text": "Best case only",
+        "correct": false,
+        "response": "No, it's about average over sequences."
+      },
+      {
+        "text": "Average over sequence",
+        "correct": true,
+        "response": "Correct! Amortized analysis averages cost over operation sequences.",
+        "reward_knowledge": "amortized"
+      },
+      {
+        "text": "Space complexity",
+        "correct": false,
+        "response": "Amortized analysis is about time, not space."
+      }
+    ]
+  },
+  "trie_usage": {
+    "question_text": "What is a trie (prefix tree) best used for?",
+    "topic": "data_structures",
+    "answers": [
+      {
+        "text": "Sorting numbers",
+        "correct": false,
+        "response": "A trie (prefix tree) isn't designed for sorting numbers. Tries are tree structures where each node represents a character, making them perfect for string operations like autocomplete."
+      },
+      {
+        "text": "String prefix matching",
+        "correct": true,
+        "response": "Perfect! Tries excel at prefix-based string operations.",
+        "reward_knowledge": "trie"
+      },
+      {
+        "text": "Graph traversal",
+        "correct": false,
+        "response": "Tries are trees, not general graphs. A trie stores strings where each path from root represents a string prefix, making prefix matching O(m) where m is string length\\!"
+      },
+      {
+        "text": "Random access",
+        "correct": false,
+        "response": "Arrays give O(1) random access by index. Tries are for string prefix operations - each character is a node, paths spell words. Perfect for autocomplete and spell checking\\!"
+      }
+    ]
+  },
+  "bloom_filter": {
+    "question_text": "What is a key characteristic of a Bloom filter?",
+    "topic": "data_structures",
+    "answers": [
+      {
+        "text": "No false positives",
+        "correct": false,
+        "response": "Bloom filters CAN have false positives\\! A Bloom filter is a probabilistic data structure using multiple hash functions. It can wrongly say an item exists (false positive) but never wrongly say it doesn't (no false negatives)."
+      },
+      {
+        "text": "No false negatives",
+        "correct": true,
+        "response": "Correct! Bloom filters never have false negatives.",
+        "reward_knowledge": "bloom_filter"
+      },
+      {
+        "text": "Perfect accuracy",
+        "correct": false,
+        "response": "Bloom filters sacrifice perfect accuracy for space efficiency. They use a bit array and hash functions to test set membership - fast and compact but can give false positives. Never false negatives though\\!"
+      },
+      {
+        "text": "Slow lookups",
+        "correct": false,
+        "response": "Bloom filters ARE very fast - that's correct\\! But the KEY characteristic is no false negatives. Bloom filters are space-efficient probabilistic data structures that may say 'yes' when wrong, but never say 'no' when wrong."
+      }
+    ]
+  },
+  "skip_list": {
+    "question_text": "What is the expected time complexity of search in a skip list?",
+    "topic": "data_structures",
+    "answers": [
+      {
+        "text": "O(1)",
+        "correct": false,
+        "response": "Skip lists are faster than O(1)\\! They're probabilistic data structures with multiple layers of linked lists, providing O(log n) average search time - like balanced trees but simpler."
+      },
+      {
+        "text": "O(log n)",
+        "correct": true,
+        "response": "Correct! Skip lists provide O(log n) expected search time.",
+        "reward_knowledge": "skip_list"
+      },
+      {
+        "text": "O(n)",
+        "correct": false,
+        "response": "Skip lists are faster\\! They use multiple levels of express lanes (like highways) to skip over elements, achieving O(log n) expected search in a linked list structure."
+      },
+      {
+        "text": "O(n log n)",
+        "correct": false,
+        "response": "O(n log n) is for sorting algorithms. Skip lists achieve O(log n) search by maintaining multiple layers, where higher layers skip more elements - probabilistic balanced search\\!"
+      }
+    ]
+  },
+  "b_tree": {
+    "question_text": "Why are B-trees commonly used in databases?",
+    "topic": "data_structures",
+    "answers": [
+      {
+        "text": "They use less memory",
+        "correct": false,
+        "response": "Memory isn't the key reason. B-trees are designed for disk storage where each node holds many keys. Wide nodes mean fewer disk seeks since disk I/O is expensive (milliseconds vs nanoseconds for RAM)."
+      },
+      {
+        "text": "Minimize disk I/O",
+        "correct": true,
+        "response": "Yes! B-trees minimize expensive disk operations.",
+        "reward_knowledge": "b_tree"
+      },
+      {
+        "text": "Faster than hash tables",
+        "correct": false,
+        "response": "Hash tables are faster for exact key lookups (O(1)). B-trees excel at range queries and are optimized for disk I/O - each node is a disk block, minimizing expensive seeks."
+      },
+      {
+        "text": "Easier to implement",
+        "correct": false,
+        "response": "B-trees are actually complex\\! But they're used because they minimize disk I/O. Wide nodes (many keys per node) mean fewer disk accesses, critical for database performance."
+      }
+    ]
+  },
+  "chomsky_hierarchy": {
+    "question_text": "In the Chomsky hierarchy, which languages can a finite automaton recognize?",
+    "topic": "theory",
+    "answers": [
+      {
+        "text": "Regular languages",
+        "correct": true,
+        "response": "Correct! Finite automata recognize regular languages.",
+        "reward_knowledge": "chomsky"
+      },
+      {
+        "text": "Context-free languages",
+        "correct": false,
+        "response": "Context-free needs push-down automata."
+      },
+      {
+        "text": "All languages",
+        "correct": false,
+        "response": "Finite automata are limited in power."
+      },
+      {
+        "text": "No languages",
+        "correct": false,
+        "response": "They can recognize regular languages!"
+      }
+    ]
+  },
+  "rice_theorem": {
+    "question_text": "What does Rice's Theorem state?",
+    "topic": "theory",
+    "answers": [
+      {
+        "text": "All problems are decidable",
+        "correct": false,
+        "response": "Many problems are undecidable!"
+      },
+      {
+        "text": "Non-trivial properties of programs are undecidable",
+        "correct": true,
+        "response": "Correct! Rice's Theorem is fundamental to computability.",
+        "reward_knowledge": "rice"
+      },
+      {
+        "text": "P = NP",
+        "correct": false,
+        "response": "Rice's Theorem doesn't address P vs NP."
+      },
+      {
+        "text": "All algorithms terminate",
+        "correct": false,
+        "response": "The halting problem shows this is undecidable."
+      }
+    ]
+  },
+  "reduction": {
+    "question_text": "In complexity theory, what does a reduction prove?",
+    "topic": "theory",
+    "answers": [
+      {
+        "text": "A problem is easy",
+        "correct": false,
+        "response": "Reductions often prove hardness!"
+      },
+      {
+        "text": "Relative difficulty",
+        "correct": true,
+        "response": "Yes! Reductions show one problem is at least as hard as another.",
+        "reward_knowledge": "reduction"
+      },
+      {
+        "text": "Problems are identical",
+        "correct": false,
+        "response": "Reductions show relationships, not equivalence."
+      },
+      {
+        "text": "Algorithms are optimal",
+        "correct": false,
+        "response": "Reductions are about problem hardness."
+      }
+    ]
+  },
+  "space_hierarchy": {
+    "question_text": "What does the Space Hierarchy Theorem state?",
+    "topic": "theory",
+    "answers": [
+      {
+        "text": "All space bounds are equivalent",
+        "correct": false,
+        "response": "Different space bounds have different power!"
+      },
+      {
+        "text": "More space = more problems solvable",
+        "correct": true,
+        "response": "Correct! More space enables solving harder problems.",
+        "reward_knowledge": "space_hierarchy"
+      },
+      {
+        "text": "Space and time are identical",
+        "correct": false,
+        "response": "Space and time are related but distinct."
+      },
+      {
+        "text": "Constant space solves everything",
+        "correct": false,
+        "response": "Many problems require more space."
+      }
+    ]
+  },
+  "batch_normalization": {
+    "question_text": "What is the primary benefit of batch normalization?",
+    "topic": "machine_learning",
+    "answers": [
+      {
+        "text": "Reduces model size",
+        "correct": false,
+        "response": "Batch norm doesn't reduce model size."
+      },
+      {
+        "text": "Stabilizes training",
+        "correct": true,
+        "response": "Yes! Batch norm reduces internal covariate shift.",
+        "reward_knowledge": "batch_norm"
+      },
+      {
+        "text": "Prevents all overfitting",
+        "correct": false,
+        "response": "It helps but doesn't prevent all overfitting."
+      },
+      {
+        "text": "Eliminates need for activation",
+        "correct": false,
+        "response": "Activation functions are still needed!"
+      }
+    ]
+  },
+  "dropout": {
+    "question_text": "How does dropout regularization work?",
+    "topic": "machine_learning",
+    "answers": [
+      {
+        "text": "Removes layers",
+        "correct": false,
+        "response": "Dropout doesn't remove entire layers."
+      },
+      {
+        "text": "Randomly drops neurons during training",
+        "correct": true,
+        "response": "Correct! Dropout randomly deactivates neurons.",
+        "reward_knowledge": "dropout"
+      },
+      {
+        "text": "Reduces learning rate",
+        "correct": false,
+        "response": "That's a different technique."
+      },
+      {
+        "text": "Adds noise to inputs",
+        "correct": false,
+        "response": "Dropout affects neurons, not inputs directly."
+      }
+    ]
+  },
+  "learning_rate_schedule": {
+    "question_text": "Why use a learning rate schedule?",
+    "topic": "machine_learning",
+    "answers": [
+      {
+        "text": "Speeds up training only",
+        "correct": false,
+        "response": "It's about convergence quality too."
+      },
+      {
+        "text": "Helps converge to better minima",
+        "correct": true,
+        "response": "Yes! Schedules help escape local minima and converge better.",
+        "reward_knowledge": "lr_schedule"
+      },
+      {
+        "text": "Prevents underfitting",
+        "correct": false,
+        "response": "Schedules don't directly address underfitting."
+      },
+      {
+        "text": "Reduces model size",
+        "correct": false,
+        "response": "Learning rate doesn't affect model size."
+      }
+    ]
+  },
+  "bias_variance_tradeoff": {
+    "question_text": "What happens when model complexity increases?",
+    "topic": "machine_learning",
+    "answers": [
+      {
+        "text": "Bias increases, variance decreases",
+        "correct": false,
+        "response": "It's the opposite!"
+      },
+      {
+        "text": "Bias decreases, variance increases",
+        "correct": true,
+        "response": "Correct! This is the bias-variance tradeoff.",
+        "reward_knowledge": "bias_variance"
+      },
+      {
+        "text": "Both increase",
+        "correct": false,
+        "response": "They move in opposite directions."
+      },
+      {
+        "text": "Both decrease",
+        "correct": false,
+        "response": "That would be ideal but doesn't happen!"
+      }
+    ]
+  },
+  "cors": {
+    "question_text": "What does CORS (Cross-Origin Resource Sharing) control?",
+    "topic": "web_development",
+    "answers": [
+      {
+        "text": "Server performance",
+        "correct": false,
+        "response": "CORS is about security, not performance."
+      },
+      {
+        "text": "Cross-domain requests",
+        "correct": true,
+        "response": "Correct! CORS controls which domains can access resources.",
+        "reward_knowledge": "cors"
+      },
+      {
+        "text": "CSS styling",
+        "correct": false,
+        "response": "CORS has nothing to do with styling!"
+      },
+      {
+        "text": "Database access",
+        "correct": false,
+        "response": "CORS is a browser security feature."
+      }
+    ]
+  },
+  "jwt": {
+    "question_text": "What is a key advantage of JWT (JSON Web Tokens)?",
+    "topic": "web_development",
+    "answers": [
+      {
+        "text": "Server must store session",
+        "correct": false,
+        "response": "JWT is stateless - no server storage!"
+      },
+      {
+        "text": "Stateless authentication",
+        "correct": true,
+        "response": "Yes! JWTs enable stateless, scalable auth.",
+        "reward_knowledge": "jwt"
+      },
+      {
+        "text": "Better encryption",
+        "correct": false,
+        "response": "JWTs are signed, not necessarily encrypted."
+      },
+      {
+        "text": "Smaller than cookies",
+        "correct": false,
+        "response": "JWTs are actually larger than session cookies!"
+      }
+    ]
+  },
+  "graphql_vs_rest": {
+    "question_text": "What is a main advantage of GraphQL over REST?",
+    "topic": "web_development",
+    "answers": [
+      {
+        "text": "Always faster",
+        "correct": false,
+        "response": "Speed depends on implementation."
+      },
+      {
+        "text": "Client specifies exact data needed",
+        "correct": true,
+        "response": "Correct! GraphQL eliminates over/under-fetching.",
+        "reward_knowledge": "graphql"
+      },
+      {
+        "text": "No need for a schema",
+        "correct": false,
+        "response": "GraphQL requires a strict schema!"
+      },
+      {
+        "text": "Better security",
+        "correct": false,
+        "response": "Security depends on implementation."
+      }
+    ]
+  },
+  "websockets": {
+    "question_text": "When should you use WebSockets instead of HTTP?",
+    "topic": "web_development",
+    "answers": [
+      {
+        "text": "All web applications",
+        "correct": false,
+        "response": "WebSockets are for specific use cases."
+      },
+      {
+        "text": "Real-time bidirectional communication",
+        "correct": true,
+        "response": "Yes! WebSockets excel at real-time data.",
+        "reward_knowledge": "websockets"
+      },
+      {
+        "text": "File uploads",
+        "correct": false,
+        "response": "HTTP handles file uploads fine."
+      },
+      {
+        "text": "Static websites",
+        "correct": false,
+        "response": "Static sites don't need WebSockets!"
+      }
+    ]
+  },
+  "cdn": {
+    "question_text": "What is the primary purpose of a CDN (Content Delivery Network)?",
+    "topic": "networking",
+    "answers": [
+      {
+        "text": "Reduce server costs",
+        "correct": false,
+        "response": "Cost isn't the primary benefit."
+      },
+      {
+        "text": "Reduce latency via geographic distribution",
+        "correct": true,
+        "response": "Correct! CDNs cache content closer to users.",
+        "reward_knowledge": "cdn"
+      },
+      {
+        "text": "Increase security",
+        "correct": false,
+        "response": "Security is a side benefit, not the main purpose."
+      },
+      {
+        "text": "Compress files",
+        "correct": false,
+        "response": "Compression can happen but isn't the main purpose."
+      }
+    ]
+  },
+  "nat": {
+    "question_text": "What does NAT (Network Address Translation) do?",
+    "topic": "networking",
+    "answers": [
+      {
+        "text": "Encrypts traffic",
+        "correct": false,
+        "response": "NAT doesn't provide encryption."
+      },
+      {
+        "text": "Maps private IPs to public IPs",
+        "correct": true,
+        "response": "Correct! NAT enables private networks to share public IPs.",
+        "reward_knowledge": "nat"
+      },
+      {
+        "text": "Speeds up routing",
+        "correct": false,
+        "response": "NAT can actually add overhead."
+      },
+      {
+        "text": "Replaces DNS",
+        "correct": false,
+        "response": "NAT and DNS serve different purposes."
+      }
+    ]
+  },
+  "load_balancer_algorithms": {
+    "question_text": "Which load balancing algorithm considers server load?",
+    "topic": "networking",
+    "answers": [
+      {
+        "text": "Round Robin",
+        "correct": false,
+        "response": "Round Robin distributes blindly."
+      },
+      {
+        "text": "Random",
+        "correct": false,
+        "response": "Random doesn't consider load."
+      },
+      {
+        "text": "Least Connections",
+        "correct": true,
+        "response": "Yes! Least Connections routes to least busy server.",
+        "reward_knowledge": "load_balancing"
+      },
+      {
+        "text": "IP Hash",
+        "correct": false,
+        "response": "IP Hash ensures session affinity, not load balancing."
+      }
+    ]
+  },
+  "sql_injection": {
+    "question_text": "How can you prevent SQL injection attacks?",
+    "topic": "security",
+    "answers": [
+      {
+        "text": "Use string concatenation",
+        "correct": false,
+        "response": "String concat enables injection!"
+      },
+      {
+        "text": "Use parameterized queries",
+        "correct": true,
+        "response": "Correct! Parameterized queries prevent injection.",
+        "reward_knowledge": "sql_injection"
+      },
+      {
+        "text": "Disable error messages",
+        "correct": false,
+        "response": "Hiding errors doesn't prevent injection."
+      },
+      {
+        "text": "Use GET instead of POST",
+        "correct": false,
+        "response": "HTTP method doesn't prevent injection!"
+      }
+    ]
+  },
+  "csrf": {
+    "question_text": "What does a CSRF token protect against?",
+    "topic": "security",
+    "answers": [
+      {
+        "text": "XSS attacks",
+        "correct": false,
+        "response": "CSRF tokens don't prevent XSS."
+      },
+      {
+        "text": "Cross-Site Request Forgery",
+        "correct": true,
+        "response": "Correct! CSRF tokens validate request origin.",
+        "reward_knowledge": "csrf"
+      },
+      {
+        "text": "SQL injection",
+        "correct": false,
+        "response": "SQL injection requires different defenses."
+      },
+      {
+        "text": "DDoS attacks",
+        "correct": false,
+        "response": "CSRF tokens don't help with DDoS."
+      }
+    ]
+  },
+  "oauth2": {
+    "question_text": "What is OAuth 2.0 primarily used for?",
+    "topic": "security",
+    "answers": [
+      {
+        "text": "Password encryption",
+        "correct": false,
+        "response": "OAuth doesn't handle password encryption."
+      },
+      {
+        "text": "Delegated authorization",
+        "correct": true,
+        "response": "Yes! OAuth enables third-party access without sharing passwords.",
+        "reward_knowledge": "oauth"
+      },
+      {
+        "text": "Data encryption",
+        "correct": false,
+        "response": "OAuth is for authorization, not encryption."
+      },
+      {
+        "text": "DNS security",
+        "correct": false,
+        "response": "OAuth isn't related to DNS."
+      }
+    ]
+  },
+  "zero_trust": {
+    "question_text": "What is the core principle of Zero Trust security?",
+    "topic": "security",
+    "answers": [
+      {
+        "text": "Trust the network perimeter",
+        "correct": false,
+        "response": "Zero Trust doesn't trust the perimeter!"
+      },
+      {
+        "text": "Never trust, always verify",
+        "correct": true,
+        "response": "Correct! Zero Trust verifies every request.",
+        "reward_knowledge": "zero_trust"
+      },
+      {
+        "text": "Trust internal users",
+        "correct": false,
+        "response": "Zero Trust doesn't assume trust."
+      },
+      {
+        "text": "No authentication needed",
+        "correct": false,
+        "response": "Zero Trust requires strong authentication!"
+      }
+    ]
+  },
+  "virtual_memory": {
+    "question_text": "What is the primary benefit of virtual memory?",
+    "topic": "systems",
+    "answers": [
+      {
+        "text": "Faster execution",
+        "correct": false,
+        "response": "Virtual memory can actually slow things down."
+      },
+      {
+        "text": "Isolation and larger address space",
+        "correct": true,
+        "response": "Correct! Virtual memory provides isolation and apparent memory size.",
+        "reward_knowledge": "virtual_memory"
+      },
+      {
+        "text": "Better graphics",
+        "correct": false,
+        "response": "Graphics use VRAM, different concept."
+      },
+      {
+        "text": "Network performance",
+        "correct": false,
+        "response": "Virtual memory is about RAM, not networking."
+      }
+    ]
+  },
+  "context_switch": {
+    "question_text": "What happens during a context switch?",
+    "topic": "systems",
+    "answers": [
+      {
+        "text": "CPU is destroyed",
+        "correct": false,
+        "response": "The CPU isn't damaged!"
+      },
+      {
+        "text": "Process state is saved and restored",
+        "correct": true,
+        "response": "Yes! Context switches save/restore CPU state.",
+        "reward_knowledge": "context_switch"
+      },
+      {
+        "text": "Memory is cleared",
+        "correct": false,
+        "response": "Memory persists across context switches."
+      },
+      {
+        "text": "New OS is loaded",
+        "correct": false,
+        "response": "The OS stays the same!"
+      }
+    ]
+  },
+  "page_replacement": {
+    "question_text": "Which page replacement algorithm is optimal but impractical?",
+    "topic": "systems",
+    "answers": [
+      {
+        "text": "FIFO",
+        "correct": false,
+        "response": "FIFO is practical but not optimal."
+      },
+      {
+        "text": "LRU",
+        "correct": false,
+        "response": "LRU is practical and good, but not optimal."
+      },
+      {
+        "text": "Optimal (B\u00e9l\u00e1dy's)",
+        "correct": true,
+        "response": "Correct! Optimal requires knowing the future.",
+        "reward_knowledge": "page_replacement"
+      },
+      {
+        "text": "Random",
+        "correct": false,
+        "response": "Random is definitely not optimal!"
+      }
+    ]
+  },
+  "scheduler_types": {
+    "question_text": "Which scheduling algorithm can cause starvation?",
+    "topic": "systems",
+    "answers": [
+      {
+        "text": "Round Robin",
+        "correct": false,
+        "response": "Round Robin is fair and prevents starvation."
+      },
+      {
+        "text": "Priority Scheduling",
+        "correct": true,
+        "response": "Yes! Low-priority processes can starve.",
+        "reward_knowledge": "scheduling"
+      },
+      {
+        "text": "FCFS",
+        "correct": false,
+        "response": "FCFS eventually serves everyone."
+      },
+      {
+        "text": "Lottery Scheduling",
+        "correct": false,
+        "response": "Lottery scheduling prevents starvation."
+      }
+    ]
+  },
+  "eventual_consistency": {
+    "question_text": "What does eventual consistency guarantee?",
+    "topic": "distributed_systems",
+    "answers": [
+      {
+        "text": "Immediate consistency",
+        "correct": false,
+        "response": "That's strong consistency!"
+      },
+      {
+        "text": "Consistency after bounded time",
+        "correct": true,
+        "response": "Correct! Eventually all replicas will be consistent.",
+        "reward_knowledge": "eventual_consistency"
+      },
+      {
+        "text": "No consistency guarantee",
+        "correct": false,
+        "response": "There is a guarantee, just not immediate."
+      },
+      {
+        "text": "Perfect consistency always",
+        "correct": false,
+        "response": "That's not achievable in distributed systems!"
+      }
+    ]
+  },
+  "consensus": {
+    "question_text": "What problem does the Paxos algorithm solve?",
+    "topic": "distributed_systems",
+    "answers": [
+      {
+        "text": "Sorting",
+        "correct": false,
+        "response": "Paxos isn't about sorting!"
+      },
+      {
+        "text": "Distributed consensus",
+        "correct": true,
+        "response": "Yes! Paxos enables agreement in distributed systems.",
+        "reward_knowledge": "paxos"
+      },
+      {
+        "text": "Encryption",
+        "correct": false,
+        "response": "Paxos doesn't handle encryption."
+      },
+      {
+        "text": "Load balancing",
+        "correct": false,
+        "response": "Paxos is about consensus, not balancing."
+      }
+    ]
+  },
+  "vector_clocks": {
+    "question_text": "What do vector clocks help determine?",
+    "topic": "distributed_systems",
+    "answers": [
+      {
+        "text": "Absolute time",
+        "correct": false,
+        "response": "Vector clocks don't provide absolute time."
+      },
+      {
+        "text": "Causal ordering of events",
+        "correct": true,
+        "response": "Correct! Vector clocks track causality.",
+        "reward_knowledge": "vector_clocks"
+      },
+      {
+        "text": "Server load",
+        "correct": false,
+        "response": "Vector clocks aren't about load."
+      },
+      {
+        "text": "Network speed",
+        "correct": false,
+        "response": "Vector clocks track logical time, not speed."
+      }
+    ]
+  },
+  "quorum": {
+    "question_text": "In a quorum-based system, what determines consistency?",
+    "topic": "distributed_systems",
+    "answers": [
+      {
+        "text": "Single server",
+        "correct": false,
+        "response": "Quorums need multiple servers!"
+      },
+      {
+        "text": "Read + Write quorum > N",
+        "correct": true,
+        "response": "Yes! Overlapping quorums ensure consistency.",
+        "reward_knowledge": "quorum"
+      },
+      {
+        "text": "All servers must agree",
+        "correct": false,
+        "response": "Quorums need majority, not all."
+      },
+      {
+        "text": "Random selection",
+        "correct": false,
+        "response": "Quorums are deterministic!"
+      }
+    ]
+  },
+  "infrastructure_as_code": {
+    "question_text": "What is a benefit of Infrastructure as Code (IaC)?",
+    "topic": "devops",
+    "answers": [
+      {
+        "text": "Manual is better",
+        "correct": false,
+        "response": "Automation is a key benefit!"
+      },
+      {
+        "text": "Reproducible infrastructure",
+        "correct": true,
+        "response": "Yes! IaC enables consistent deployments.",
+        "reward_knowledge": "iac"
+      },
+      {
+        "text": "Slower deployments",
+        "correct": false,
+        "response": "IaC actually speeds up deployments!"
+      },
+      {
+        "text": "No version control",
+        "correct": false,
+        "response": "IaC enables versioning infrastructure!"
+      }
+    ]
+  },
+  "monitoring_vs_observability": {
+    "question_text": "What is the key difference between monitoring and observability?",
+    "topic": "devops",
+    "answers": [
+      {
+        "text": "They're identical",
+        "correct": false,
+        "response": "They serve different purposes!"
+      },
+      {
+        "text": "Observability enables understanding unknown unknowns",
+        "correct": true,
+        "response": "Yes! Observability lets you explore unexpected issues.",
+        "reward_knowledge": "observability"
+      },
+      {
+        "text": "Monitoring is newer",
+        "correct": false,
+        "response": "Monitoring came first!"
+      },
+      {
+        "text": "Observability is cheaper",
+        "correct": false,
+        "response": "Cost isn't the main distinction."
+      }
+    ]
+  },
+  "circuit_breaker": {
+    "question_text": "What does the circuit breaker pattern prevent?",
+    "topic": "devops",
+    "answers": [
+      {
+        "text": "Electrical failures",
+        "correct": false,
+        "response": "It's a software pattern!"
+      },
+      {
+        "text": "Cascading failures",
+        "correct": true,
+        "response": "Correct! Circuit breakers stop failure propagation.",
+        "reward_knowledge": "circuit_breaker"
+      },
+      {
+        "text": "Security breaches",
+        "correct": false,
+        "response": "Circuit breakers are about resilience."
+      },
+      {
+        "text": "Memory leaks",
+        "correct": false,
+        "response": "Not the purpose of circuit breakers."
+      }
+    ]
+  },
+  "decorator_pattern": {
+    "question_text": "What does the Decorator pattern do?",
+    "topic": "design_patterns",
+    "answers": [
+      {
+        "text": "Makes code pretty",
+        "correct": false,
+        "response": "It's not about aesthetics!"
+      },
+      {
+        "text": "Adds behavior dynamically",
+        "correct": true,
+        "response": "Yes! Decorators wrap objects with new functionality.",
+        "reward_knowledge": "decorator"
+      },
+      {
+        "text": "Removes functionality",
+        "correct": false,
+        "response": "Decorators add, not remove."
+      },
+      {
+        "text": "Compiles code",
+        "correct": false,
+        "response": "Decorators are runtime, not compile-time."
+      }
+    ]
+  },
+  "adapter_pattern": {
+    "question_text": "When should you use the Adapter pattern?",
+    "topic": "design_patterns",
+    "answers": [
+      {
+        "text": "When interfaces are compatible",
+        "correct": false,
+        "response": "Adapters are for incompatible interfaces!"
+      },
+      {
+        "text": "To make incompatible interfaces work together",
+        "correct": true,
+        "response": "Correct! Adapters bridge incompatible interfaces.",
+        "reward_knowledge": "adapter"
+      },
+      {
+        "text": "To speed up code",
+        "correct": false,
+        "response": "Adapters don't improve performance."
+      },
+      {
+        "text": "For database access",
+        "correct": false,
+        "response": "Adapters are general-purpose."
+      }
+    ]
+  },
+  "command_pattern": {
+    "question_text": "What does the Command pattern enable?",
+    "topic": "design_patterns",
+    "answers": [
+      {
+        "text": "Faster execution",
+        "correct": false,
+        "response": "Commands don't improve speed."
+      },
+      {
+        "text": "Encapsulating requests as objects",
+        "correct": true,
+        "response": "Yes! Commands turn requests into first-class objects.",
+        "reward_knowledge": "command"
+      },
+      {
+        "text": "Direct method calls",
+        "correct": false,
+        "response": "Commands add indirection!"
+      },
+      {
+        "text": "Database operations",
+        "correct": false,
+        "response": "Commands are general-purpose."
+      }
+    ]
+  },
+  "state_pattern": {
+    "question_text": "What problem does the State pattern solve?",
+    "topic": "design_patterns",
+    "answers": [
+      {
+        "text": "Managing application state cleanly",
+        "correct": true,
+        "response": "Correct! State pattern avoids large conditionals.",
+        "reward_knowledge": "state"
+      },
+      {
+        "text": "Storing data",
+        "correct": false,
+        "response": "State pattern is about behavior, not storage."
+      },
+      {
+        "text": "Threading",
+        "correct": false,
+        "response": "Not related to threads."
+      },
+      {
+        "text": "Error handling",
+        "correct": false,
+        "response": "Not the purpose of State pattern."
+      }
+    ]
+  },
+  "indexing": {
+    "question_text": "What is a trade-off of adding database indexes?",
+    "topic": "databases",
+    "answers": [
+      {
+        "text": "No trade-offs",
+        "correct": false,
+        "response": "There are always trade-offs!"
+      },
+      {
+        "text": "Faster reads, slower writes",
+        "correct": true,
+        "response": "Correct! Indexes speed up queries but slow down inserts.",
+        "reward_knowledge": "indexing"
+      },
+      {
+        "text": "Slower everything",
+        "correct": false,
+        "response": "Indexes do help read performance."
+      },
+      {
+        "text": "More storage needed, but no performance impact",
+        "correct": false,
+        "response": "Indexes affect performance!"
+      }
+    ]
+  },
+  "normalization": {
+    "question_text": "What is the purpose of database normalization?",
+    "topic": "databases",
+    "answers": [
+      {
+        "text": "Make queries faster",
+        "correct": false,
+        "response": "Normalization can actually slow queries!"
+      },
+      {
+        "text": "Reduce data redundancy",
+        "correct": true,
+        "response": "Yes! Normalization eliminates duplicate data.",
+        "reward_knowledge": "normalization"
+      },
+      {
+        "text": "Increase storage",
+        "correct": false,
+        "response": "Normalization usually reduces storage."
+      },
+      {
+        "text": "Add more tables",
+        "correct": false,
+        "response": "Adding tables is a side effect, not the goal."
+      }
+    ]
+  },
+  "materialized_views": {
+    "question_text": "When should you use materialized views?",
+    "topic": "databases",
+    "answers": [
+      {
+        "text": "Always, for every query",
+        "correct": false,
+        "response": "Materialized views have trade-offs!"
+      },
+      {
+        "text": "For expensive queries run frequently",
+        "correct": true,
+        "response": "Yes! Materialized views cache expensive computations.",
+        "reward_knowledge": "materialized_views"
+      },
+      {
+        "text": "To save disk space",
+        "correct": false,
+        "response": "Materialized views use more space!"
+      },
+      {
+        "text": "Never, they're deprecated",
+        "correct": false,
+        "response": "Materialized views are still useful!"
+      }
+    ]
+  },
+  "write_ahead_log": {
+    "question_text": "What is the purpose of a Write-Ahead Log (WAL)?",
+    "topic": "databases",
+    "answers": [
+      {
+        "text": "Speed up reads",
+        "correct": false,
+        "response": "WAL is about durability, not read speed."
+      },
+      {
+        "text": "Ensure durability and recovery",
+        "correct": true,
+        "response": "Correct! WAL enables crash recovery.",
+        "reward_knowledge": "wal"
+      },
+      {
+        "text": "Compress data",
+        "correct": false,
+        "response": "WAL doesn't compress data."
+      },
+      {
+        "text": "Replicate data",
+        "correct": false,
+        "response": "Replication uses WAL but isn't its purpose."
+      }
+    ]
+  },
+  "closure": {
+    "question_text": "What is a closure in programming?",
+    "topic": "programming_fundamentals",
+    "answers": [
+      {
+        "text": "A closed loop",
+        "correct": false,
+        "response": "Not about loops!"
+      },
+      {
+        "text": "Function with access to outer scope",
+        "correct": true,
+        "response": "Yes! Closures capture their environment.",
+        "reward_knowledge": "closure"
+      },
+      {
+        "text": "A finished program",
+        "correct": false,
+        "response": "That's not what closure means."
+      },
+      {
+        "text": "A type of class",
+        "correct": false,
+        "response": "Closures are about functions."
+      }
+    ]
+  },
+  "lazy_evaluation": {
+    "question_text": "What is lazy evaluation?",
+    "topic": "programming_fundamentals",
+    "answers": [
+      {
+        "text": "Slow execution",
+        "correct": false,
+        "response": "Lazy doesn't mean slow!"
+      },
+      {
+        "text": "Computing values only when needed",
+        "correct": true,
+        "response": "Correct! Lazy evaluation defers computation.",
+        "reward_knowledge": "lazy_eval"
+      },
+      {
+        "text": "Caching all results",
+        "correct": false,
+        "response": "That's memoization, different concept."
+      },
+      {
+        "text": "Parallel execution",
+        "correct": false,
+        "response": "Lazy evaluation is about deferral."
+      }
+    ]
+  },
+  "immutability": {
+    "question_text": "What is a benefit of immutable data structures?",
+    "topic": "programming_fundamentals",
+    "answers": [
+      {
+        "text": "Use less memory",
+        "correct": false,
+        "response": "Immutability can use more memory!"
+      },
+      {
+        "text": "Easier to reason about, thread-safe",
+        "correct": true,
+        "response": "Yes! Immutability prevents many bugs.",
+        "reward_knowledge": "immutability"
+      },
+      {
+        "text": "Faster mutations",
+        "correct": false,
+        "response": "Immutable means no mutations!"
+      },
+      {
+        "text": "Better for I/O",
+        "correct": false,
+        "response": "Immutability is about state management."
+      }
+    ]
+  },
+  "type_inference": {
+    "question_text": "What does type inference do?",
+    "topic": "programming_fundamentals",
+    "answers": [
+      {
+        "text": "Removes all types",
+        "correct": false,
+        "response": "Types still exist!"
+      },
+      {
+        "text": "Automatically deduces types",
+        "correct": true,
+        "response": "Correct! Type inference determines types from context.",
+        "reward_knowledge": "type_inference"
+      },
+      {
+        "text": "Makes code slower",
+        "correct": false,
+        "response": "Inference happens at compile time."
+      },
+      {
+        "text": "Only works with numbers",
+        "correct": false,
+        "response": "Type inference works with all types."
+      }
+    ]
+  },
+  "technical_debt": {
+    "question_text": "What is technical debt?",
+    "topic": "software_engineering",
+    "answers": [
+      {
+        "text": "Money owed for tools",
+        "correct": false,
+        "response": "Not about financial debt!"
+      },
+      {
+        "text": "Cost of suboptimal design choices",
+        "correct": true,
+        "response": "Yes! Technical debt accumulates from shortcuts.",
+        "reward_knowledge": "tech_debt"
+      },
+      {
+        "text": "Literal debt",
+        "correct": false,
+        "response": "It's a metaphor!"
+      },
+      {
+        "text": "Bug count",
+        "correct": false,
+        "response": "Bugs are different from tech debt."
+      }
+    ]
+  },
+  "cohesion": {
+    "question_text": "What does high cohesion mean?",
+    "topic": "software_engineering",
+    "answers": [
+      {
+        "text": "Many responsibilities",
+        "correct": false,
+        "response": "High cohesion means focused!"
+      },
+      {
+        "text": "Single, well-defined responsibility",
+        "correct": true,
+        "response": "Correct! High cohesion = focused modules.",
+        "reward_knowledge": "cohesion"
+      },
+      {
+        "text": "Lots of dependencies",
+        "correct": false,
+        "response": "That's high coupling!"
+      },
+      {
+        "text": "Complex code",
+        "correct": false,
+        "response": "Cohesion is about responsibility."
+      }
+    ]
+  },
+  "refactoring": {
+    "question_text": "What should refactoring NOT do?",
+    "topic": "software_engineering",
+    "answers": [
+      {
+        "text": "Improve code structure",
+        "correct": false,
+        "response": "That's the purpose of refactoring!"
+      },
+      {
+        "text": "Change external behavior",
+        "correct": true,
+        "response": "Correct! Refactoring preserves behavior.",
+        "reward_knowledge": "refactoring"
+      },
+      {
+        "text": "Make code more readable",
+        "correct": false,
+        "response": "Readability is a goal!"
+      },
+      {
+        "text": "Remove duplication",
+        "correct": false,
+        "response": "DRY is a refactoring goal."
+      }
+    ]
+  },
+  "integration_testing": {
+    "question_text": "What do integration tests verify?",
+    "topic": "testing",
+    "answers": [
+      {
+        "text": "Individual functions",
+        "correct": false,
+        "response": "That's unit testing!"
+      },
+      {
+        "text": "Components working together",
+        "correct": true,
+        "response": "Yes! Integration tests verify component interactions.",
+        "reward_knowledge": "integration_test"
+      },
+      {
+        "text": "User experience",
+        "correct": false,
+        "response": "That's UX testing."
+      },
+      {
+        "text": "Performance only",
+        "correct": false,
+        "response": "Integration tests verify correctness."
+      }
+    ]
+  },
+  "property_based_testing": {
+    "question_text": "What is property-based testing?",
+    "topic": "testing",
+    "answers": [
+      {
+        "text": "Testing object properties",
+        "correct": false,
+        "response": "Not about object properties!"
+      },
+      {
+        "text": "Testing with generated inputs",
+        "correct": true,
+        "response": "Yes! Property tests use random inputs to verify invariants.",
+        "reward_knowledge": "property_test"
+      },
+      {
+        "text": "Testing CSS properties",
+        "correct": false,
+        "response": "Nothing to do with CSS!"
+      },
+      {
+        "text": "Manual testing",
+        "correct": false,
+        "response": "Property tests are automated."
+      }
+    ]
+  },
+  "mutation_testing": {
+    "question_text": "What does mutation testing measure?",
+    "topic": "testing",
+    "answers": [
+      {
+        "text": "Code changes over time",
+        "correct": false,
+        "response": "Not about version control!"
+      },
+      {
+        "text": "Test suite effectiveness",
+        "correct": true,
+        "response": "Yes! Mutation testing finds weak tests.",
+        "reward_knowledge": "mutation_test"
+      },
+      {
+        "text": "Database mutations",
+        "correct": false,
+        "response": "Not about databases!"
+      },
+      {
+        "text": "Performance changes",
+        "correct": false,
+        "response": "Mutation testing is about correctness."
+      }
+    ]
+  },
+  "canary_deployment": {
+    "question_text": "What is canary deployment?",
+    "topic": "devops",
+    "answers": [
+      {
+        "text": "Deploy to subset of users first",
+        "correct": true,
+        "response": "Correct\\! Canary deployments gradually roll out to a small percentage of users first, monitoring for issues before full rollout. This reduces blast radius of bugs. Named after coal mine canaries\\!",
+        "reward_knowledge": "canary_deployment"
+      },
+      {
+        "text": "Deploy only at night",
+        "correct": false,
+        "response": "Timing isn't the key aspect. Canary deploys to a subset of users first to catch issues early."
+      },
+      {
+        "text": "Deploy to yellow servers",
+        "correct": false,
+        "response": "Not about server colors\\! Canary means releasing to a small group first to test changes safely."
+      },
+      {
+        "text": "Same as blue-green",
+        "correct": false,
+        "response": "Different\\! Blue-green switches all traffic at once. Canary gradually increases traffic to the new version."
+      }
+    ]
+  },
+  "container_security": {
+    "question_text": "What is a key security best practice for container images?",
+    "topic": "devops",
+    "answers": [
+      {
+        "text": "Run as root always",
+        "correct": false,
+        "response": "Never run as root\\! Use non-root users to minimize damage if container is compromised."
+      },
+      {
+        "text": "Use minimal base images and scan for vulnerabilities",
+        "correct": true,
+        "response": "Correct\\! Use slim base images (Alpine, distroless), scan with tools like Trivy, update dependencies regularly, and never include secrets. Less software = smaller attack surface\\!",
+        "reward_knowledge": "container_security"
+      },
+      {
+        "text": "Include all tools for debugging",
+        "correct": false,
+        "response": "Minimize tools in production images\\! Each tool is a potential vulnerability. Use separate debug images if needed."
+      },
+      {
+        "text": "Hardcode secrets in images",
+        "correct": false,
+        "response": "Never hardcode secrets\\! Use environment variables, secret managers, or mounted volumes."
+      }
+    ]
+  },
+  "four_golden_signals": {
+    "question_text": "What are the 'Four Golden Signals' of monitoring?",
+    "topic": "devops",
+    "answers": [
+      {
+        "text": "Latency, Traffic, Errors, Saturation",
+        "correct": true,
+        "response": "Correct\\! Google's SRE book defines these: Latency (response time), Traffic (demand), Errors (failed requests), Saturation (resource usage). Monitor these to understand system health\\!",
+        "reward_knowledge": "golden_signals"
+      },
+      {
+        "text": "CPU, Memory, Disk, Network",
+        "correct": false,
+        "response": "Those are infrastructure metrics. Golden signals focus on user-facing metrics: latency, traffic, errors, saturation."
+      },
+      {
+        "text": "Logs, Metrics, Traces, Alerts",
+        "correct": false,
+        "response": "Those are observability pillars. Golden signals are specific metrics: latency, traffic, errors, saturation."
+      },
+      {
+        "text": "Uptime, Downtime, SLA, SLO",
+        "correct": false,
+        "response": "Those are reliability metrics. Golden signals are: latency, traffic, errors, saturation."
+      }
+    ]
+  },
+  "rolling_update": {
+    "question_text": "How does a rolling update work?",
+    "topic": "devops",
+    "answers": [
+      {
+        "text": "Update all servers at once",
+        "correct": false,
+        "response": "That would cause downtime\\! Rolling updates incrementally replace instances."
+      },
+      {
+        "text": "Gradually replace old instances with new ones",
+        "correct": true,
+        "response": "Correct\\! Rolling updates replace instances one by one (or in small batches), maintaining availability. If issues arise, you can pause or roll back. Kubernetes and ECS support this natively.",
+        "reward_knowledge": "rolling_update"
+      },
+      {
+        "text": "Only roll logs, not code",
+        "correct": false,
+        "response": "Not about logs\\! Rolling update means gradually replacing old application versions with new ones."
+      },
+      {
+        "text": "Update database only",
+        "correct": false,
+        "response": "Rolling updates apply to application instances, not just databases."
+      }
+    ]
+  },
+  "terraform_state": {
+    "question_text": "Why is Terraform state important?",
+    "topic": "devops",
+    "answers": [
+      {
+        "text": "It's not needed",
+        "correct": false,
+        "response": "State is essential\\! Terraform needs it to map configuration to real resources."
+      },
+      {
+        "text": "Tracks real infrastructure to detect drift",
+        "correct": true,
+        "response": "Correct\\! State maps your configuration to real resources, enabling drift detection, incremental changes, and collaboration. Store it remotely (S3, Terraform Cloud) with locking to prevent corruption\\!",
+        "reward_knowledge": "terraform"
+      },
+      {
+        "text": "Only for local testing",
+        "correct": false,
+        "response": "State is critical for production\\! Remote state enables team collaboration and prevents conflicts."
+      },
+      {
+        "text": "Can be deleted safely anytime",
+        "correct": false,
+        "response": "Never delete state\\! You'll lose the mapping to real resources. Back it up carefully."
+      }
+    ]
+  },
+  "api_pagination": {
+    "question_text": "What's the advantage of cursor-based over offset-based pagination?",
+    "topic": "system_design",
+    "answers": [
+      {
+        "text": "Faster for large datasets, handles changes correctly",
+        "correct": true,
+        "response": "Correct\\! Cursor-based pagination uses a pointer (e.g., last ID) so performance stays constant. Offset pagination gets slower with high offsets and breaks if data changes. Cursors are stable\\!",
+        "reward_knowledge": "api_pagination"
+      },
+      {
+        "text": "Offset is always better",
+        "correct": false,
+        "response": "Offset is simpler but slower at scale. Offset 1000000 requires skipping a million rows\\!"
+      },
+      {
+        "text": "They're identical",
+        "correct": false,
+        "response": "Very different\\! Cursors maintain position even as data changes. Offsets can skip or duplicate items."
+      },
+      {
+        "text": "Cursors only work with REST",
+        "correct": false,
+        "response": "Cursors work with any API style - REST, GraphQL, gRPC. It's a pagination strategy."
+      }
+    ]
+  },
+  "idempotency": {
+    "question_text": "Why is idempotency important in distributed systems?",
+    "topic": "system_design",
+    "answers": [
+      {
+        "text": "Retry safety - same request can be sent multiple times safely",
+        "correct": true,
+        "response": "Correct\\! Networks are unreliable. Idempotency means retrying a failed request won't cause duplicates. Use idempotency keys, PUT instead of POST, or natural idempotence of operations.",
+        "reward_knowledge": "idempotency"
+      },
+      {
+        "text": "Makes systems faster",
+        "correct": false,
+        "response": "Not about speed. Idempotency ensures safety when requests are retried due to timeouts or failures."
+      },
+      {
+        "text": "Reduces server load",
+        "correct": false,
+        "response": "Load isn't the key benefit. It's about handling duplicate requests correctly without side effects."
+      },
+      {
+        "text": "Only needed for databases",
+        "correct": false,
+        "response": "All distributed operations need idempotency\\! APIs, message queues, payment systems, etc."
+      }
+    ]
+  },
+  "event_driven": {
+    "question_text": "What's a key benefit of event-driven architecture?",
+    "topic": "system_design",
+    "answers": [
+      {
+        "text": "Decoupling and asynchronous processing",
+        "correct": true,
+        "response": "Correct\\! Producers emit events without knowing consumers. Consumers react independently. Great for complex workflows and scaling. Examples: order placed \u2192 inventory, email, analytics all react.",
+        "reward_knowledge": "event_driven"
+      },
+      {
+        "text": "Simpler than synchronous calls",
+        "correct": false,
+        "response": "Actually more complex\\! Event-driven adds debugging challenges, eventual consistency, ordering issues. But gains flexibility."
+      },
+      {
+        "text": "Faster than REST APIs",
+        "correct": false,
+        "response": "Not necessarily faster. Events add latency from queues. The benefit is decoupling, not raw speed."
+      },
+      {
+        "text": "Eliminates need for databases",
+        "correct": false,
+        "response": "Still need databases\\! Event sourcing stores events as truth, but you often materialize views."
+      }
+    ]
+  },
+  "retry_backoff": {
+    "question_text": "Why use exponential backoff for retries?",
+    "topic": "system_design",
+    "answers": [
+      {
+        "text": "Prevents thundering herd, gives system time to recover",
+        "correct": true,
+        "response": "Correct\\! If all clients retry immediately, you overwhelm the recovering system. Exponential backoff (1s, 2s, 4s, 8s...) with jitter spaces out retries. Protects both client and server\\!",
+        "reward_knowledge": "retry_patterns"
+      },
+      {
+        "text": "Makes retries faster",
+        "correct": false,
+        "response": "Backoff actually waits longer between retries\\! The goal is giving systems time to recover."
+      },
+      {
+        "text": "Prevents all errors",
+        "correct": false,
+        "response": "Can't prevent errors. Backoff helps manage retry storms when systems are already struggling."
+      },
+      {
+        "text": "Only needed for networks",
+        "correct": false,
+        "response": "Useful anywhere with failures: APIs, databases, external services, batch jobs."
+      }
+    ]
+  },
+  "saga_pattern": {
+    "question_text": "What is the Saga pattern in microservices?",
+    "topic": "system_design",
+    "answers": [
+      {
+        "text": "Manages distributed transactions with compensating actions",
+        "correct": true,
+        "response": "Correct\\! Sagas break long transactions into steps, each with a compensating action for rollback. Example: book hotel \u2192 charge card \u2192 send confirmation. If charge fails, cancel hotel. No 2PC needed\\!",
+        "reward_knowledge": "saga_pattern"
+      },
+      {
+        "text": "A type of database",
+        "correct": false,
+        "response": "Not a database\\! Saga is a pattern for coordinating multi-service transactions without distributed locks."
+      },
+      {
+        "text": "Same as two-phase commit",
+        "correct": false,
+        "response": "Different\\! 2PC locks resources. Sagas use eventual consistency and compensating actions for rollback."
+      },
+      {
+        "text": "Only for event sourcing",
+        "correct": false,
+        "response": "Sagas work with any architecture. Can be choreographed (events) or orchestrated (coordinator)."
+      }
+    ]
+  },
+  "big_theta_notation": {
+    "question_text": "What does Big-Theta (\u0398) notation represent?",
+    "topic": "theory",
+    "answers": [
+      {
+        "text": "Tight bound - both upper and lower",
+        "correct": true,
+        "response": "Correct\\! \u0398(n) means the function grows exactly at rate n - both upper and lower bounded. O(n) is upper bound only, \u03a9(n) is lower bound only. \u0398 is most precise\\!",
+        "reward_knowledge": "complexity_notation"
+      },
+      {
+        "text": "Worst case only",
+        "correct": false,
+        "response": "That's Big-O\\! \u0398 (theta) gives a tight bound - the function grows exactly at that rate, not just at most."
+      },
+      {
+        "text": "Best case only",
+        "correct": false,
+        "response": "That's Big-Omega (\u03a9)\\! \u0398 bounds both directions - the function grows exactly at that rate."
+      },
+      {
+        "text": "Average case",
+        "correct": false,
+        "response": "Asymptotic notation describes growth rates, not probabilistic cases. \u0398 means tight bound (exact growth)."
+      }
+    ]
+  },
+  "np_complete": {
+    "question_text": "What makes a problem NP-complete?",
+    "topic": "theory",
+    "answers": [
+      {
+        "text": "In NP and all NP problems reduce to it",
+        "correct": true,
+        "response": "Correct\\! NP-complete problems are the hardest in NP - if you solve one efficiently, you solve all NP problems\\! SAT, TSP, Graph Coloring are classics. No polynomial algorithm known.",
+        "reward_knowledge": "np_complete"
+      },
+      {
+        "text": "Can't be solved by computers",
+        "correct": false,
+        "response": "NP-complete problems CAN be solved, just not efficiently (no known polynomial algorithm). They're solvable but slow\\!"
+      },
+      {
+        "text": "Same as undecidable",
+        "correct": false,
+        "response": "Different\\! Undecidable (like halting problem) has NO algorithm. NP-complete has algorithms, just not efficient ones."
+      },
+      {
+        "text": "Easier than NP problems",
+        "correct": false,
+        "response": "Opposite\\! NP-complete problems are the HARDEST in NP. All other NP problems reduce to them."
+      }
+    ]
+  },
+  "context_free_grammar": {
+    "question_text": "What can context-free grammars describe that regular expressions cannot?",
+    "topic": "theory",
+    "answers": [
+      {
+        "text": "Nested structures like balanced parentheses",
+        "correct": true,
+        "response": "Correct\\! CFGs can count and match nested structures. RegEx can't match {a^n b^n} (equal a's and b's). That's why parsers use CFGs for code, HTML, etc\\!",
+        "reward_knowledge": "formal_languages"
+      },
+      {
+        "text": "Regular expressions are more powerful",
+        "correct": false,
+        "response": "Opposite\\! CFGs are strictly more powerful than regular expressions in the Chomsky hierarchy."
+      },
+      {
+        "text": "They're equally powerful",
+        "correct": false,
+        "response": "CFGs are more powerful\\! They can handle nested structures that RegEx cannot."
+      },
+      {
+        "text": "Nothing - CFGs are weaker",
+        "correct": false,
+        "response": "CFGs are MORE powerful\\! They can describe nested/recursive structures that regular languages can't."
+      }
+    ]
+  },
+  "master_theorem": {
+    "question_text": "What does the Master Theorem help analyze?",
+    "topic": "theory",
+    "answers": [
+      {
+        "text": "Recurrence relations for divide-and-conquer",
+        "correct": true,
+        "response": "Correct\\! Master Theorem gives Big-O for recurrences like T(n) = aT(n/b) + f(n). Instantly analyze merge sort, binary search, etc without solving\\!",
+        "reward_knowledge": "master_theorem"
+      },
+      {
+        "text": "Graph algorithms only",
+        "correct": false,
+        "response": "Master Theorem analyzes divide-and-conquer recurrences - any recursive algorithm that splits into subproblems."
+      },
+      {
+        "text": "Dynamic programming problems",
+        "correct": false,
+        "response": "Master Theorem is for divide-and-conquer, not DP. DP has overlapping subproblems; D&C splits independently."
+      },
+      {
+        "text": "Database query performance",
+        "correct": false,
+        "response": "Master Theorem analyzes recursive algorithm complexity, not database queries."
       }
     ]
   }

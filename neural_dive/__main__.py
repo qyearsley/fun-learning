@@ -3,19 +3,25 @@ Main entry point for Neural Dive.
 Allows running as: python -m neural_dive
 """
 
-import sys
 import argparse
+import os
+import sys
+
 from blessed import Terminal
+
 from neural_dive.game import Game
-from neural_dive.rendering import draw_game
+from neural_dive.rendering import draw_game, draw_victory_screen
+from neural_dive.themes import get_theme
 
 
-def run_interactive(game: Game):
+def run_interactive(game: Game, chars, colors):
     """
     Run the game in interactive mode with terminal UI.
 
     Args:
         game: Game instance to run
+        chars: Character set for rendering
+        colors: Color scheme for rendering
     """
     term = Terminal()
     first_draw = True
@@ -23,14 +29,21 @@ def run_interactive(game: Game):
     try:
         with term.cbreak(), term.hidden_cursor():
             while True:
+                # Check for victory
+                if game.game_won:
+                    draw_victory_screen(term, game, colors)
+                    while True:
+                        key = term.inkey(timeout=0.1)
+                        if key and key.lower() == "q":
+                            break
+                    break
+
                 # Check for game over
                 if game.coherence <= 0:
-                    draw_game(term, game, redraw_all=first_draw)
+                    draw_game(term, game, chars, colors, redraw_all=first_draw)
                     print(
                         term.move_xy(0, term.height // 2)
-                        + term.center(
-                            term.bold_red("SYSTEM FAILURE - COHERENCE LOST")
-                        ).rstrip()
+                        + term.center(term.bold_red("SYSTEM FAILURE - COHERENCE LOST")).rstrip()
                     )
                     print(
                         term.move_xy(0, term.height // 2 + 2)
@@ -45,20 +58,19 @@ def run_interactive(game: Game):
                     break
 
                 # Draw everything
-                draw_game(term, game, redraw_all=first_draw)
+                draw_game(term, game, chars, colors, redraw_all=first_draw)
                 first_draw = False
 
                 # Get input
                 key = term.inkey(timeout=0.1)
 
+                # Update NPC wandering every frame
+                game.update_npc_wandering()
+
                 if not key:
                     continue
 
-                if (
-                    key.lower() == "q"
-                    and not game.active_conversation
-                    and not game.active_terminal
-                ):
+                if key.lower() == "q" and not game.active_conversation and not game.active_terminal:
                     break
 
                 # In terminal reading mode
@@ -76,10 +88,7 @@ def run_interactive(game: Game):
                         game._show_greeting = False
                         continue
 
-                    if (
-                        hasattr(game, "_last_answer_response")
-                        and game._last_answer_response
-                    ):
+                    if hasattr(game, "_last_answer_response") and game._last_answer_response:
                         # Dismiss response and continue to next question
                         game._last_answer_response = None
                         continue
@@ -102,11 +111,8 @@ def run_interactive(game: Game):
                         continue
 
                 # Check if conversation just ended (we have a response but no active conversation)
-                elif (
-                    hasattr(game, "_last_answer_response")
-                    and game._last_answer_response
-                ):
-                    # Show final message, then clear everything
+                elif hasattr(game, "_last_answer_response") and game._last_answer_response:
+                    # Wait for user to press any key to dismiss completion message
                     game._last_answer_response = None
                     first_draw = True  # Force full redraw to clear overlay
                     continue
@@ -121,13 +127,7 @@ def run_interactive(game: Game):
                         game.move_player(-1, 0)
                     elif key.name == "KEY_RIGHT":
                         game.move_player(1, 0)
-                    elif key in [">", "."]:
-                        # Try stairs first, then interact
-                        if not game.use_stairs():
-                            game.interact()
-                        else:
-                            first_draw = True  # Force redraw on floor change
-                    elif key in ["<", ","]:
+                    elif key in [">", "."] or key in ["<", ","]:
                         # Try stairs first, then interact
                         if not game.use_stairs():
                             game.interact()
@@ -179,24 +179,92 @@ def run_test_mode():
 def main():
     """Main entry point"""
     parser = argparse.ArgumentParser(
-        description="Neural Dive - Cyberpunk roguelike with CS conversations"
+        prog="ndive",
+        description="""
+╔═══════════════════════════════════════════════════════════════╗
+║                        NEURAL DIVE                            ║
+║        Cyberpunk Terminal Roguelike • CS Learning Game        ║
+╚═══════════════════════════════════════════════════════════════╝
+
+Descend through neural layers, answer CS questions, defeat AI bosses.
+        """,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  %(prog)s                  # Play with default settings
+  %(prog)s --light          # Light terminal background
+  %(prog)s --classic        # ASCII graphics (compatibility mode)
+  %(prog)s --fixed --seed 42  # Reproducible game for testing
+
+Environment Variables:
+  NEURAL_DIVE_THEME=cyberpunk|classic
+  NEURAL_DIVE_BACKGROUND=dark|light
+
+Controls:
+  Arrow keys: Move  |  Space/Enter: Interact  |  >/< : Stairs  |  Q: Quit
+        """,
     )
-    parser.add_argument(
-        "--test",
-        action="store_true",
-        help="Run in test mode (reads commands from stdin)",
+
+    # Visual options
+    visual = parser.add_argument_group("Visual Options")
+    visual.add_argument(
+        "--theme",
+        "-t",
+        type=str,
+        choices=["cyberpunk", "classic"],
+        metavar="THEME",
+        help="Visual theme: 'cyberpunk' (Unicode) or 'classic' (ASCII)",
     )
-    parser.add_argument("--seed", type=int, help="Random seed for NPC placement")
-    parser.add_argument(
-        "--fixed", action="store_true", help="Use fixed NPC positions instead of random"
+    visual.add_argument(
+        "--background",
+        "-b",
+        type=str,
+        choices=["dark", "light"],
+        metavar="BG",
+        help="Terminal background: 'dark' or 'light'",
     )
-    parser.add_argument(
-        "--width", type=int, default=50, help="Map width (default: 50)"
+    visual.add_argument(
+        "--light",
+        action="store_const",
+        const="light",
+        dest="background",
+        help="Shortcut for --background light",
     )
-    parser.add_argument(
-        "--height", type=int, default=25, help="Map height (default: 25)"
+    visual.add_argument(
+        "--classic",
+        action="store_const",
+        const="classic",
+        dest="theme",
+        help="Shortcut for --theme classic",
     )
+
+    # Game options
+    game_opts = parser.add_argument_group("Game Options")
+    game_opts.add_argument(
+        "--width", type=int, default=50, metavar="N", help="Map width in tiles (default: 50)"
+    )
+    game_opts.add_argument(
+        "--height", type=int, default=25, metavar="N", help="Map height in tiles (default: 25)"
+    )
+    game_opts.add_argument(
+        "--seed", type=int, metavar="N", help="Random seed for reproducible gameplay"
+    )
+    game_opts.add_argument(
+        "--fixed", action="store_true", help="Use fixed NPC positions (for testing)"
+    )
+
+    # Developer options
+    dev = parser.add_argument_group("Developer Options")
+    dev.add_argument("--test", action="store_true", help="Test mode: read commands from stdin")
+
     args = parser.parse_args()
+
+    # Get theme from args, env var, or default
+    theme_name = args.theme or os.getenv("NEURAL_DIVE_THEME", "cyberpunk")
+    background = args.background or os.getenv("NEURAL_DIVE_BACKGROUND", "dark")
+
+    # Get theme characters and colors
+    chars, colors = get_theme(theme_name, background)
 
     if args.test:
         run_test_mode()
@@ -213,7 +281,7 @@ def main():
             random_npcs=random_npcs,
             seed=args.seed,
         )
-        run_interactive(game)
+        run_interactive(game, chars, colors)
 
 
 if __name__ == "__main__":

@@ -46,9 +46,9 @@ GATE_X_OFFSET = 3
 GATE_Y_OFFSET = 3
 
 # Rendering
-OVERLAY_MAX_WIDTH = 60
-OVERLAY_MAX_HEIGHT = 25
-COMPLETION_OVERLAY_MAX_HEIGHT = 30
+OVERLAY_MAX_WIDTH = 80  # Increased from 60 for better readability
+OVERLAY_MAX_HEIGHT = 30  # Increased from 25
+COMPLETION_OVERLAY_MAX_HEIGHT = 35  # Increased from 30
 UI_BOTTOM_OFFSET = 4
 
 # Floor completion requirements
@@ -65,3 +65,24 @@ QUEST_TARGET_NPCS = {
     "COMPILER_SAGE",
     "DB_GUARDIAN",
 }
+
+# NPC Wandering System
+# NPCs alternate between idle and wander states for natural movement
+NPC_WANDER_ENABLED = True  # Set to False to disable all NPC movement
+NPC_IDLE_TICKS_MIN = 5  # Minimum ticks to stay idle
+NPC_IDLE_TICKS_MAX = 10  # Maximum ticks to stay idle
+NPC_WANDER_TICKS_MIN = 3  # Minimum ticks to wander
+NPC_WANDER_TICKS_MAX = 7  # Maximum ticks to wander
+NPC_WANDER_RADIUS = 8  # Maximum distance from spawn point before returning home
+
+# NPC movement speeds by type (ticks between moves, lower = faster)
+NPC_MOVEMENT_SPEEDS = {
+    "specialist": 5,  # Slow, focused scholars
+    "helper": 3,  # Moderate speed, approachable helpers
+    "enemy": 3,  # Moderate speed, threatening
+    "quest": 999,  # Effectively stationary (important quest givers)
+}
+
+# Theme and visual settings
+DEFAULT_THEME = "cyberpunk"  # Available: "cyberpunk", "classic"
+DEFAULT_BACKGROUND = "dark"  # "dark" or "light" terminal background
