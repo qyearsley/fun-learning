@@ -1,0 +1,17 @@
+# fun-learning
+
+Personal experiments for learning programming concepts interactively.
+These are toy projects, not production code.
+
+## Projects
+
+| File | What it is | Run with |
+|------|-----------|----------|
+| `perceptron_demo.py` | Interactive perceptron learning logic gates | `./perceptron_demo.py` |
+| `neural_net_demo.py` | Neural network learning XOR via backpropagation | `./neural_net_demo.py` |
+| `mansion_escape.pl` | Text adventure game in Prolog | `./mansion_escape.pl` |
+
+## Requirements
+
+- Python demos: [uv](https://docs.astral.sh/uv/) (dependencies install automatically)
+- Prolog demo: [SWI-Prolog](https://www.swi-prolog.org/) (`brew install swi-prolog`)

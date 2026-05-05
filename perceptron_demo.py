@@ -312,8 +312,8 @@ class PerceptronDemo:
 
             # Continue or exit
             print("\n" + "="*70)
-            choice = input("\nTry another gate? (y/n): ").strip().lower()
-            if choice != 'y':
+            choice = input("\nTry another gate? (Y/n): ").strip().lower()
+            if choice == 'n':
                 print("\n👋 Thanks for learning about perceptrons!")
                 print("   Remember: A perceptron is just the beginning - modern")
                 print("   neural networks use millions of these working together!\n")
