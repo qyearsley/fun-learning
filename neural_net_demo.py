@@ -80,7 +80,6 @@ class NeuralNetwork:
         self.learning_rate = learning_rate
 
         # Initialize weights with small random values
-        np.random.seed(42)  # For reproducibility
         self.weights_input_hidden = np.random.randn(2, 3) * 0.5
         self.weights_hidden_output = np.random.randn(3, 1) * 0.5
         self.bias_hidden = np.random.randn(3) * 0.5
@@ -181,9 +180,9 @@ class NetworkVisualizer:
                       ╱    ╲    ╱
                            (H3)
         """
-        print("\n" + "="*80)
-        print("  NETWORK STRUCTURE".center(80))
-        print("="*80)
+        print("\n" + "="*70)
+        print("  NETWORK STRUCTURE".center(70))
+        print("="*70)
 
         # Get values (or use zeros if not computed yet)
         i1 = nn.input_values[0] if nn.input_values is not None else 0.0
@@ -210,9 +209,9 @@ class NetworkVisualizer:
         print(f"                          └───────┘")
 
         if show_weights:
-            print("\n" + "-"*80)
-            print("  WEIGHT MATRICES".center(80))
-            print("-"*80 + "\n")
+            print("\n" + "-"*70)
+            print("  WEIGHT MATRICES".center(70))
+            print("-"*70 + "\n")
 
             print("  Input → Hidden:")
             print("           H1      H2      H3")
@@ -226,7 +225,7 @@ class NetworkVisualizer:
             print(f"    H3  [{nn.weights_hidden_output[2][0]:6.3f}]")
             print(f"  Bias  [{nn.bias_output[0]:6.3f}]")
 
-        print("="*80)
+        print("="*70)
 
     @staticmethod
     def draw_training_step(inputs: List[int], target: int, prediction: float, error: float):
@@ -260,9 +259,9 @@ class NeuralNetDemo:
 
     def print_header(self):
         """Display the program header."""
-        print("\n" + "="*80)
-        print("  NEURAL NETWORK LEARNING DEMONSTRATION".center(80))
-        print("="*80)
+        print("\n" + "="*70)
+        print("  NEURAL NETWORK LEARNING DEMONSTRATION".center(70))
+        print("="*70)
         print("\n📚 What is a Neural Network?")
         print("   A neural network is multiple artificial neurons working together in layers.")
         print("   Unlike a single perceptron, networks with 'hidden layers' can learn")
@@ -323,9 +322,9 @@ class NeuralNetDemo:
             is_verbose = (epoch % verbose_interval == 0) or (epoch < 5)
 
             if is_verbose:
-                print(f"\n{'='*80}")
-                print(f"  EPOCH {epoch + 1}/{max_epochs}".center(80))
-                print(f"{'='*80}\n")
+                print(f"\n{'='*70}")
+                print(f"  EPOCH {epoch + 1}/{max_epochs}".center(70))
+                print(f"{'='*70}\n")
 
             # Train on each example
             for inputs, target in self.XOR_DATA:
@@ -365,9 +364,9 @@ class NeuralNetDemo:
 
     def test_network(self):
         """Test the trained network on all XOR examples."""
-        print("\n" + "="*80)
-        print("  FINAL TEST".center(80))
-        print("="*80 + "\n")
+        print("\n" + "="*70)
+        print("  FINAL TEST".center(70))
+        print("="*70 + "\n")
 
         print("Testing learned behavior:")
         print("  Input 1 | Input 2 | Expected | Predicted | Confidence | Result")
@@ -397,16 +396,16 @@ class NeuralNetDemo:
             print("\n🎉 Perfect! The network has successfully learned XOR!")
 
         # Show final network with all values
-        print("\n" + "="*80)
-        print("  FINAL NETWORK STATE".center(80))
-        print("="*80)
+        print("\n" + "="*70)
+        print("  FINAL NETWORK STATE".center(70))
+        print("="*70)
         self.visualizer.draw_network(self.network, show_weights=True)
 
     def explain_learning(self):
         """Explain what the network learned."""
-        print("\n" + "="*80)
-        print("  UNDERSTANDING WHAT THE NETWORK LEARNED".center(80))
-        print("="*80 + "\n")
+        print("\n" + "="*70)
+        print("  UNDERSTANDING WHAT THE NETWORK LEARNED".center(70))
+        print("="*70 + "\n")
 
         print("💡 How did it learn XOR?\n")
         print("   The hidden layer learned to detect useful patterns:")
@@ -434,41 +433,48 @@ class NeuralNetDemo:
         self.print_xor_table()
         self.explain_architecture()
 
-        # Ask for learning rate
-        print("⚙️  Configuration")
-        print("-" * 40)
         while True:
-            try:
-                lr_input = input("Enter learning rate (0.1-2.0, or press Enter for 0.5): ").strip()
-                if lr_input == "":
-                    learning_rate = 0.5
-                    break
-                learning_rate = float(lr_input)
-                if 0.1 <= learning_rate <= 2.0:
-                    break
-                print("Please enter a value between 0.1 and 2.0")
-            except ValueError:
-                print("Please enter a valid number")
-            except KeyboardInterrupt:
-                print("\n\n👋 Interrupted. Goodbye!")
-                sys.exit(0)
+            # Ask for learning rate
+            print("⚙️  Configuration")
+            print("-" * 40)
+            while True:
+                try:
+                    lr_input = input("Enter learning rate (0.1-2.0, or press Enter for 0.5): ").strip()
+                    if lr_input == "":
+                        learning_rate = 0.5
+                        break
+                    learning_rate = float(lr_input)
+                    if 0.1 <= learning_rate <= 2.0:
+                        break
+                    print("Please enter a value between 0.1 and 2.0")
+                except ValueError:
+                    print("Please enter a valid number")
+                except KeyboardInterrupt:
+                    print("\n\n👋 Interrupted. Goodbye!")
+                    sys.exit(0)
 
-        # Initialize network
-        self.network = NeuralNetwork(learning_rate=learning_rate)
+            # Initialize network
+            self.network = NeuralNetwork(learning_rate=learning_rate)
 
-        # Train
-        success = self.train_with_visualization(max_epochs=5000, verbose_interval=500)
+            # Train
+            success = self.train_with_visualization(max_epochs=5000, verbose_interval=500)
 
-        # Test
-        self.test_network()
+            # Test
+            self.test_network()
 
-        # Explain
-        self.explain_learning()
+            # Explain
+            self.explain_learning()
+
+            # Offer replay
+            print("\n" + "="*70)
+            choice = input("\nTry again with a different learning rate? (Y/n): ").strip().lower()
+            if choice == 'n':
+                break
 
         # Conclusion
-        print("\n" + "="*80)
-        print("  CONCLUSION".center(80))
-        print("="*80 + "\n")
+        print("\n" + "="*70)
+        print("  CONCLUSION".center(70))
+        print("="*70 + "\n")
         print("🎓 Key Lessons:")
         print("   • Single perceptrons can only learn linearly separable patterns")
         print("   • Neural networks with hidden layers can learn complex patterns like XOR")

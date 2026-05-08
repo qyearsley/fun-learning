@@ -51,12 +51,7 @@ class Individual:
         self.fitness = 0.0
 
     def calculate_fitness(self, target: str):
-        """
-        Fitness = fraction of characters that match the target.
-
-        A fitness of 1.0 means perfect match.
-        A fitness of 0.0 means no characters match.
-        """
+        """Fraction of characters matching the target (0.0 = none, 1.0 = perfect)."""
         matches = sum(1 for a, b in zip(self.genes, target) if a == b)
         self.fitness = matches / len(target)
 
@@ -91,11 +86,9 @@ class GeneticAlgorithm:
         self.history: List[float] = []
 
     def random_gene(self) -> str:
-        """Generate a single random character from our character set."""
         return random.choice(self.CHARSET)
 
     def create_individual(self) -> Individual:
-        """Create a random individual (random string of correct length)."""
         genes = ''.join(self.random_gene() for _ in range(len(self.target)))
         return Individual(genes)
 
@@ -158,18 +151,14 @@ class GeneticAlgorithm:
         return Individual(''.join(genes))
 
     def evolve_generation(self) -> Individual:
-        """
-        Run one generation of evolution.
-
-        Returns the best individual after this generation.
-        """
+        """Run one complete cycle: select parents, breed offspring, replace population."""
         self.generation += 1
         new_population: List[Individual] = []
 
-        # Elitism: carry the best individuals forward unchanged
+        # Elitism: the top N survive unchanged, so the best solution is never lost
         new_population.extend(self.population[:self.elite_count])
 
-        # Fill the rest with offspring
+        # Fill remaining slots by breeding from the current population
         while len(new_population) < self.population_size:
             parent_a = self.select_parent()
             parent_b = self.select_parent()
@@ -200,15 +189,15 @@ class GeneticAlgorithmDemo:
         print("\n" + "=" * 70)
         print("  GENETIC ALGORITHM DEMONSTRATION".center(70))
         print("=" * 70)
-        print("\n  What is a Genetic Algorithm?")
-        print("  A search method inspired by biological evolution.")
-        print("  Instead of following gradients (like neural networks),")
-        print("  it breeds a population of solutions using:")
-        print("    1. Selection  - the fittest survive")
-        print("    2. Crossover  - parents combine to make children")
-        print("    3. Mutation   - random changes introduce novelty\n")
-        print("  This demo evolves random strings toward a target phrase.")
-        print("  Watch how the population converges over generations.\n")
+        print("\n📚 What is a Genetic Algorithm?")
+        print("   A search method inspired by biological evolution.")
+        print("   Instead of following gradients (like neural networks),")
+        print("   it breeds a population of solutions using:")
+        print("     1. Selection  - the fittest survive")
+        print("     2. Crossover  - parents combine to make children")
+        print("     3. Mutation   - random changes introduce novelty\n")
+        print("🎯 This demo evolves random strings toward a target phrase.")
+        print("   Watch how the population converges over generations.\n")
 
     def select_target(self) -> str:
         print("Target phrases:")
@@ -236,8 +225,8 @@ class GeneticAlgorithmDemo:
                 sys.exit(0)
 
     def configure(self) -> Tuple[int, float]:
-        print("\n  Configuration")
-        print("  " + "-" * 40)
+        print("\n⚙️  Configuration")
+        print("-" * 40)
 
         # Population size
         while True:
@@ -283,7 +272,7 @@ class GeneticAlgorithmDemo:
 
     def fitness_bar(self, fitness: float, width: int = 30) -> str:
         filled = int(fitness * width)
-        return "[" + "#" * filled + "." * (width - filled) + "]"
+        return "█" * filled + "░" * (width - filled)
 
     def run_evolution(self, target: str, pop_size: int, mut_rate: float):
         self.ga = GeneticAlgorithm(
@@ -324,30 +313,27 @@ class GeneticAlgorithmDemo:
                 colored = self.format_individual(best, target)
                 print(f"  {gen:4d} | {best.fitness:.3f} {bar} | {colored}")
 
-                if gen <= 20:
-                    time.sleep(0.1)
-
         elapsed = time.time() - start_time
 
         # Results
         print("\n" + "=" * 70)
         if best.fitness == 1.0:
-            print("  EVOLVED SUCCESSFULLY".center(70))
+            print("  🎉 EVOLVED SUCCESSFULLY".center(70))
         else:
-            print("  MAX GENERATIONS REACHED".center(70))
+            print("  ⏱️  MAX GENERATIONS REACHED".center(70))
         print("=" * 70)
 
-        print(f"\n  Result:       \"{best.genes}\"")
-        print(f"  Target:       \"{target}\"")
-        print(f"  Generations:  {self.ga.generation}")
-        print(f"  Time:         {elapsed:.2f}s")
-        print(f"  Final fitness: {best.fitness:.4f}")
+        print(f"\n📊 Results:")
+        print(f"   Result:       \"{best.genes}\"")
+        print(f"   Target:       \"{target}\"")
+        print(f"   Generations:  {self.ga.generation}")
+        print(f"   Time:         {elapsed:.2f}s")
+        print(f"   Final fitness: {best.fitness:.4f}")
 
         # Show fitness progression
         self.show_fitness_graph()
 
     def show_fitness_graph(self):
-        """Simple ASCII fitness-over-time graph."""
         history = self.ga.history
         if not history:
             return
@@ -389,7 +375,7 @@ class GeneticAlgorithmDemo:
 
     def explain(self):
         print("\n" + "=" * 70)
-        print("  HOW IT WORKED".center(70))
+        print("  💡 HOW IT WORKED".center(70))
         print("=" * 70)
 
         print("""
@@ -429,9 +415,9 @@ class GeneticAlgorithmDemo:
             print("\n" + "=" * 70)
             choice = input("\nRun again with different settings? (Y/n): ").strip().lower()
             if choice == 'n':
-                print("\n  Key takeaway: evolution is a general-purpose optimizer.")
-                print("  It's slower than gradient descent for smooth problems,")
-                print("  but works on anything you can score.\n")
+                print("\n🎓 Key takeaway: evolution is a general-purpose optimizer.")
+                print("   It's slower than gradient descent for smooth problems,")
+                print("   but works on anything you can score.\n")
                 break
 
 
@@ -440,5 +426,5 @@ if __name__ == "__main__":
     try:
         demo.run()
     except KeyboardInterrupt:
-        print("\n\nInterrupted. Goodbye!")
+        print("\n\n👋 Interrupted. Goodbye!")
         sys.exit(0)

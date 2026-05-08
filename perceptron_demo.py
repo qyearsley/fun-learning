@@ -25,7 +25,7 @@ Author: Claude Code
 
 import numpy as np
 import sys
-from typing import List, Tuple
+from typing import Tuple
 import time
 
 
@@ -65,14 +65,7 @@ class Perceptron:
         return 1 if x >= 0 else 0
 
     def predict(self, inputs: np.ndarray) -> int:
-        """
-        Make a prediction for given inputs.
-
-        Process:
-        1. Multiply each input by its weight
-        2. Sum all weighted inputs plus bias
-        3. Apply activation function
-        """
+        """Compute weighted sum of inputs and apply step activation."""
         weighted_sum = np.dot(inputs, self.weights) + self.bias
         return self.activation(weighted_sum)
 
@@ -101,7 +94,6 @@ class Perceptron:
         return prediction, abs(error)
 
     def get_state(self) -> str:
-        """Return a readable representation of current weights and bias."""
         weights_str = ", ".join([f"w{i}={w:.3f}" for i, w in enumerate(self.weights)])
         return f"[{weights_str}, bias={self.bias:.3f}]"
 
@@ -148,7 +140,6 @@ class PerceptronDemo:
         self.gate_name = None
 
     def print_header(self):
-        """Display the program header."""
         print("\n" + "="*70)
         print("  PERCEPTRON LEARNING DEMONSTRATION".center(70))
         print("="*70)
@@ -158,7 +149,6 @@ class PerceptronDemo:
         print("   important each input is for making a decision.\n")
 
     def print_gate_info(self, gate_name: str):
-        """Explain the selected logic gate."""
         print(f"\n🎯 Learning Target: {gate_name} Gate")
         print("-" * 40)
         print(f"Truth Table for {gate_name}:")
@@ -175,7 +165,6 @@ class PerceptronDemo:
             print("   (Neural networks with hidden layers can learn XOR)\n")
 
     def select_gate(self) -> str:
-        """Interactive gate selection."""
         print("Available Logic Gates:")
         gates = list(self.GATES.keys())
         for i, gate in enumerate(gates, 1):
