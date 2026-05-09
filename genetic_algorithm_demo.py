@@ -36,6 +36,31 @@ import sys
 import time
 from typing import List, Tuple
 
+# Evolution defaults
+DEFAULT_POPULATION_SIZE = 150
+DEFAULT_MUTATION_RATE = 0.02
+ELITE_COUNT = 2
+TOURNAMENT_SIZE = 5
+MAX_GENERATIONS = 5000
+
+
+def get_validated_input(prompt: str, default, min_val, max_val, cast=float):
+    """Prompt until the user enters a value in [min_val, max_val], or accepts the default."""
+    while True:
+        try:
+            val = input(prompt).strip()
+            if val == "":
+                return default
+            val = cast(val)
+            if min_val <= val <= max_val:
+                return val
+            print(f"  Enter a value between {min_val} and {max_val}")
+        except ValueError:
+            print("  Please enter a valid number")
+        except KeyboardInterrupt:
+            print("\nExiting...")
+            sys.exit(0)
+
 
 class Individual:
     """
@@ -75,8 +100,8 @@ class GeneticAlgorithm:
         ' .,!?\'"-:;'
     )
 
-    def __init__(self, target: str, population_size: int = 100,
-                 mutation_rate: float = 0.02, elite_count: int = 2):
+    def __init__(self, target: str, population_size: int = DEFAULT_POPULATION_SIZE,
+                 mutation_rate: float = DEFAULT_MUTATION_RATE, elite_count: int = ELITE_COUNT):
         self.target = target
         self.population_size = population_size
         self.mutation_rate = mutation_rate
@@ -111,8 +136,7 @@ class GeneticAlgorithm:
         This balances exploitation (picking the best) with exploration
         (giving weaker individuals a chance).
         """
-        tournament_size = 5
-        tournament = random.sample(self.population, tournament_size)
+        tournament = random.sample(self.population, TOURNAMENT_SIZE)
         return max(tournament, key=lambda ind: ind.fitness)
 
     def crossover(self, parent_a: Individual, parent_b: Individual) -> Individual:
@@ -173,7 +197,10 @@ class GeneticAlgorithm:
 
 
 class GeneticAlgorithmDemo:
-    """Interactive demonstration of genetic algorithm evolution."""
+    """
+    Interactive demonstration of evolving strings toward a target phrase.
+    Run via GeneticAlgorithmDemo().run() or execute this file directly.
+    """
 
     DEFAULT_TARGETS = [
         "Hello World",
@@ -228,35 +255,14 @@ class GeneticAlgorithmDemo:
         print("\n⚙️  Configuration")
         print("-" * 40)
 
-        # Population size
-        while True:
-            try:
-                val = input("  Population size (50-500, Enter for 150): ").strip()
-                if val == "":
-                    pop_size = 150
-                    break
-                pop_size = int(val)
-                if 50 <= pop_size <= 500:
-                    break
-                print("  Enter a value between 50 and 500")
-            except (ValueError, KeyboardInterrupt):
-                print("\nExiting...")
-                sys.exit(0)
-
-        # Mutation rate
-        while True:
-            try:
-                val = input("  Mutation rate (0.01-0.1, Enter for 0.02): ").strip()
-                if val == "":
-                    mut_rate = 0.02
-                    break
-                mut_rate = float(val)
-                if 0.01 <= mut_rate <= 0.1:
-                    break
-                print("  Enter a value between 0.01 and 0.1")
-            except (ValueError, KeyboardInterrupt):
-                print("\nExiting...")
-                sys.exit(0)
+        pop_size = get_validated_input(
+            f"  Population size (50-500, Enter for {DEFAULT_POPULATION_SIZE}): ",
+            DEFAULT_POPULATION_SIZE, 50, 500, cast=int,
+        )
+        mut_rate = get_validated_input(
+            f"  Mutation rate (0.01-0.1, Enter for {DEFAULT_MUTATION_RATE}): ",
+            DEFAULT_MUTATION_RATE, 0.01, 0.1,
+        )
 
         return pop_size, mut_rate
 
@@ -279,15 +285,15 @@ class GeneticAlgorithmDemo:
             target=target,
             population_size=pop_size,
             mutation_rate=mut_rate,
-            elite_count=2,
+            elite_count=ELITE_COUNT,
         )
 
         print(f"\n  Target:          \"{target}\"")
         print(f"  Population:      {pop_size}")
         print(f"  Mutation rate:   {mut_rate}")
-        print(f"  Selection:       Tournament (size 5)")
-        print(f"  Crossover:       Single-point")
-        print(f"  Elitism:         Top 2 survive unchanged")
+        print(f"  Selection:       Tournament (size {TOURNAMENT_SIZE})")
+        print("  Crossover:       Single-point")
+        print(f"  Elitism:         Top {ELITE_COUNT} survive unchanged")
 
         input("\n  Press Enter to start evolution...")
         print()
@@ -298,20 +304,23 @@ class GeneticAlgorithmDemo:
         print("  Gen  | Best Fitness           | Best Individual")
         print("  " + "-" * 64)
 
-        max_generations = 5000
+        max_generations = MAX_GENERATIONS
         start_time = time.time()
 
-        while best.fitness < 1.0 and self.ga.generation < max_generations:
-            best = self.ga.evolve_generation()
+        try:
+            while best.fitness < 1.0 and self.ga.generation < max_generations:
+                best = self.ga.evolve_generation()
 
-            # Display every generation for the first 20, then at intervals
-            gen = self.ga.generation
-            show = (gen <= 20 or gen % 10 == 0 or best.fitness == 1.0)
+                # Display every generation for the first 20, then at intervals
+                gen = self.ga.generation
+                show = (gen <= 20 or gen % 10 == 0 or best.fitness == 1.0)
 
-            if show:
-                bar = self.fitness_bar(best.fitness)
-                colored = self.format_individual(best, target)
-                print(f"  {gen:4d} | {best.fitness:.3f} {bar} | {colored}")
+                if show:
+                    bar = self.fitness_bar(best.fitness)
+                    colored = self.format_individual(best, target)
+                    print(f"  {gen:4d} | {best.fitness:.3f} {bar} | {colored}")
+        except KeyboardInterrupt:
+            print("\n\n⏹  Evolution interrupted.")
 
         elapsed = time.time() - start_time
 
@@ -323,7 +332,7 @@ class GeneticAlgorithmDemo:
             print("  ⏱️  MAX GENERATIONS REACHED".center(70))
         print("=" * 70)
 
-        print(f"\n📊 Results:")
+        print("\n📊 Results:")
         print(f"   Result:       \"{best.genes}\"")
         print(f"   Target:       \"{target}\"")
         print(f"   Generations:  {self.ga.generation}")

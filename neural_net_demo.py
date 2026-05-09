@@ -33,6 +33,33 @@ import sys
 import time
 from typing import Tuple, List
 
+# Network and training defaults
+DEFAULT_LEARNING_RATE = 0.5
+DEFAULT_MAX_EPOCHS = 5000
+VERBOSE_INTERVAL = 500
+SIGMOID_CLIP = 500
+DECISION_THRESHOLD = 0.5
+CONVERGENCE_THRESHOLD = 0.01
+ACCEPTABLE_ERROR = 0.1
+
+
+def get_validated_input(prompt: str, default, min_val, max_val, cast=float):
+    """Prompt until the user enters a value in [min_val, max_val], or accepts the default."""
+    while True:
+        try:
+            val = input(prompt).strip()
+            if val == "":
+                return default
+            val = cast(val)
+            if min_val <= val <= max_val:
+                return val
+            print(f"  Please enter a value between {min_val} and {max_val}")
+        except ValueError:
+            print("  Please enter a valid number")
+        except KeyboardInterrupt:
+            print("\n\n👋 Interrupted. Goodbye!")
+            sys.exit(0)
+
 
 def sigmoid(x: np.ndarray) -> np.ndarray:
     """
@@ -44,7 +71,7 @@ def sigmoid(x: np.ndarray) -> np.ndarray:
     - It's differentiable (needed for backpropagation)
     - Outputs smooth probabilities instead of hard 0/1
     """
-    return 1 / (1 + np.exp(-np.clip(x, -500, 500)))  # Clip to prevent overflow
+    return 1 / (1 + np.exp(-np.clip(x, -SIGMOID_CLIP, SIGMOID_CLIP)))
 
 
 def sigmoid_derivative(x: np.ndarray) -> np.ndarray:
@@ -158,7 +185,7 @@ class NeuralNetwork:
     def predict(self, inputs: np.ndarray) -> int:
         """Make a binary prediction (0 or 1) for given inputs."""
         output = self.forward(inputs)
-        return 1 if output >= 0.5 else 0
+        return 1 if output >= DECISION_THRESHOLD else 0
 
 
 class NetworkVisualizer:
@@ -196,17 +223,17 @@ class NetworkVisualizer:
         print("   (2 neurons)        (3 neurons)         (1 neuron)\n")
 
         # Draw the network
-        print(f"                          ┌─ H1 ─┐")
+        print("                          ┌─ H1 ─┐")
         print(f"      I1 ────────────────┤ {h1:4.2f} ├────────┐")
         print(f"     {i1:4.2f}               └───────┘        │")
-        print(f"                                           │")
-        print(f"       │                 ┌─ H2 ─┐         │    ┌─ O1 ─┐")
+        print("                                           │")
+        print("       │                 ┌─ H2 ─┐         │    ┌─ O1 ─┐")
         print(f"       ├─────────────────┤ {h2:4.2f} ├─────────┼───→│ {o1:4.2f} │")
-        print(f"       │                 └───────┘         │    └───────┘")
-        print(f"                                           │")
-        print(f"      I2                 ┌─ H3 ─┐         │")
+        print("       │                 └───────┘         │    └───────┘")
+        print("                                           │")
+        print("      I2                 ┌─ H3 ─┐         │")
         print(f"     {i2:4.2f} ───────────────┤ {h3:4.2f} ├────────┘")
-        print(f"                          └───────┘")
+        print("                          └───────┘")
 
         if show_weights:
             print("\n" + "-"*70)
@@ -230,8 +257,8 @@ class NetworkVisualizer:
     @staticmethod
     def draw_training_step(inputs: List[int], target: int, prediction: float, error: float):
         """Draw a single training step with visual feedback."""
-        pred_binary = 1 if prediction >= 0.5 else 0
-        status = "✓" if abs(target - prediction) < 0.5 else "✗"
+        pred_binary = 1 if prediction >= DECISION_THRESHOLD else 0
+        status = "✓" if abs(target - prediction) < DECISION_THRESHOLD else "✗"
 
         # Create a visual bar for the prediction confidence
         bar_length = 20
@@ -243,7 +270,10 @@ class NetworkVisualizer:
 
 
 class NeuralNetDemo:
-    """Interactive demonstration of neural network learning."""
+    """
+    Interactive demonstration of a 2-3-1 neural network learning XOR.
+    Run via NeuralNetDemo().run() or execute this file directly.
+    """
 
     # XOR truth table - the classic problem that perceptrons can't solve!
     XOR_DATA = [
@@ -303,10 +333,10 @@ class NeuralNetDemo:
             max_epochs: Maximum number of training epochs
             verbose_interval: How often to show detailed visualization
         """
-        print(f"\n🚀 Starting Training...")
+        print("\n🚀 Starting Training...")
         print(f"   Learning rate: {self.network.learning_rate}")
         print(f"   Max epochs: {max_epochs}")
-        print(f"   Convergence threshold: Average error < 0.01\n")
+        print(f"   Convergence threshold: Average error < {CONVERGENCE_THRESHOLD}\n")
 
         # Show initial network state
         print("📊 Initial Network State:")
@@ -315,52 +345,56 @@ class NeuralNetDemo:
         input("\n▶  Press Enter to start training...")
         print()
 
-        for epoch in range(max_epochs):
-            total_error = 0
+        try:
+            for epoch in range(max_epochs):
+                total_error = 0
 
-            # Decide if this is a verbose epoch
-            is_verbose = (epoch % verbose_interval == 0) or (epoch < 5)
-
-            if is_verbose:
-                print(f"\n{'='*70}")
-                print(f"  EPOCH {epoch + 1}/{max_epochs}".center(70))
-                print(f"{'='*70}\n")
-
-            # Train on each example
-            for inputs, target in self.XOR_DATA:
-                inputs_array = np.array(inputs)
-                prediction, error = self.network.train_step(inputs_array, target)
-                total_error += error
+                # Decide if this is a verbose epoch
+                is_verbose = (epoch % verbose_interval == 0) or (epoch < 5)
 
                 if is_verbose:
-                    self.visualizer.draw_training_step(inputs, target, prediction, error)
+                    print(f"\n{'='*70}")
+                    print(f"  EPOCH {epoch + 1}/{max_epochs}".center(70))
+                    print(f"{'='*70}\n")
 
-            avg_error = total_error / len(self.XOR_DATA)
+                # Train on each example
+                for inputs, target in self.XOR_DATA:
+                    inputs_array = np.array(inputs)
+                    prediction, error = self.network.train_step(inputs_array, target)
+                    total_error += error
 
-            if is_verbose:
-                print(f"\n  Average Error: {avg_error:.4f}")
-                if epoch > 0:
-                    print("\n  Current Network State:")
-                    self.visualizer.draw_network(self.network, show_weights=False)
-                time.sleep(0.5)
-            elif epoch % 100 == 0:
-                # Show progress for non-verbose epochs
-                bar_length = 30
-                progress = epoch / max_epochs
-                filled = int(progress * bar_length)
-                bar = "█" * filled + "░" * (bar_length - filled)
-                print(f"\r  Progress: [{bar}] Epoch {epoch}/{max_epochs} | Avg Error: {avg_error:.4f}",
-                      end='', flush=True)
+                    if is_verbose:
+                        self.visualizer.draw_training_step(inputs, target, prediction, error)
 
-            # Check for convergence
-            if avg_error < 0.01:
-                print(f"\n\n🎉 Converged after {epoch + 1} epochs!")
-                print(f"   Final average error: {avg_error:.6f}")
-                return True
+                avg_error = total_error / len(self.XOR_DATA)
 
-        print(f"\n\n⏱️  Training complete (max epochs reached)")
+                if is_verbose:
+                    print(f"\n  Average Error: {avg_error:.4f}")
+                    if epoch > 0:
+                        print("\n  Current Network State:")
+                        self.visualizer.draw_network(self.network, show_weights=False)
+                    time.sleep(0.5)
+                elif epoch % 100 == 0:
+                    # Show progress for non-verbose epochs
+                    bar_length = 30
+                    progress = epoch / max_epochs
+                    filled = int(progress * bar_length)
+                    bar = "█" * filled + "░" * (bar_length - filled)
+                    print(f"\r  Progress: [{bar}] Epoch {epoch}/{max_epochs} | Avg Error: {avg_error:.4f}",
+                          end='', flush=True)
+
+                # Check for convergence
+                if avg_error < CONVERGENCE_THRESHOLD:
+                    print(f"\n\n🎉 Converged after {epoch + 1} epochs!")
+                    print(f"   Final average error: {avg_error:.6f}")
+                    return True
+        except KeyboardInterrupt:
+            print("\n\n⏹  Training interrupted.")
+            return False
+
+        print("\n\n⏱️  Training complete (max epochs reached)")
         print(f"   Final average error: {avg_error:.6f}")
-        return avg_error < 0.1
+        return avg_error < ACCEPTABLE_ERROR
 
     def test_network(self):
         """Test the trained network on all XOR examples."""
@@ -375,7 +409,7 @@ class NeuralNetDemo:
         correct = 0
         for inputs, target in self.XOR_DATA:
             output = self.network.forward(np.array(inputs))
-            prediction = 1 if output >= 0.5 else 0
+            prediction = 1 if output >= DECISION_THRESHOLD else 0
             is_correct = prediction == target
             correct += is_correct
             result = "✓" if is_correct else "✗"
@@ -437,27 +471,16 @@ class NeuralNetDemo:
             # Ask for learning rate
             print("⚙️  Configuration")
             print("-" * 40)
-            while True:
-                try:
-                    lr_input = input("Enter learning rate (0.1-2.0, or press Enter for 0.5): ").strip()
-                    if lr_input == "":
-                        learning_rate = 0.5
-                        break
-                    learning_rate = float(lr_input)
-                    if 0.1 <= learning_rate <= 2.0:
-                        break
-                    print("Please enter a value between 0.1 and 2.0")
-                except ValueError:
-                    print("Please enter a valid number")
-                except KeyboardInterrupt:
-                    print("\n\n👋 Interrupted. Goodbye!")
-                    sys.exit(0)
+            learning_rate = get_validated_input(
+                f"Enter learning rate (0.1-2.0, or press Enter for {DEFAULT_LEARNING_RATE}): ",
+                DEFAULT_LEARNING_RATE, 0.1, 2.0,
+            )
 
             # Initialize network
             self.network = NeuralNetwork(learning_rate=learning_rate)
 
             # Train
-            success = self.train_with_visualization(max_epochs=5000, verbose_interval=500)
+            self.train_with_visualization(max_epochs=DEFAULT_MAX_EPOCHS, verbose_interval=VERBOSE_INTERVAL)
 
             # Test
             self.test_network()

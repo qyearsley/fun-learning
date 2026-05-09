@@ -9,6 +9,7 @@ These are toy projects, not production code.
 |------|-----------|----------|
 | `perceptron_demo.py` | Interactive perceptron learning logic gates | `./perceptron_demo.py` |
 | `neural_net_demo.py` | Neural network learning XOR via backpropagation | `./neural_net_demo.py` |
+| `genetic_algorithm_demo.py` | Genetic algorithm evolving toward a target string | `./genetic_algorithm_demo.py` |
 | `mansion_escape.pl` | Text adventure game in Prolog | `./mansion_escape.pl` |
 
 ## Requirements

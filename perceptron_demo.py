@@ -25,8 +25,13 @@ Author: Claude Code
 
 import numpy as np
 import sys
-from typing import Tuple
 import time
+from typing import Tuple
+
+# Training defaults
+DEFAULT_LEARNING_RATE = 0.1
+DEFAULT_MAX_EPOCHS = 25
+TRAINING_DELAY = 0.2
 
 
 class Perceptron:
@@ -99,7 +104,10 @@ class Perceptron:
 
 
 class PerceptronDemo:
-    """Interactive demonstration of perceptron learning."""
+    """
+    Interactive demonstration of perceptron learning on logic gates.
+    Run via PerceptronDemo().run() or execute this file directly.
+    """
 
     # Logic gate truth tables: (input1, input2) -> output
     GATES = {
@@ -192,38 +200,42 @@ class PerceptronDemo:
         """
         training_data = self.GATES[self.gate_name]
 
-        print(f"\n🚀 Starting Training...")
+        print("\n🚀 Starting Training...")
         print(f"   Initial state: {self.perceptron.get_state()}\n")
 
-        for epoch in range(max_epochs):
-            print(f"Epoch {epoch + 1}/{max_epochs}")
-            print("─" * 60)
+        try:
+            for epoch in range(max_epochs):
+                print(f"Epoch {epoch + 1}/{max_epochs}")
+                print("─" * 60)
 
-            total_error = 0
+                total_error = 0
 
-            # Train on each example
-            for inputs, target in training_data:
-                inputs_array = np.array(inputs)
-                prediction, error = self.perceptron.train_step(inputs_array, target)
-                total_error += error
+                # Train on each example
+                for inputs, target in training_data:
+                    inputs_array = np.array(inputs)
+                    prediction, error = self.perceptron.train_step(inputs_array, target)
+                    total_error += error
 
-                # Visual feedback
-                status = "✓" if error == 0 else "✗"
-                print(f"  {status} Input: {inputs} → Target: {target}, "
-                      f"Predicted: {prediction}, Error: {int(error)}")
+                    # Visual feedback
+                    status = "✓" if error == 0 else "✗"
+                    print(f"  {status} Input: {inputs} → Target: {target}, "
+                          f"Predicted: {prediction}, Error: {int(error)}")
 
-                time.sleep(delay * 0.5)
+                    time.sleep(delay * 0.5)
 
-            # Show updated weights after each epoch
-            print(f"\n  Updated: {self.perceptron.get_state()}")
-            print(f"  Total errors this epoch: {int(total_error)}\n")
+                # Show updated weights after each epoch
+                print(f"\n  Updated: {self.perceptron.get_state()}")
+                print(f"  Total errors this epoch: {int(total_error)}\n")
 
-            # If perfect accuracy, we're done!
-            if total_error == 0:
-                print("🎉 Perfect! The perceptron has learned the pattern!")
-                return True
+                # If perfect accuracy, we're done!
+                if total_error == 0:
+                    print("🎉 Perfect! The perceptron has learned the pattern!")
+                    return True
 
-            time.sleep(delay)
+                time.sleep(delay)
+        except KeyboardInterrupt:
+            print("\n\n⏹  Training interrupted.")
+            return False
 
         print("⏱️  Training complete (max epochs reached)")
         return False
@@ -264,7 +276,7 @@ class PerceptronDemo:
         print(f"   bias = {self.perceptron.bias:.3f}  (threshold adjustment)\n")
 
         print("   The perceptron makes decisions using:")
-        print(f"   output = activate(w0×input0 + w1×input1 + bias)")
+        print("   output = activate(w0×input0 + w1×input1 + bias)")
         print(f"   output = activate({self.perceptron.weights[0]:.2f}×input0 + "
               f"{self.perceptron.weights[1]:.2f}×input1 + {self.perceptron.bias:.2f})\n")
 
@@ -281,17 +293,17 @@ class PerceptronDemo:
             self.print_gate_info(self.gate_name)
 
             # Initialize perceptron
-            learning_rate = 0.1
+            learning_rate = DEFAULT_LEARNING_RATE
             self.perceptron = Perceptron(n_inputs=2, learning_rate=learning_rate)
 
-            print(f"⚙️  Perceptron Configuration:")
-            print(f"   • Inputs: 2")
+            print("⚙️  Perceptron Configuration:")
+            print("   • Inputs: 2")
             print(f"   • Learning rate: {learning_rate}")
-            print(f"   • Activation: Step function (binary output)")
+            print("   • Activation: Step function (binary output)")
 
             # Train
             input("\n▶  Press Enter to start training...")
-            success = self.train_with_visualization(max_epochs=25, delay=0.2)
+            self.train_with_visualization(max_epochs=DEFAULT_MAX_EPOCHS, delay=TRAINING_DELAY)
 
             # Test
             self.test_perceptron()
