@@ -43,6 +43,9 @@ ELITE_COUNT = 2
 TOURNAMENT_SIZE = 5
 MAX_GENERATIONS = 5000
 
+# Pause between displayed generations so evolution is visible (not just a flash)
+DISPLAY_DELAY = 0.06
+
 
 def get_validated_input(prompt: str, default, min_val, max_val, cast=float):
     """Prompt until the user enters a value in [min_val, max_val], or accepts the default."""
@@ -205,8 +208,8 @@ class GeneticAlgorithmDemo:
     DEFAULT_TARGETS = [
         "Hello World",
         "To be or not to be",
-        "Evolution finds a way",
         "Survival of the fittest",
+        "The quick brown fox jumps over the lazy dog",
     ]
 
     def __init__(self):
@@ -227,14 +230,18 @@ class GeneticAlgorithmDemo:
         print("   Watch how the population converges over generations.\n")
 
     def select_target(self) -> str:
+        default_idx = 1
         print("Target phrases:")
         for i, target in enumerate(self.DEFAULT_TARGETS, 1):
-            print(f"  {i}. \"{target}\"")
+            tag = " (default)" if i == default_idx else ""
+            print(f"  {i}. \"{target}\"{tag}")
         print(f"  {len(self.DEFAULT_TARGETS) + 1}. Enter your own")
 
         while True:
             try:
-                choice = input(f"\nSelect (1-{len(self.DEFAULT_TARGETS) + 1}): ").strip()
+                choice = input(f"\nSelect (1-{len(self.DEFAULT_TARGETS) + 1}, Enter for {default_idx}): ").strip()
+                if choice == "":
+                    return self.DEFAULT_TARGETS[default_idx - 1]
                 if choice.lower() == 'q':
                     sys.exit(0)
                 idx = int(choice)
@@ -319,17 +326,18 @@ class GeneticAlgorithmDemo:
                     bar = self.fitness_bar(best.fitness)
                     colored = self.format_individual(best, target)
                     print(f"  {gen:4d} | {best.fitness:.3f} {bar} | {colored}")
+                    time.sleep(DISPLAY_DELAY)
         except KeyboardInterrupt:
-            print("\n\n⏹  Evolution interrupted.")
+            print("\n\nEvolution interrupted.")
 
         elapsed = time.time() - start_time
 
         # Results
         print("\n" + "=" * 70)
         if best.fitness == 1.0:
-            print("  🎉 EVOLVED SUCCESSFULLY".center(70))
+            print("  EVOLVED SUCCESSFULLY".center(70))
         else:
-            print("  ⏱️  MAX GENERATIONS REACHED".center(70))
+            print("  MAX GENERATIONS REACHED".center(70))
         print("=" * 70)
 
         print("\n📊 Results:")
@@ -415,19 +423,14 @@ class GeneticAlgorithmDemo:
     def run(self):
         self.print_header()
 
-        while True:
-            target = self.select_target()
-            pop_size, mut_rate = self.configure()
-            self.run_evolution(target, pop_size, mut_rate)
-            self.explain()
+        target = self.select_target()
+        pop_size, mut_rate = self.configure()
+        self.run_evolution(target, pop_size, mut_rate)
+        self.explain()
 
-            print("\n" + "=" * 70)
-            choice = input("\nRun again with different settings? (Y/n): ").strip().lower()
-            if choice == 'n':
-                print("\n🎓 Key takeaway: evolution is a general-purpose optimizer.")
-                print("   It's slower than gradient descent for smooth problems,")
-                print("   but works on anything you can score.\n")
-                break
+        print("\n🎓 Key takeaway: evolution is a general-purpose optimizer.")
+        print("   It's slower than gradient descent for smooth problems,")
+        print("   but works on anything you can score.\n")
 
 
 if __name__ == "__main__":
@@ -435,5 +438,5 @@ if __name__ == "__main__":
     try:
         demo.run()
     except KeyboardInterrupt:
-        print("\n\n👋 Interrupted. Goodbye!")
+        print("\n\nInterrupted.")
         sys.exit(0)

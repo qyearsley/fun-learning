@@ -194,24 +194,18 @@ class NetworkVisualizer:
     @staticmethod
     def draw_network(nn: NeuralNetwork, show_weights: bool = False):
         """
-        Draw the neural network structure with current values.
+        Draw the network with labelled boxes and a "bus" between layers
+        showing full connectivity (every input connects to every hidden,
+        every hidden connects to the output).
 
-        Layout:
-            Input Layer    Hidden Layer    Output Layer
-
-               (I1)  ─────→  (H1)  ─────→
-                      ╲    ╱    ╲         (O1)
-                       ╲  ╱      ╲       ╱
-               (I2)  ───╳───→  (H2) ────→
-                       ╱  ╲      ╱
-                      ╱    ╲    ╱
-                           (H3)
+        The double-line bus (║═╠╣╔╗╚╝╬) carries the matrix-multiply: each
+        layer's output is multiplied by a weight matrix to produce the next
+        layer's input.
         """
-        print("\n" + "="*70)
-        print("  NETWORK STRUCTURE".center(70))
-        print("="*70)
+        print("\n" + "=" * 70)
+        print("  NETWORK STATE".center(70))
+        print("=" * 70)
 
-        # Get values (or use zeros if not computed yet)
         i1 = nn.input_values[0] if nn.input_values is not None else 0.0
         i2 = nn.input_values[1] if nn.input_values is not None else 0.0
         h1 = nn.hidden_values[0] if nn.hidden_values is not None else 0.0
@@ -219,26 +213,27 @@ class NetworkVisualizer:
         h3 = nn.hidden_values[2] if nn.hidden_values is not None else 0.0
         o1 = nn.output_value[0] if nn.output_value is not None else 0.0
 
-        print("\n   Input Layer        Hidden Layer        Output Layer")
-        print("   (2 neurons)        (3 neurons)         (1 neuron)\n")
-
-        # Draw the network
-        print("                          ┌─ H1 ─┐")
-        print(f"      I1 ────────────────┤ {h1:4.2f} ├────────┐")
-        print(f"     {i1:4.2f}               └───────┘        │")
-        print("                                           │")
-        print("       │                 ┌─ H2 ─┐         │    ┌─ O1 ─┐")
-        print(f"       ├─────────────────┤ {h2:4.2f} ├─────────┼───→│ {o1:4.2f} │")
-        print("       │                 └───────┘         │    └───────┘")
-        print("                                           │")
-        print("      I2                 ┌─ H3 ─┐         │")
-        print(f"     {i2:4.2f} ───────────────┤ {h3:4.2f} ├────────┘")
-        print("                          └───────┘")
+        print()
+        print("    Input              Hidden               Output")
+        print()
+        print("    ┌─ I1 ─┐")
+        print(f"    │ {i1:4.2f} │═══╗     ╔══┌─ H1 ─┐══╗")
+        print(f"    └──────┘   ║     ║  │ {h1:4.2f} │  ║")
+        print( "               ║     ║  └──────┘  ║")
+        print( "               ╠═════╣  ┌─ H2 ─┐  ║   ┌─ O1 ─┐")
+        print(f"               ║     ╠══│ {h2:4.2f} │══╬══→│ {o1:4.2f} │")
+        print( "               ║     ║  └──────┘  ║   └──────┘")
+        print( "    ┌─ I2 ─┐   ║     ║  ┌─ H3 ─┐  ║")
+        print(f"    │ {i2:4.2f} │═══╝     ╚══│ {h3:4.2f} │══╝")
+        print(f"    └──────┘            └──────┘")
+        print()
+        print("                ↑              ↑")
+        print("            2×3 weights    3×1 weights")
 
         if show_weights:
-            print("\n" + "-"*70)
+            print("\n" + "-" * 70)
             print("  WEIGHT MATRICES".center(70))
-            print("-"*70 + "\n")
+            print("-" * 70 + "\n")
 
             print("  Input → Hidden:")
             print("           H1      H2      H3")
@@ -252,7 +247,7 @@ class NetworkVisualizer:
             print(f"    H3  [{nn.weights_hidden_output[2][0]:6.3f}]")
             print(f"  Bias  [{nn.bias_output[0]:6.3f}]")
 
-        print("="*70)
+        print("=" * 70)
 
     @staticmethod
     def draw_training_step(inputs: List[int], target: int, prediction: float, error: float):
@@ -333,7 +328,7 @@ class NeuralNetDemo:
             max_epochs: Maximum number of training epochs
             verbose_interval: How often to show detailed visualization
         """
-        print("\n🚀 Starting Training...")
+        print("\nStarting training...")
         print(f"   Learning rate: {self.network.learning_rate}")
         print(f"   Max epochs: {max_epochs}")
         print(f"   Convergence threshold: Average error < {CONVERGENCE_THRESHOLD}\n")
@@ -342,7 +337,7 @@ class NeuralNetDemo:
         print("📊 Initial Network State:")
         self.visualizer.draw_network(self.network, show_weights=True)
 
-        input("\n▶  Press Enter to start training...")
+        input("\nPress Enter to start training...")
         print()
 
         try:
@@ -370,9 +365,6 @@ class NeuralNetDemo:
 
                 if is_verbose:
                     print(f"\n  Average Error: {avg_error:.4f}")
-                    if epoch > 0:
-                        print("\n  Current Network State:")
-                        self.visualizer.draw_network(self.network, show_weights=False)
                     time.sleep(0.5)
                 elif epoch % 100 == 0:
                     # Show progress for non-verbose epochs
@@ -385,14 +377,14 @@ class NeuralNetDemo:
 
                 # Check for convergence
                 if avg_error < CONVERGENCE_THRESHOLD:
-                    print(f"\n\n🎉 Converged after {epoch + 1} epochs!")
+                    print(f"\n\nConverged after {epoch + 1} epochs!")
                     print(f"   Final average error: {avg_error:.6f}")
                     return True
         except KeyboardInterrupt:
-            print("\n\n⏹  Training interrupted.")
+            print("\n\nTraining interrupted.")
             return False
 
-        print("\n\n⏱️  Training complete (max epochs reached)")
+        print("\n\nTraining complete (max epochs reached)")
         print(f"   Final average error: {avg_error:.6f}")
         return avg_error < ACCEPTABLE_ERROR
 
@@ -426,13 +418,7 @@ class NeuralNetDemo:
         accuracy = (correct / len(self.XOR_DATA)) * 100
         print(f"\n📊 Accuracy: {accuracy:.0f}% ({correct}/{len(self.XOR_DATA)} correct)")
 
-        if accuracy == 100:
-            print("\n🎉 Perfect! The network has successfully learned XOR!")
-
         # Show final network with all values
-        print("\n" + "="*70)
-        print("  FINAL NETWORK STATE".center(70))
-        print("="*70)
         self.visualizer.draw_network(self.network, show_weights=True)
 
     def explain_learning(self):
@@ -467,32 +453,25 @@ class NeuralNetDemo:
         self.print_xor_table()
         self.explain_architecture()
 
-        while True:
-            # Ask for learning rate
-            print("⚙️  Configuration")
-            print("-" * 40)
-            learning_rate = get_validated_input(
-                f"Enter learning rate (0.1-2.0, or press Enter for {DEFAULT_LEARNING_RATE}): ",
-                DEFAULT_LEARNING_RATE, 0.1, 2.0,
-            )
+        # Ask for learning rate
+        print("⚙️  Configuration")
+        print("-" * 40)
+        learning_rate = get_validated_input(
+            f"Enter learning rate (0.1-2.0, or press Enter for {DEFAULT_LEARNING_RATE}): ",
+            DEFAULT_LEARNING_RATE, 0.1, 2.0,
+        )
 
-            # Initialize network
-            self.network = NeuralNetwork(learning_rate=learning_rate)
+        # Initialize network
+        self.network = NeuralNetwork(learning_rate=learning_rate)
 
-            # Train
-            self.train_with_visualization(max_epochs=DEFAULT_MAX_EPOCHS, verbose_interval=VERBOSE_INTERVAL)
+        # Train
+        self.train_with_visualization(max_epochs=DEFAULT_MAX_EPOCHS, verbose_interval=VERBOSE_INTERVAL)
 
-            # Test
-            self.test_network()
+        # Test
+        self.test_network()
 
-            # Explain
-            self.explain_learning()
-
-            # Offer replay
-            print("\n" + "="*70)
-            choice = input("\nTry again with a different learning rate? (Y/n): ").strip().lower()
-            if choice == 'n':
-                break
+        # Explain
+        self.explain_learning()
 
         # Conclusion
         print("\n" + "="*70)
@@ -503,13 +482,8 @@ class NeuralNetDemo:
         print("   • Neural networks with hidden layers can learn complex patterns like XOR")
         print("   • Hidden layers create new feature representations")
         print("   • Backpropagation efficiently trains all weights simultaneously")
-        print("   • This 13-parameter network solved a problem perceptrons cannot!\n")
-        print("🚀 Modern neural networks:")
-        print("   • Use millions or billions of parameters")
-        print("   • Have dozens or hundreds of layers")
-        print("   • Can learn to recognize images, understand language, and more")
-        print("   • But they all work on these same fundamental principles!\n")
-        print("👋 Thanks for learning about neural networks!\n")
+        print("   • Modern networks scale this up to millions of parameters and many layers,")
+        print("     but the fundamentals are the same.\n")
 
 
 if __name__ == "__main__":
@@ -517,5 +491,5 @@ if __name__ == "__main__":
     try:
         demo.run()
     except KeyboardInterrupt:
-        print("\n\n👋 Interrupted. Goodbye!")
+        print("\n\nInterrupted.")
         sys.exit(0)

@@ -74,7 +74,11 @@ class Perceptron:
         weighted_sum = np.dot(inputs, self.weights) + self.bias
         return self.activation(weighted_sum)
 
-    def train_step(self, inputs: np.ndarray, target: int) -> Tuple[int, float]:
+    def weighted_sum(self, inputs: np.ndarray) -> float:
+        """Pre-activation value: w·x + b. Sign of this determines the prediction."""
+        return float(np.dot(inputs, self.weights) + self.bias)
+
+    def train_step(self, inputs: np.ndarray, target: int) -> Tuple[int, float, float]:
         """
         Perform one training step (one example).
 
@@ -87,16 +91,17 @@ class Perceptron:
         that would have given the correct answer.
 
         Returns:
-            (prediction, error)
+            (prediction, error, weighted_sum)
         """
-        prediction = self.predict(inputs)
+        weighted_sum = self.weighted_sum(inputs)
+        prediction = self.activation(weighted_sum)
         error = target - prediction
 
         # Update weights: move them in the direction that reduces error
         self.weights += self.learning_rate * error * inputs
         self.bias += self.learning_rate * error
 
-        return prediction, abs(error)
+        return prediction, abs(error), weighted_sum
 
     def get_state(self) -> str:
         weights_str = ", ".join([f"w{i}={w:.3f}" for i, w in enumerate(self.weights)])
@@ -175,13 +180,17 @@ class PerceptronDemo:
     def select_gate(self) -> str:
         print("Available Logic Gates:")
         gates = list(self.GATES.keys())
+        default_idx = 1  # AND
         for i, gate in enumerate(gates, 1):
             marker = "⚠️ " if gate == "XOR" else "✓ "
-            print(f"  {i}. {marker}{gate}")
+            tag = " (default)" if i == default_idx else ""
+            print(f"  {i}. {marker}{gate}{tag}")
 
         while True:
             try:
-                choice = input(f"\nSelect a gate (1-{len(gates)}) or 'q' to quit: ").strip()
+                choice = input(f"\nSelect a gate (1-{len(gates)}, Enter for {default_idx}, 'q' to quit): ").strip()
+                if choice == "":
+                    return gates[default_idx - 1]
                 if choice.lower() == 'q':
                     sys.exit(0)
                 idx = int(choice) - 1
@@ -192,6 +201,24 @@ class PerceptronDemo:
                 print("\nExiting...")
                 sys.exit(0)
 
+    @staticmethod
+    def decision_bar(weighted_sum: float, width: int = 21) -> str:
+        """
+        Visualize the weighted sum on a centered axis. The midpoint is the
+        decision boundary (sum = 0): a marker to the right means the
+        perceptron predicts 1, to the left means 0. Distance from center
+        is the magnitude (informal "confidence").
+        """
+        # Map weighted_sum onto [-1, 1] via tanh-like clamp, then to [0, width-1]
+        clamped = max(-3.0, min(3.0, weighted_sum)) / 3.0
+        center = width // 2
+        position = center + int(round(clamped * center))
+        position = max(0, min(width - 1, position))
+        cells = ["─"] * width
+        cells[center] = "│"  # decision boundary
+        cells[position] = "●"
+        return "".join(cells)
+
     def train_with_visualization(self, max_epochs: int = 20, delay: float = 0.3):
         """
         Train the perceptron with real-time visualization.
@@ -200,44 +227,45 @@ class PerceptronDemo:
         """
         training_data = self.GATES[self.gate_name]
 
-        print("\n🚀 Starting Training...")
+        print("\nStarting training...")
         print(f"   Initial state: {self.perceptron.get_state()}\n")
 
         try:
             for epoch in range(max_epochs):
-                print(f"Epoch {epoch + 1}/{max_epochs}")
-                print("─" * 60)
+                print(f"\n{'=' * 70}")
+                print(f"  EPOCH {epoch + 1}/{max_epochs}".center(70))
+                print(f"{'=' * 70}\n")
 
                 total_error = 0
 
                 # Train on each example
                 for inputs, target in training_data:
                     inputs_array = np.array(inputs)
-                    prediction, error = self.perceptron.train_step(inputs_array, target)
+                    prediction, error, ws = self.perceptron.train_step(inputs_array, target)
                     total_error += error
 
-                    # Visual feedback
                     status = "✓" if error == 0 else "✗"
-                    print(f"  {status} Input: {inputs} → Target: {target}, "
-                          f"Predicted: {prediction}, Error: {int(error)}")
+                    bar = self.decision_bar(ws)
+                    print(f"  {status} Input: [{inputs[0]}, {inputs[1]}] → Target: {target} | "
+                          f"Sum: {ws:+6.3f} [{bar}] {prediction} | Error: {int(error)}")
 
                     time.sleep(delay * 0.5)
 
                 # Show updated weights after each epoch
                 print(f"\n  Updated: {self.perceptron.get_state()}")
-                print(f"  Total errors this epoch: {int(total_error)}\n")
+                print(f"  Total errors this epoch: {int(total_error)}")
 
                 # If perfect accuracy, we're done!
                 if total_error == 0:
-                    print("🎉 Perfect! The perceptron has learned the pattern!")
+                    print("\n  Converged — the perceptron has learned the pattern.")
                     return True
 
                 time.sleep(delay)
         except KeyboardInterrupt:
-            print("\n\n⏹  Training interrupted.")
+            print("\n\nTraining interrupted.")
             return False
 
-        print("⏱️  Training complete (max epochs reached)")
+        print("\nTraining complete (max epochs reached)")
         return False
 
     def test_perceptron(self):
@@ -250,15 +278,19 @@ class PerceptronDemo:
         correct = 0
 
         print("Testing learned behavior:")
-        print("  Input 1 | Input 2 | Expected | Predicted | Result")
-        print("  --------|---------|----------|-----------|--------")
+        print("  Input 1 | Input 2 | Expected | Predicted | Decision (sum) | Result")
+        print("  --------|---------|----------|-----------|----------------|--------")
 
         for inputs, target in training_data:
-            prediction = self.perceptron.predict(np.array(inputs))
+            arr = np.array(inputs)
+            ws = self.perceptron.weighted_sum(arr)
+            prediction = self.perceptron.activation(ws)
             is_correct = prediction == target
             correct += is_correct
             result = "✓" if is_correct else "✗"
-            print(f"    {inputs[0]}     |    {inputs[1]}    |    {target}     |     {prediction}     |   {result}")
+            bar = self.decision_bar(ws, width=11)
+            print(f"    {inputs[0]}     |    {inputs[1]}    |    {target}     |     {prediction}     | "
+                  f"[{bar}] {ws:+5.2f} |   {result}")
 
         accuracy = (correct / len(training_data)) * 100
         print(f"\n📊 Accuracy: {accuracy:.0f}% ({correct}/{len(training_data)} correct)")
@@ -287,38 +319,28 @@ class PerceptronDemo:
         """Main program loop."""
         self.print_header()
 
-        while True:
-            # Select gate
-            self.gate_name = self.select_gate()
-            self.print_gate_info(self.gate_name)
+        # Select gate
+        self.gate_name = self.select_gate()
+        self.print_gate_info(self.gate_name)
 
-            # Initialize perceptron
-            learning_rate = DEFAULT_LEARNING_RATE
-            self.perceptron = Perceptron(n_inputs=2, learning_rate=learning_rate)
+        # Initialize perceptron
+        learning_rate = DEFAULT_LEARNING_RATE
+        self.perceptron = Perceptron(n_inputs=2, learning_rate=learning_rate)
 
-            print("⚙️  Perceptron Configuration:")
-            print("   • Inputs: 2")
-            print(f"   • Learning rate: {learning_rate}")
-            print("   • Activation: Step function (binary output)")
+        print("⚙️  Perceptron Configuration:")
+        print("   • Inputs: 2")
+        print(f"   • Learning rate: {learning_rate}")
+        print("   • Activation: Step function (binary output)")
 
-            # Train
-            input("\n▶  Press Enter to start training...")
-            self.train_with_visualization(max_epochs=DEFAULT_MAX_EPOCHS, delay=TRAINING_DELAY)
+        # Train
+        input("\nPress Enter to start training...")
+        self.train_with_visualization(max_epochs=DEFAULT_MAX_EPOCHS, delay=TRAINING_DELAY)
 
-            # Test
-            self.test_perceptron()
+        # Test
+        self.test_perceptron()
 
-            # Explain
-            self.explain_weights()
-
-            # Continue or exit
-            print("\n" + "="*70)
-            choice = input("\nTry another gate? (Y/n): ").strip().lower()
-            if choice == 'n':
-                print("\n👋 Thanks for learning about perceptrons!")
-                print("   Remember: A perceptron is just the beginning - modern")
-                print("   neural networks use millions of these working together!\n")
-                break
+        # Explain
+        self.explain_weights()
 
 
 if __name__ == "__main__":
@@ -326,5 +348,5 @@ if __name__ == "__main__":
     try:
         demo.run()
     except KeyboardInterrupt:
-        print("\n\n👋 Interrupted. Goodbye!")
+        print("\n\nInterrupted.")
         sys.exit(0)
