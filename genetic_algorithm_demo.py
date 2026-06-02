@@ -46,6 +46,11 @@ MAX_GENERATIONS = 5000
 # Pause between displayed generations so evolution is visible (not just a flash)
 DISPLAY_DELAY = 0.06
 
+# ANSI color codes for highlighting matching/mismatching characters
+ANSI_GREEN = "\033[32m"
+ANSI_RED = "\033[31m"
+ANSI_RESET = "\033[0m"
+
 
 def get_validated_input(prompt: str, default, min_val, max_val, cast=float):
     """Prompt until the user enters a value in [min_val, max_val], or accepts the default."""
@@ -277,10 +282,8 @@ class GeneticAlgorithmDemo:
         """Color-code matching characters for visual feedback."""
         result = []
         for gene, goal in zip(individual.genes, target):
-            if gene == goal:
-                result.append(f"\033[32m{gene}\033[0m")  # Green for match
-            else:
-                result.append(f"\033[31m{gene}\033[0m")  # Red for mismatch
+            color = ANSI_GREEN if gene == goal else ANSI_RED
+            result.append(f"{color}{gene}{ANSI_RESET}")
         return ''.join(result)
 
     def fitness_bar(self, fitness: float, width: int = 30) -> str:
@@ -311,11 +314,10 @@ class GeneticAlgorithmDemo:
         print("  Gen  | Best Fitness           | Best Individual")
         print("  " + "-" * 64)
 
-        max_generations = MAX_GENERATIONS
         start_time = time.time()
 
         try:
-            while best.fitness < 1.0 and self.ga.generation < max_generations:
+            while best.fitness < 1.0 and self.ga.generation < MAX_GENERATIONS:
                 best = self.ga.evolve_generation()
 
                 # Display every generation for the first 20, then at intervals

@@ -206,12 +206,13 @@ class NetworkVisualizer:
         print("  NETWORK STATE".center(70))
         print("=" * 70)
 
-        i1 = nn.input_values[0] if nn.input_values is not None else 0.0
-        i2 = nn.input_values[1] if nn.input_values is not None else 0.0
-        h1 = nn.hidden_values[0] if nn.hidden_values is not None else 0.0
-        h2 = nn.hidden_values[1] if nn.hidden_values is not None else 0.0
-        h3 = nn.hidden_values[2] if nn.hidden_values is not None else 0.0
-        o1 = nn.output_value[0] if nn.output_value is not None else 0.0
+        # Pre-training (forward() not yet called), activations are None — show 0.0
+        def val(arr, i):
+            return arr[i] if arr is not None else 0.0
+
+        i1, i2 = val(nn.input_values, 0), val(nn.input_values, 1)
+        h1, h2, h3 = val(nn.hidden_values, 0), val(nn.hidden_values, 1), val(nn.hidden_values, 2)
+        o1 = val(nn.output_value, 0)
 
         print()
         print("    Input              Hidden               Output")
@@ -225,7 +226,7 @@ class NetworkVisualizer:
         print( "               ║     ║  └──────┘  ║   └──────┘")
         print( "    ┌─ I2 ─┐   ║     ║  ┌─ H3 ─┐  ║")
         print(f"    │ {i2:4.2f} │═══╝     ╚══│ {h3:4.2f} │══╝")
-        print(f"    └──────┘            └──────┘")
+        print("    └──────┘            └──────┘")
         print()
         print("                ↑              ↑")
         print("            2×3 weights    3×1 weights")
