@@ -27,8 +27,6 @@ How this relates to ML:
 - Genetic algorithms optimize via evolution (biology: survival of the fittest)
 - Both are searching for good solutions in a vast space
 - GAs don't need a differentiable loss function, just a fitness score
-
-Author: Claude Code
 """
 
 import random

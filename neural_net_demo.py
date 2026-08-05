@@ -24,8 +24,6 @@ The Learning Process:
 3. Backward Propagation: Calculate how much each weight contributed to error
 4. Update Weights: Adjust all weights to reduce error
 5. Repeat until the network learns the pattern
-
-Author: Claude Code
 """
 
 import numpy as np

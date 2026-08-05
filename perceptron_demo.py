@@ -19,8 +19,6 @@ The Learning Process:
 3. Compare prediction with correct answer
 4. Adjust weights based on the error
 5. Repeat until it learns the pattern
-
-Author: Claude Code
 """
 
 import numpy as np
