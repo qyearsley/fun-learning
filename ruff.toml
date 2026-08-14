@@ -1,0 +1,28 @@
+# These are standalone PEP 723 scripts run with `uv run`, not a package, so the
+# ruff config lives here rather than in a pyproject.toml.
+#
+# Lint:   uvx ruff check .
+# Format: uvx ruff format .
+
+line-length = 100
+# Matches the `requires-python` in each script's inline metadata block.
+target-version = "py39"
+
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "SIM", # flake8-simplify
+]
+ignore = [
+    "E501",  # line too long (handled by formatter)
+]
+
+[format]
+quote-style = "double"
+indent-style = "space"

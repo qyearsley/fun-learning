@@ -21,10 +21,10 @@ The Learning Process:
 5. Repeat until it learns the pattern
 """
 
-import numpy as np
 import sys
 import time
-from typing import Tuple
+
+import numpy as np
 
 # Training defaults
 DEFAULT_LEARNING_RATE = 0.1
@@ -76,7 +76,7 @@ class Perceptron:
         """Pre-activation value: w·x + b. Sign of this determines the prediction."""
         return float(np.dot(inputs, self.weights) + self.bias)
 
-    def train_step(self, inputs: np.ndarray, target: int) -> Tuple[int, float, float]:
+    def train_step(self, inputs: np.ndarray, target: int) -> tuple[int, float, float]:
         """
         Perform one training step (one example).
 
@@ -114,31 +114,31 @@ class PerceptronDemo:
 
     # Logic gate truth tables: (input1, input2) -> output
     GATES = {
-        'AND': [
+        "AND": [
             ([0, 0], 0),
             ([0, 1], 0),
             ([1, 0], 0),
             ([1, 1], 1),
         ],
-        'OR': [
+        "OR": [
             ([0, 0], 0),
             ([0, 1], 1),
             ([1, 0], 1),
             ([1, 1], 1),
         ],
-        'NAND': [
+        "NAND": [
             ([0, 0], 1),
             ([0, 1], 1),
             ([1, 0], 1),
             ([1, 1], 0),
         ],
-        'NOR': [
+        "NOR": [
             ([0, 0], 1),
             ([0, 1], 0),
             ([1, 0], 0),
             ([1, 1], 0),
         ],
-        'XOR': [  # XOR is NOT linearly separable - perceptron will fail!
+        "XOR": [  # XOR is NOT linearly separable - perceptron will fail!
             ([0, 0], 0),
             ([0, 1], 1),
             ([1, 0], 1),
@@ -151,9 +151,9 @@ class PerceptronDemo:
         self.gate_name = None
 
     def print_header(self):
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print("  PERCEPTRON LEARNING DEMONSTRATION".center(70))
-        print("="*70)
+        print("=" * 70)
         print("\n📚 What is a Perceptron?")
         print("   A perceptron is an artificial neuron that learns to classify")
         print("   inputs by adjusting 'weights' - numbers that determine how")
@@ -169,7 +169,7 @@ class PerceptronDemo:
             print(f"    {inputs[0]}     |    {inputs[1]}    |   {output}")
         print()
 
-        if gate_name == 'XOR':
+        if gate_name == "XOR":
             print("⚠️  WARNING: XOR is NOT linearly separable!")
             print("   A single perceptron CANNOT learn XOR perfectly.")
             print("   This demonstrates the perceptron's limitation.")
@@ -186,10 +186,12 @@ class PerceptronDemo:
 
         while True:
             try:
-                choice = input(f"\nSelect a gate (1-{len(gates)}, Enter for {default_idx}, 'q' to quit): ").strip()
+                choice = input(
+                    f"\nSelect a gate (1-{len(gates)}, Enter for {default_idx}, 'q' to quit): "
+                ).strip()
                 if choice == "":
                     return gates[default_idx - 1]
-                if choice.lower() == 'q':
+                if choice.lower() == "q":
                     sys.exit(0)
                 idx = int(choice) - 1
                 if 0 <= idx < len(gates):
@@ -244,8 +246,10 @@ class PerceptronDemo:
 
                     status = "✓" if error == 0 else "✗"
                     bar = self.decision_bar(ws)
-                    print(f"  {status} Input: [{inputs[0]}, {inputs[1]}] → Target: {target} | "
-                          f"Sum: {ws:+6.3f} [{bar}] {prediction} | Error: {int(error)}")
+                    print(
+                        f"  {status} Input: [{inputs[0]}, {inputs[1]}] → Target: {target} | "
+                        f"Sum: {ws:+6.3f} [{bar}] {prediction} | Error: {int(error)}"
+                    )
 
                     time.sleep(delay * 0.5)
 
@@ -268,9 +272,9 @@ class PerceptronDemo:
 
     def test_perceptron(self):
         """Test the trained perceptron on all examples."""
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print("  FINAL TEST".center(70))
-        print("="*70 + "\n")
+        print("=" * 70 + "\n")
 
         training_data = self.GATES[self.gate_name]
         correct = 0
@@ -287,8 +291,10 @@ class PerceptronDemo:
             correct += is_correct
             result = "✓" if is_correct else "✗"
             bar = self.decision_bar(ws, width=11)
-            print(f"    {inputs[0]}     |    {inputs[1]}    |    {target}     |     {prediction}     | "
-                  f"[{bar}] {ws:+5.2f} |   {result}")
+            print(
+                f"    {inputs[0]}     |    {inputs[1]}    |    {target}     |     {prediction}     | "
+                f"[{bar}] {ws:+5.2f} |   {result}"
+            )
 
         accuracy = (correct / len(training_data)) * 100
         print(f"\n📊 Accuracy: {accuracy:.0f}% ({correct}/{len(training_data)} correct)")
@@ -296,9 +302,9 @@ class PerceptronDemo:
 
     def explain_weights(self):
         """Explain what the learned weights mean."""
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print("  UNDERSTANDING THE LEARNED WEIGHTS".center(70))
-        print("="*70 + "\n")
+        print("=" * 70 + "\n")
 
         print("💡 What do these numbers mean?\n")
         print(f"   w0 = {self.perceptron.weights[0]:.3f}  (importance of first input)")
@@ -307,8 +313,10 @@ class PerceptronDemo:
 
         print("   The perceptron makes decisions using:")
         print("   output = activate(w0×input0 + w1×input1 + bias)")
-        print(f"   output = activate({self.perceptron.weights[0]:.2f}×input0 + "
-              f"{self.perceptron.weights[1]:.2f}×input1 + {self.perceptron.bias:.2f})\n")
+        print(
+            f"   output = activate({self.perceptron.weights[0]:.2f}×input0 + "
+            f"{self.perceptron.weights[1]:.2f}×input1 + {self.perceptron.bias:.2f})\n"
+        )
 
         print("   If the result is ≥ 0 → output 1")
         print("   If the result is < 0 → output 0")

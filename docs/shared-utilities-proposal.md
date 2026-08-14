@@ -61,18 +61,22 @@ import sys
 # ANSI colour codes (names match the GA demo's existing constants,
 # so adopting them there is a pure import swap)
 ANSI_GREEN = "\033[32m"
-ANSI_RED   = "\033[31m"
+ANSI_RED = "\033[31m"
 ANSI_RESET = "\033[0m"
+
 
 def get_validated_input(prompt, default, min_val, max_val, cast=float):
     """Prompt until the user enters a value in [min_val, max_val], or accepts default."""
     ...
 
+
 def divider(char="=", width=70):
     return char * width
 
+
 def centered(title, width=70):
     return title.center(width)
+
 
 def progress_bar(fraction, width=30, filled_char="█", empty_char="░"):
     filled = int(fraction * width)

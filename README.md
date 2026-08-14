@@ -21,6 +21,20 @@ are Prolog goals, so they need a trailing period — e.g. `go(north).`
   automatically from each script's inline metadata block; Python 3.9+)
 - Prolog demo: [SWI-Prolog](https://www.swi-prolog.org/) (`brew install swi-prolog`)
 
+## Linting
+
+Lint settings live in [`ruff.toml`](ruff.toml) rather than a `pyproject.toml`,
+since these are standalone [PEP 723](https://peps.python.org/pep-0723/) scripts
+rather than a package.
+
+```bash
+uvx ruff check .   # Lint
+uvx ruff format .  # Format
+```
+
+There are no automated tests — the demos are interactive and print-driven, so
+they're checked by running them.
+
 ## Docs
 
 - [`docs/shared-utilities-proposal.md`](docs/shared-utilities-proposal.md) — an

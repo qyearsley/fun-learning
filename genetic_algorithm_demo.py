@@ -32,7 +32,6 @@ How this relates to ML:
 import random
 import sys
 import time
-from typing import List, Tuple
 
 # Evolution defaults
 DEFAULT_POPULATION_SIZE = 150
@@ -100,27 +99,28 @@ class GeneticAlgorithm:
     - elite_count: top N individuals guaranteed to survive to next generation
     """
 
-    CHARSET = (
-        'abcdefghijklmnopqrstuvwxyz'
-        'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-        ' .,!?\'"-:;'
-    )
+    CHARSET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ .,!?'\"-:;"
 
-    def __init__(self, target: str, population_size: int = DEFAULT_POPULATION_SIZE,
-                 mutation_rate: float = DEFAULT_MUTATION_RATE, elite_count: int = ELITE_COUNT):
+    def __init__(
+        self,
+        target: str,
+        population_size: int = DEFAULT_POPULATION_SIZE,
+        mutation_rate: float = DEFAULT_MUTATION_RATE,
+        elite_count: int = ELITE_COUNT,
+    ):
         self.target = target
         self.population_size = population_size
         self.mutation_rate = mutation_rate
         self.elite_count = elite_count
         self.generation = 0
-        self.population: List[Individual] = []
-        self.history: List[float] = []
+        self.population: list[Individual] = []
+        self.history: list[float] = []
 
     def random_gene(self) -> str:
         return random.choice(self.CHARSET)
 
     def create_individual(self) -> Individual:
-        genes = ''.join(self.random_gene() for _ in range(len(self.target)))
+        genes = "".join(self.random_gene() for _ in range(len(self.target)))
         return Individual(genes)
 
     def initialize_population(self):
@@ -178,15 +178,15 @@ class GeneticAlgorithm:
         for i in range(len(genes)):
             if random.random() < self.mutation_rate:
                 genes[i] = self.random_gene()
-        return Individual(''.join(genes))
+        return Individual("".join(genes))
 
     def evolve_generation(self) -> Individual:
         """Run one complete cycle: select parents, breed offspring, replace population."""
         self.generation += 1
-        new_population: List[Individual] = []
+        new_population: list[Individual] = []
 
         # Elitism: the top N survive unchanged, so the best solution is never lost
-        new_population.extend(self.population[:self.elite_count])
+        new_population.extend(self.population[: self.elite_count])
 
         # Fill remaining slots by breeding from the current population
         while len(new_population) < self.population_size:
@@ -237,15 +237,17 @@ class GeneticAlgorithmDemo:
         print("Target phrases:")
         for i, target in enumerate(self.DEFAULT_TARGETS, 1):
             tag = " (default)" if i == default_idx else ""
-            print(f"  {i}. \"{target}\"{tag}")
+            print(f'  {i}. "{target}"{tag}')
         print(f"  {len(self.DEFAULT_TARGETS) + 1}. Enter your own")
 
         while True:
             try:
-                choice = input(f"\nSelect (1-{len(self.DEFAULT_TARGETS) + 1}, Enter for {default_idx}): ").strip()
+                choice = input(
+                    f"\nSelect (1-{len(self.DEFAULT_TARGETS) + 1}, Enter for {default_idx}): "
+                ).strip()
                 if choice == "":
                     return self.DEFAULT_TARGETS[default_idx - 1]
-                if choice.lower() == 'q':
+                if choice.lower() == "q":
                     sys.exit(0)
                 idx = int(choice)
                 if 1 <= idx <= len(self.DEFAULT_TARGETS):
@@ -261,17 +263,22 @@ class GeneticAlgorithmDemo:
                 print("\nExiting...")
                 sys.exit(0)
 
-    def configure(self) -> Tuple[int, float]:
+    def configure(self) -> tuple[int, float]:
         print("\n⚙️  Configuration")
         print("-" * 40)
 
         pop_size = get_validated_input(
             f"  Population size (50-500, Enter for {DEFAULT_POPULATION_SIZE}): ",
-            DEFAULT_POPULATION_SIZE, 50, 500, cast=int,
+            DEFAULT_POPULATION_SIZE,
+            50,
+            500,
+            cast=int,
         )
         mut_rate = get_validated_input(
             f"  Mutation rate (0.01-0.1, Enter for {DEFAULT_MUTATION_RATE}): ",
-            DEFAULT_MUTATION_RATE, 0.01, 0.1,
+            DEFAULT_MUTATION_RATE,
+            0.01,
+            0.1,
         )
 
         return pop_size, mut_rate
@@ -282,7 +289,7 @@ class GeneticAlgorithmDemo:
         for gene, goal in zip(individual.genes, target):
             color = ANSI_GREEN if gene == goal else ANSI_RED
             result.append(f"{color}{gene}{ANSI_RESET}")
-        return ''.join(result)
+        return "".join(result)
 
     def fitness_bar(self, fitness: float, width: int = 30) -> str:
         filled = int(fitness * width)
@@ -296,7 +303,7 @@ class GeneticAlgorithmDemo:
             elite_count=ELITE_COUNT,
         )
 
-        print(f"\n  Target:          \"{target}\"")
+        print(f'\n  Target:          "{target}"')
         print(f"  Population:      {pop_size}")
         print(f"  Mutation rate:   {mut_rate}")
         print(f"  Selection:       Tournament (size {TOURNAMENT_SIZE})")
@@ -320,7 +327,7 @@ class GeneticAlgorithmDemo:
 
                 # Display every generation for the first 20, then at intervals
                 gen = self.ga.generation
-                show = (gen <= 20 or gen % 10 == 0 or best.fitness == 1.0)
+                show = gen <= 20 or gen % 10 == 0 or best.fitness == 1.0
 
                 if show:
                     bar = self.fitness_bar(best.fitness)
@@ -341,8 +348,8 @@ class GeneticAlgorithmDemo:
         print("=" * 70)
 
         print("\n📊 Results:")
-        print(f"   Result:       \"{best.genes}\"")
-        print(f"   Target:       \"{target}\"")
+        print(f'   Result:       "{best.genes}"')
+        print(f'   Target:       "{target}"')
         print(f"   Generations:  {self.ga.generation}")
         print(f"   Time:         {elapsed:.2f}s")
         print(f"   Final fitness: {best.fitness:.4f}")

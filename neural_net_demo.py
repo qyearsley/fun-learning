@@ -26,10 +26,10 @@ The Learning Process:
 5. Repeat until the network learns the pattern
 """
 
-import numpy as np
 import sys
 import time
-from typing import Tuple, List
+
+import numpy as np
 
 # Network and training defaults
 DEFAULT_LEARNING_RATE = 0.5
@@ -134,7 +134,9 @@ class NeuralNetwork:
         self.hidden_values = sigmoid(self.hidden_weighted_sum)
 
         # Output layer
-        self.output_weighted_sum = np.dot(self.hidden_values, self.weights_hidden_output) + self.bias_output
+        self.output_weighted_sum = (
+            np.dot(self.hidden_values, self.weights_hidden_output) + self.bias_output
+        )
         self.output_value = sigmoid(self.output_weighted_sum)
 
         return self.output_value[0]
@@ -160,7 +162,9 @@ class NeuralNetwork:
 
         # Update weights and biases
         # Output layer weights: (3, 1) += (3,) * scalar reshaped
-        self.weights_hidden_output += self.learning_rate * self.hidden_values.reshape(-1, 1) * output_delta
+        self.weights_hidden_output += (
+            self.learning_rate * self.hidden_values.reshape(-1, 1) * output_delta
+        )
         self.bias_output[0] += self.learning_rate * output_delta
 
         # Hidden layer weights: (2, 3) += outer((2,), (3,))
@@ -169,7 +173,7 @@ class NeuralNetwork:
 
         return abs(output_error)
 
-    def train_step(self, inputs: np.ndarray, target: float) -> Tuple[float, float]:
+    def train_step(self, inputs: np.ndarray, target: float) -> tuple[float, float]:
         """
         Perform one complete training step: forward pass + backward pass.
 
@@ -218,11 +222,11 @@ class NetworkVisualizer:
         print("    ┌─ I1 ─┐")
         print(f"    │ {i1:4.2f} │═══╗     ╔══┌─ H1 ─┐══╗")
         print(f"    └──────┘   ║     ║  │ {h1:4.2f} │  ║")
-        print( "               ║     ║  └──────┘  ║")
-        print( "               ╠═════╣  ┌─ H2 ─┐  ║   ┌─ O1 ─┐")
+        print("               ║     ║  └──────┘  ║")
+        print("               ╠═════╣  ┌─ H2 ─┐  ║   ┌─ O1 ─┐")
         print(f"               ║     ╠══│ {h2:4.2f} │══╬══→│ {o1:4.2f} │")
-        print( "               ║     ║  └──────┘  ║   └──────┘")
-        print( "    ┌─ I2 ─┐   ║     ║  ┌─ H3 ─┐  ║")
+        print("               ║     ║  └──────┘  ║   └──────┘")
+        print("    ┌─ I2 ─┐   ║     ║  ┌─ H3 ─┐  ║")
         print(f"    │ {i2:4.2f} │═══╝     ╚══│ {h3:4.2f} │══╝")
         print("    └──────┘            └──────┘")
         print()
@@ -236,9 +240,15 @@ class NetworkVisualizer:
 
             print("  Input → Hidden:")
             print("           H1      H2      H3")
-            print(f"    I1  [{nn.weights_input_hidden[0][0]:6.3f} {nn.weights_input_hidden[0][1]:6.3f} {nn.weights_input_hidden[0][2]:6.3f}]")
-            print(f"    I2  [{nn.weights_input_hidden[1][0]:6.3f} {nn.weights_input_hidden[1][1]:6.3f} {nn.weights_input_hidden[1][2]:6.3f}]")
-            print(f"  Bias  [{nn.bias_hidden[0]:6.3f} {nn.bias_hidden[1]:6.3f} {nn.bias_hidden[2]:6.3f}]")
+            print(
+                f"    I1  [{nn.weights_input_hidden[0][0]:6.3f} {nn.weights_input_hidden[0][1]:6.3f} {nn.weights_input_hidden[0][2]:6.3f}]"
+            )
+            print(
+                f"    I2  [{nn.weights_input_hidden[1][0]:6.3f} {nn.weights_input_hidden[1][1]:6.3f} {nn.weights_input_hidden[1][2]:6.3f}]"
+            )
+            print(
+                f"  Bias  [{nn.bias_hidden[0]:6.3f} {nn.bias_hidden[1]:6.3f} {nn.bias_hidden[2]:6.3f}]"
+            )
 
             print("\n  Hidden → Output:")
             print(f"    H1  [{nn.weights_hidden_output[0][0]:6.3f}]")
@@ -249,7 +259,7 @@ class NetworkVisualizer:
         print("=" * 70)
 
     @staticmethod
-    def draw_training_step(inputs: List[int], target: int, prediction: float, error: float):
+    def draw_training_step(inputs: list[int], target: int, prediction: float, error: float):
         """Draw a single training step with visual feedback."""
         pred_binary = 1 if prediction >= DECISION_THRESHOLD else 0
         status = "✓" if abs(target - prediction) < DECISION_THRESHOLD else "✗"
@@ -259,8 +269,10 @@ class NetworkVisualizer:
         filled = int(prediction * bar_length)
         bar = "█" * filled + "░" * (bar_length - filled)
 
-        print(f"  {status} Input: [{inputs[0]}, {inputs[1]}] → Target: {target} | "
-              f"Prediction: {prediction:.3f} [{bar}] {pred_binary} | Error: {error:.3f}")
+        print(
+            f"  {status} Input: [{inputs[0]}, {inputs[1]}] → Target: {target} | "
+            f"Prediction: {prediction:.3f} [{bar}] {pred_binary} | Error: {error:.3f}"
+        )
 
 
 class NeuralNetDemo:
@@ -283,9 +295,9 @@ class NeuralNetDemo:
 
     def print_header(self):
         """Display the program header."""
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print("  NEURAL NETWORK LEARNING DEMONSTRATION".center(70))
-        print("="*70)
+        print("=" * 70)
         print("\n📚 What is a Neural Network?")
         print("   A neural network is multiple artificial neurons working together in layers.")
         print("   Unlike a single perceptron, networks with 'hidden layers' can learn")
@@ -347,9 +359,9 @@ class NeuralNetDemo:
                 is_verbose = (epoch % verbose_interval == 0) or (epoch < 5)
 
                 if is_verbose:
-                    print(f"\n{'='*70}")
+                    print(f"\n{'=' * 70}")
                     print(f"  EPOCH {epoch + 1}/{max_epochs}".center(70))
-                    print(f"{'='*70}\n")
+                    print(f"{'=' * 70}\n")
 
                 # Train on each example
                 for inputs, target in self.XOR_DATA:
@@ -371,8 +383,11 @@ class NeuralNetDemo:
                     progress = epoch / max_epochs
                     filled = int(progress * bar_length)
                     bar = "█" * filled + "░" * (bar_length - filled)
-                    print(f"\r  Progress: [{bar}] Epoch {epoch}/{max_epochs} | Avg Error: {avg_error:.4f}",
-                          end='', flush=True)
+                    print(
+                        f"\r  Progress: [{bar}] Epoch {epoch}/{max_epochs} | Avg Error: {avg_error:.4f}",
+                        end="",
+                        flush=True,
+                    )
 
                 # Check for convergence
                 if avg_error < CONVERGENCE_THRESHOLD:
@@ -389,9 +404,9 @@ class NeuralNetDemo:
 
     def test_network(self):
         """Test the trained network on all XOR examples."""
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print("  FINAL TEST".center(70))
-        print("="*70 + "\n")
+        print("=" * 70 + "\n")
 
         print("Testing learned behavior:")
         print("  Input 1 | Input 2 | Expected | Predicted | Confidence | Result")
@@ -411,8 +426,10 @@ class NeuralNetDemo:
             filled = int(confidence * bar_length)
             bar = "█" * filled + "░" * (bar_length - filled)
 
-            print(f"    {inputs[0]}     |    {inputs[1]}    |    {target}     |     {prediction}     | "
-                  f"[{bar}] {confidence:.2f} |   {result}")
+            print(
+                f"    {inputs[0]}     |    {inputs[1]}    |    {target}     |     {prediction}     | "
+                f"[{bar}] {confidence:.2f} |   {result}"
+            )
 
         accuracy = (correct / len(self.XOR_DATA)) * 100
         print(f"\n📊 Accuracy: {accuracy:.0f}% ({correct}/{len(self.XOR_DATA)} correct)")
@@ -422,9 +439,9 @@ class NeuralNetDemo:
 
     def explain_learning(self):
         """Explain what the network learned."""
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print("  UNDERSTANDING WHAT THE NETWORK LEARNED".center(70))
-        print("="*70 + "\n")
+        print("=" * 70 + "\n")
 
         print("💡 How did it learn XOR?\n")
         print("   The hidden layer learned to detect useful patterns:")
@@ -438,10 +455,14 @@ class NeuralNetDemo:
         for inputs, target in self.XOR_DATA:
             self.network.forward(np.array(inputs))
             print(f"   Input: [{inputs[0]}, {inputs[1]}] → Output: {target}")
-            print(f"     Hidden neurons: [H1={self.network.hidden_values[0]:.3f}, "
-                  f"H2={self.network.hidden_values[1]:.3f}, "
-                  f"H3={self.network.hidden_values[2]:.3f}]")
-            print(f"     Final output: {self.network.output_value[0]:.3f} → {self.network.predict(np.array(inputs))}\n")
+            print(
+                f"     Hidden neurons: [H1={self.network.hidden_values[0]:.3f}, "
+                f"H2={self.network.hidden_values[1]:.3f}, "
+                f"H3={self.network.hidden_values[2]:.3f}]"
+            )
+            print(
+                f"     Final output: {self.network.output_value[0]:.3f} → {self.network.predict(np.array(inputs))}\n"
+            )
 
         print("   The hidden layer transforms the problem into a space where")
         print("   XOR becomes linearly separable! This is the power of neural networks.")
@@ -457,14 +478,18 @@ class NeuralNetDemo:
         print("-" * 40)
         learning_rate = get_validated_input(
             f"Enter learning rate (0.1-2.0, or press Enter for {DEFAULT_LEARNING_RATE}): ",
-            DEFAULT_LEARNING_RATE, 0.1, 2.0,
+            DEFAULT_LEARNING_RATE,
+            0.1,
+            2.0,
         )
 
         # Initialize network
         self.network = NeuralNetwork(learning_rate=learning_rate)
 
         # Train
-        self.train_with_visualization(max_epochs=DEFAULT_MAX_EPOCHS, verbose_interval=VERBOSE_INTERVAL)
+        self.train_with_visualization(
+            max_epochs=DEFAULT_MAX_EPOCHS, verbose_interval=VERBOSE_INTERVAL
+        )
 
         # Test
         self.test_network()
@@ -473,9 +498,9 @@ class NeuralNetDemo:
         self.explain_learning()
 
         # Conclusion
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print("  CONCLUSION".center(70))
-        print("="*70 + "\n")
+        print("=" * 70 + "\n")
         print("🎓 Key Lessons:")
         print("   • Single perceptrons can only learn linearly separable patterns")
         print("   • Neural networks with hidden layers can learn complex patterns like XOR")
