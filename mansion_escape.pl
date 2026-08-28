@@ -8,7 +8,7 @@
 %   1. Install SWI-Prolog: brew install swi-prolog
 %   2. Run: swipl mansion_escape.pl
 %   3. The game starts automatically
-%   4. Type commands followed by a period, e.g.: go(north).
+%   4. Type commands in plain English, e.g.: go north
 %
 % PROLOG BASICS:
 % - Prolog is a logic programming language based on facts and rules
@@ -91,13 +91,24 @@ connected(upstairs_hall, north, master_bedroom) :-
     inventory(key).  % This condition must be satisfied
 
 % ----------------------------------------------------------------------------
-% ITEM LOCATIONS (Facts)
+% ITEM LOCATIONS AND ADJECTIVES (Facts)
 % ----------------------------------------------------------------------------
-% Defines where items start in the game world.
+% Defines where items start in the game world, and what the player is allowed
+% to call them.
 % Format: item_in_room(ItemID, RoomID)
 
 item_in_room(book, library).
 item_in_room(key, kitchen).
+
+% Adjectives the player is allowed to use for each item, so that
+% "take the rusty key" works as well as "take key". The parser at the bottom
+% of this file checks typed adjectives against these facts.
+% Format: adjective(ItemID, Word)
+
+adjective(book, ancient).
+adjective(book, old).
+adjective(key, rusty).
+adjective(key, old).
 
 % ----------------------------------------------------------------------------
 % START COMMAND (Entry Point)
@@ -116,7 +127,7 @@ start :-
     write('You wake up in a mysterious mansion.'), nl,
     write('Find a way to escape!'), nl,
     nl,
-    write('Commands: look, go(Direction), take(Item), inventory, help, quit'), nl,
+    write('Commands: look, go <direction>, take <item>, inventory, help, quit'), nl,
     nl,
 
     % Show the starting room description
@@ -130,12 +141,18 @@ start :-
 help :-
     nl,
     write('Available commands:'), nl,
-    write('  look          - Look around the current room'), nl,
-    write('  go(Direction) - Move in a direction (north, south, east, west, up, down)'), nl,
-    write('  take(Item)    - Pick up an item'), nl,
-    write('  inventory     - Check your inventory'), nl,
-    write('  help          - Show this help'), nl,
-    write('  quit          - Exit the game'), nl,
+    write('  look             - Look around the current room'), nl,
+    write('  go <direction>   - Move (north, south, east, west, up, down)'), nl,
+    write('  take <item>      - Pick up an item'), nl,
+    write('  inventory        - Check your inventory'), nl,
+    write('  help             - Show this help'), nl,
+    write('  restart          - Start over'), nl,
+    write('  quit             - Exit the game'), nl,
+    nl,
+    write('Articles and adjectives are optional, directions can be'), nl,
+    write('abbreviated, and most verbs have synonyms. All of these work:'), nl,
+    write('  go north  /  walk n  /  north'), nl,
+    write('  take the rusty key  /  pick up key  /  get key'), nl,
     nl.
 
 % ----------------------------------------------------------------------------
@@ -321,19 +338,28 @@ inventory :-
 % ----------------------------------------------------------------------------
 % Called after each movement. If the player reaches the master bedroom,
 % they've won! Changes game_state from 'playing' to 'won'.
+%
+% Note the if-then-else: the "else" branch is just true. Without it this
+% predicate would FAIL on every ordinary move, and because go/1 calls it last,
+% go/1 would fail too — after having already moved the player and printed the
+% room. A predicate that means "check whether X happened" has to succeed when
+% X did not happen.
 
 check_win_condition :-
-    current_location(master_bedroom),
-    nl,
-    write('========================================'), nl,
-    write('You climb through the window and escape!'), nl,
-    write('*** YOU WIN! ***'), nl,
-    write('========================================'), nl,
-    nl,
+    (   current_location(master_bedroom)
+    ->  nl,
+        write('========================================'), nl,
+        write('You climb through the window and escape!'), nl,
+        write('*** YOU WIN! ***'), nl,
+        write('========================================'), nl,
+        nl,
 
-    % Update game state (replace 'playing' with 'won')
-    retract(game_state(playing)),
-    assertz(game_state(won)).
+        % Update game state (replace 'playing' with 'won')
+        retract(game_state(playing)),
+        assertz(game_state(won))
+
+    ;   true  % Not in the bedroom yet: nothing to do, but still succeed
+    ).
 
 % ----------------------------------------------------------------------------
 % QUIT COMMAND
@@ -346,19 +372,216 @@ quit :-
     halt.  % Built-in predicate to exit SWI-Prolog
 
 % ----------------------------------------------------------------------------
+% PARSING PLAYER INPUT (Definite Clause Grammars)
+% ----------------------------------------------------------------------------
+% Everything above is the game. Everything below turns a typed line of English
+% into one of the goals above, so the player types "go north" rather than
+% "go(north).".
+%
+% A DCG rule uses --> instead of :- and describes a sequence of tokens.
+% Terminals go in a list; nonterminals are bare; {...} holds ordinary Prolog
+% that must also hold. So this rule:
+%
+%     command(go(Dir)) --> go_verb, opt_article, direction(Dir).
+%
+% is compiled by Prolog into an ordinary predicate with two extra arguments:
+%
+%     command(go(Dir), S0, S) :-
+%         go_verb(S0, S1), opt_article(S1, S2), direction(Dir, S2, S).
+%
+% S0 is the list of words coming in, S is whatever is left over. Each
+% nonterminal consumes a prefix and hands the rest along. That pairing of
+% "list in, remainder out" is a DIFFERENCE LIST, and it is the whole trick:
+% --> is not a parser generator, it is syntax for threading a list through a
+% chain of predicates. phrase(command(C), Words) calls command(C, Words, []),
+% i.e. "parse Words and leave nothing over".
+%
+% Because these are just predicates, parsing backtracks like anything else. If
+% a sentence has two readings, findall/3 below collects both.
+
+% Top-level command forms. Each produces a goal that already exists above.
+command(look)       --> look_verb.
+command(inventory)  --> inv_verb.
+command(help)       --> help_verb.
+command(quit)       --> quit_verb.
+command(start)      --> [restart].
+command(go(Dir))    --> go_verb, opt_article, direction(Dir).
+command(take(Item)) --> take_verb, noun_phrase(Item).
+
+% Verb vocabulary. Adding a synonym is one line, not a parser change.
+look_verb --> [look].
+look_verb --> [look, around].
+look_verb --> [l].
+
+inv_verb --> [inventory].
+inv_verb --> [inv].
+inv_verb --> [i].
+
+help_verb --> [help].
+help_verb --> [h].
+help_verb --> [commands].
+
+quit_verb --> [quit].
+quit_verb --> [exit].
+quit_verb --> [q].
+
+go_verb --> [go].
+go_verb --> [walk].
+go_verb --> [move].
+go_verb --> [head].
+go_verb --> [].  % Empty: lets a bare "north" mean "go north"
+
+take_verb --> [take].
+take_verb --> [get].
+take_verb --> [grab].
+take_verb --> [pick, up].
+
+% Directions, with abbreviations. The head argument is the atom the game uses,
+% so several spellings can map to one direction.
+direction(north) --> [north].
+direction(north) --> [n].
+direction(south) --> [south].
+direction(south) --> [s].
+direction(east)  --> [east].
+direction(east)  --> [e].
+direction(west)  --> [west].
+direction(west)  --> [w].
+direction(up)    --> [up].
+direction(up)    --> [u].
+direction(up)    --> [upstairs].
+direction(down)  --> [down].
+direction(down)  --> [d].
+direction(down)  --> [downstairs].
+
+% An article is optional, which is expressed as a rule that matches nothing.
+opt_article --> [the].
+opt_article --> [a].
+opt_article --> [an].
+opt_article --> [].
+
+% "the rusty key" -> key. Any words between the article and the final noun are
+% treated as adjectives, and the {...} guard demands that they actually apply
+% to that item, so "take the rusty key" is accepted and "take the brass key"
+% is not.
+noun_phrase(Item) -->
+    opt_article,
+    adjectives(Adjectives),
+    [Item],
+    { adjectives_match(Item, Adjectives) }.
+
+adjectives([Word|Rest]) --> [Word], adjectives(Rest).
+adjectives([])          --> [].
+
+adjectives_match(Item, Adjectives) :-
+    forall(member(Adjective, Adjectives), adjective(Item, Adjective)).
+
+% ----------------------------------------------------------------------------
+% READING A LINE OF INPUT
+% ----------------------------------------------------------------------------
+% Lowercase the line, split it on spaces while discarding trailing punctuation,
+% and convert the pieces to atoms so the grammar's terminals can match them.
+% Fails at end of input (Ctrl-D), which the game loop treats as quitting.
+
+read_words(Words) :-
+    read_line_to_string(user_input, Line),
+    Line \== end_of_file,
+    string_lower(Line, Lowered),
+
+    % split_string(String, Separators, Padding, Pieces) - padding characters
+    % are trimmed from each piece, which is how the trailing period goes away
+    split_string(Lowered, " \t", " \t.,!?", Pieces),
+    strings_to_words(Pieces, Words).
+
+% Consecutive separators leave empty strings behind, so skip those.
+strings_to_words([], []).
+
+strings_to_words([""|Rest], Words) :- !,
+    strings_to_words(Rest, Words).
+
+strings_to_words([Piece|Rest], [Word|Words]) :-
+    atom_string(Word, Piece),
+    strings_to_words(Rest, Words).
+
+% ----------------------------------------------------------------------------
+% THE GAME LOOP
+% ----------------------------------------------------------------------------
+% Prompt, read, parse, run, repeat. This replaces the SWI-Prolog top level,
+% which used to serve as the game's prompt.
+
+play :-
+    start,
+    game_loop.
+
+game_loop :-
+    write('> '),
+    flush_output,  % Prompts are buffered otherwise, so force it out
+
+    (   read_words(Words)
+    ->  handle(Words)
+    ;   nl, quit  % End of input
+    ),
+    game_loop.
+
+% Blank line: just prompt again.
+handle([]) :- !.
+
+handle(Words) :-
+    % findall collects every parse of the line. sort/2 removes duplicates, so
+    % what is left is the set of distinct readings.
+    findall(Command, phrase(command(Command), Words), Parses),
+    sort(Parses, Commands),
+
+    (   Commands = [Command]
+    ->  run(Command)
+
+    ;   Commands = []
+    ->  nl,
+        write('I do not understand that. Type help for a list of commands.'),
+        nl, nl
+
+    ;   % More than one reading. Unreachable with the current two items, but
+        % this is what makes adding a second key cheap: the grammar reports
+        % the ambiguity instead of silently guessing.
+        nl,
+        write('That could mean several things. Try being more specific.'),
+        nl, nl
+    ).
+
+% Commands guard themselves with game_state(playing), so they fail once the
+% game is won rather than doing something inappropriate.
+run(Command) :-
+    (   call(Command)
+    ->  true
+
+    ;   game_state(won)
+    ->  nl,
+        write('You have already escaped. Type restart or quit.'),
+        nl, nl
+
+    ;   nl,
+        write('Nothing happens.'),
+        nl, nl
+    ).
+
+% ----------------------------------------------------------------------------
 % AUTO-START
 % ----------------------------------------------------------------------------
 % The initialization directive runs automatically when the file is loaded.
 % This makes the game start immediately when you run: swipl mansion_escape.pl
+%
+% The second argument, main, declares play/0 to be the program's entry point
+% rather than a goal run alongside the interactive top level. That is what
+% makes it legal for quit/0 to call halt/0 without SWI-Prolog complaining.
 
-:- initialization(start).
+:- initialization(play, main).
 
 % ============================================================================
 % END OF PROGRAM
 %
 % EXTENDING THIS GAME:
 % - Add more rooms to the room/3 facts
-% - Add more items to item_in_room/2
+% - Add more items to item_in_room/2 and adjective/2
+% - Add verbs, synonyms, or whole command forms to the DCG rules
 % - Create more complex puzzles with additional game_state facts
 % - Add NPCs with their own facts and interaction rules
 % - Add a combat system with dynamic health tracking
@@ -373,4 +596,5 @@ quit :-
 % - List processing with findall
 % - Conditional logic (-> and ;)
 % - Logic as structure (the locked door rule)
+% - Definite clause grammars and difference lists (the parser)
 % ============================================================================
