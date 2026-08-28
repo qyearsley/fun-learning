@@ -12,8 +12,11 @@ These are toy projects, not production code.
 | `genetic_algorithm_demo.py` | Genetic algorithm evolving toward a target string | `./genetic_algorithm_demo.py` |
 | `mansion_escape.pl` | Text adventure game in Prolog | `./mansion_escape.pl` |
 
-All four are interactive and run in the terminal. In the Prolog game, commands
-are Prolog goals, so they need a trailing period — e.g. `go(north).`
+All four are interactive and run in the terminal. The Prolog game takes plain
+English — `go north`, `take the rusty key`, `go to the cellar` — parsed by a
+definite clause grammar. Its central puzzle is a lever mechanism constrained by
+notes you find; `deduce` makes the game solve it in front of you, reasoning only
+from the notes you have actually read.
 
 ## Requirements
 
@@ -42,6 +45,8 @@ they're checked by running them.
   Python demos.
 - [`docs/project-ideas.md`](docs/project-ideas.md) — a backlog of candidate
   demos, with notes on what suits a terminal.
+- [`docs/mansion-escape-v2.md`](docs/mansion-escape-v2.md) — the design sketch
+  behind the Prolog game's lever puzzle, planner, and `deduce`.
 
 ## License
 

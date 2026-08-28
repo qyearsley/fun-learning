@@ -9,6 +9,13 @@
 %   2. Run: swipl mansion_escape.pl
 %   3. The game starts automatically
 %   4. Type commands in plain English, e.g.: go north
+%   5. Type help for the full command list
+%
+% THE PUZZLE:
+% The way out is a cellar door held by three levers. Notes hidden around the
+% mansion each state one constraint on how the levers must sit. Work it out
+% yourself, or type deduce and watch the program solve its own puzzle - using
+% only the notes you have actually read.
 %
 % PROLOG BASICS:
 % - Prolog is a logic programming language based on facts and rules
@@ -27,6 +34,8 @@
 :- dynamic current_location/1.  % Tracks where the player currently is
 :- dynamic inventory/1.          % Tracks items the player is carrying
 :- dynamic game_state/1.         % Tracks overall game state (playing/won)
+:- dynamic known_constraint/1.   % Which notes the player has read
+:- dynamic lever_position/2.     % lever_position(Lever, up) or (Lever, down)
 
 % ----------------------------------------------------------------------------
 % GAME INITIALIZATION
@@ -41,10 +50,16 @@ init_game :-
     retractall(current_location(_)),
     retractall(inventory(_)),
     retractall(game_state(_)),
+    retractall(known_constraint(_)),
+    retractall(lever_position(_, _)),
 
     % assertz adds a new fact to the END of the database
     assertz(current_location(foyer)),
-    assertz(game_state(playing)).
+    assertz(game_state(playing)),
+
+    % Every lever starts down. forall/2 is "for each solution of the first
+    % goal, the second must succeed" - a loop written as a logical claim.
+    forall(lever(Lever), assertz(lever_position(Lever, down))).
 
 % ----------------------------------------------------------------------------
 % ROOM DEFINITIONS (Facts)
@@ -54,19 +69,22 @@ init_game :-
 % Think of these as a database of room information.
 
 room(foyer, 'Grand Foyer',
-     'You stand in a dusty foyer. A grand staircase leads up. Doors lead north and east.').
+     'You stand in a dusty foyer. A grand staircase leads up, and a narrow stair descends into darkness. Doors lead north and east.').
 
 room(library, 'Library',
-     'Shelves of ancient books surround you. A particular book catches your eye.').
+     'Shelves of ancient books surround you. A particular book catches your eye. A note is pinned to the shelf.').
 
 room(kitchen, 'Kitchen',
-     'A grim kitchen with old appliances. You see a rusty key on the counter.').
+     'A grim kitchen with old appliances. You see a rusty key on the counter, and a note stuck to the icebox.').
 
 room(upstairs_hall, 'Upstairs Hallway',
-     'A dark hallway. The master bedroom door is locked. Stairs lead down.').
+     'A dark hallway. The master bedroom door is locked. An oil lamp sits on a side table. Stairs lead down.').
 
 room(master_bedroom, 'Master Bedroom',
-     'The master bedroom. An open window offers escape!').
+     'The master bedroom. The window is barred. A note is nailed to the frame.').
+
+room(cellar, 'Cellar',
+     'A damp cellar. A heavy door leads out to the grounds, held shut by three levers set into the wall: brass, iron and copper.').
 
 % ----------------------------------------------------------------------------
 % ROOM CONNECTIONS (Facts and Rules)
@@ -81,14 +99,35 @@ room(master_bedroom, 'Master Bedroom',
 connected(foyer, north, library).
 connected(foyer, east, kitchen).
 connected(foyer, up, upstairs_hall).
+connected(foyer, down, cellar).
 connected(library, south, foyer).
 connected(kitchen, west, foyer).
 connected(upstairs_hall, down, foyer).
+connected(cellar, up, foyer).
 
 % This is a RULE, not just a fact. The :- means "if"
 % Read as: "foyer is connected north to master_bedroom IF inventory(key) is true"
 connected(upstairs_hall, north, master_bedroom) :-
     inventory(key).  % This condition must be satisfied
+
+connected(master_bedroom, south, upstairs_hall).
+
+% ----------------------------------------------------------------------------
+% DARKNESS (Two Clauses Meaning "Or")
+% ----------------------------------------------------------------------------
+% The locked door above is an AND: you may pass IF you hold the key. This is
+% the other half of the idea. can_see/0 has two clauses, and Prolog tries them
+% in turn, so the predicate succeeds if EITHER holds: the room is lit, or you
+% are carrying the lamp. Multiple clauses are Prolog's "or".
+
+dark(cellar).
+
+can_see :-
+    current_location(Room),
+    \+ dark(Room).
+
+can_see :-
+    inventory(lamp).
 
 % ----------------------------------------------------------------------------
 % ITEM LOCATIONS AND ADJECTIVES (Facts)
@@ -99,6 +138,7 @@ connected(upstairs_hall, north, master_bedroom) :-
 
 item_in_room(book, library).
 item_in_room(key, kitchen).
+item_in_room(lamp, upstairs_hall).
 
 % Adjectives the player is allowed to use for each item, so that
 % "take the rusty key" works as well as "take key". The parser at the bottom
@@ -109,6 +149,87 @@ adjective(book, ancient).
 adjective(book, old).
 adjective(key, rusty).
 adjective(key, old).
+adjective(lamp, oil).
+adjective(lamp, old).
+
+% What you get for examining a thing. Scenery is allowed here too, which is why
+% these are separate from item_in_room/2.
+% Format: description(Thing, Text)
+
+description(book, 'A leather tome. A margin note reads: "The key to freedom lies in the kitchen."').
+description(key, 'A small rusty key. It looks like it fits an interior door.').
+description(lamp, 'An oil lamp, still half full. It would light a dark room.').
+description(window, 'Iron bars, set deep into the stone. Not that way.').
+
+% ----------------------------------------------------------------------------
+% THE NOTES AND WHAT THEY SAY (Facts)
+% ----------------------------------------------------------------------------
+% Each note carries one constraint on the lever mechanism in the cellar.
+% Reading a note asserts known_constraint/1, and deduce/0 reasons only from the
+% constraints you have actually found - so the solver knows exactly what you
+% know, no more.
+% Format: note(RoomID, ConstraintID) and constraint_text(ConstraintID, Text)
+
+note(library, 1).
+note(kitchen, 2).
+note(master_bedroom, 3).
+
+constraint_text(1, 'The brass and iron levers never sit the same way.').
+constraint_text(2, 'If the brass lever is up, the copper lever is down.').
+constraint_text(3, 'At least two levers are up.').
+
+% ----------------------------------------------------------------------------
+% THE LEVER MECHANISM (Constraints as Rules)
+% ----------------------------------------------------------------------------
+% Three levers, each up or down, so eight possible settings. A setting is
+% written as a list of Lever-Position pairs, e.g. [brass-down, iron-up,
+% copper-up]. The - is just a term, not subtraction; Prolog uses it as a
+% general-purpose pairing operator.
+%
+% holds(Id, Setting) says whether the constraint from note Id is satisfied by a
+% setting. Each is a plain rule, which is why adding a fourth note means adding
+% one clause here and one constraint_text/2 fact - deduce/0 keeps working.
+
+lever(brass).
+lever(iron).
+lever(copper).
+
+position(up).
+position(down).
+
+holds(1, Setting) :-
+    setting_of(brass, Setting, Brass),
+    setting_of(iron, Setting, Iron),
+    Brass \== Iron.
+
+holds(2, Setting) :-
+    (   setting_of(brass, Setting, up)
+    ->  setting_of(copper, Setting, down)
+    ;   true  % Brass is down, so the note says nothing
+    ).
+
+holds(3, Setting) :-
+    findall(Lever, member(Lever-up, Setting), Up),
+    length(Up, Count),
+    Count >= 2.
+
+setting_of(Lever, Setting, Position) :-
+    memberchk(Lever-Position, Setting).
+
+% Every possible setting. Backtracking over position/1 generates all eight.
+candidate([brass-Brass, iron-Iron, copper-Copper]) :-
+    position(Brass),
+    position(Iron),
+    position(Copper).
+
+% The setting the levers are actually in right now.
+current_setting([brass-Brass, iron-Iron, copper-Copper]) :-
+    lever_position(brass, Brass),
+    lever_position(iron, Iron),
+    lever_position(copper, Copper).
+
+satisfies(Ids, Setting) :-
+    forall(member(Id, Ids), holds(Id, Setting)).
 
 % ----------------------------------------------------------------------------
 % START COMMAND (Entry Point)
@@ -127,7 +248,7 @@ start :-
     write('You wake up in a mysterious mansion.'), nl,
     write('Find a way to escape!'), nl,
     nl,
-    write('Commands: look, go <direction>, take <item>, inventory, help, quit'), nl,
+    write('Commands: look, examine, go <direction>, take <item>, deduce, help, quit'), nl,
     nl,
 
     % Show the starting room description
@@ -136,23 +257,30 @@ start :-
 % ----------------------------------------------------------------------------
 % HELP COMMAND
 % ----------------------------------------------------------------------------
-% Displays available commands. Simple output rule.
+% The help text is facts rather than a run of write/1 calls. Data beats code:
+% adding a command means adding a fact, and nothing about help/0 changes.
+
+help_line('Available commands:').
+help_line('  look             - Look around the current room').
+help_line('  examine <thing>  - Look closely at something (also: read <thing>)').
+help_line('  go <direction>   - Move (north, south, east, west, up, down)').
+help_line('  go to <room>     - Walk there, if a route exists').
+help_line('  take <item>      - Pick up an item').
+help_line('  pull <lever>     - Flip a lever in the cellar').
+help_line('  deduce           - Reason about the levers from what you have read').
+help_line('  inventory        - Check your inventory').
+help_line('  restart          - Start over').
+help_line('  quit             - Exit the game').
+help_line('').
+help_line('Articles and adjectives are optional, directions can be').
+help_line('abbreviated, and most verbs have synonyms. All of these work:').
+help_line('  go north  /  walk n  /  north  /  go to the cellar').
+help_line('  take the rusty key  /  pick up key  /  get key').
+help_line('  read the note  /  look at book  /  examine levers').
 
 help :-
     nl,
-    write('Available commands:'), nl,
-    write('  look             - Look around the current room'), nl,
-    write('  go <direction>   - Move (north, south, east, west, up, down)'), nl,
-    write('  take <item>      - Pick up an item'), nl,
-    write('  inventory        - Check your inventory'), nl,
-    write('  help             - Show this help'), nl,
-    write('  restart          - Start over'), nl,
-    write('  quit             - Exit the game'), nl,
-    nl,
-    write('Articles and adjectives are optional, directions can be'), nl,
-    write('abbreviated, and most verbs have synonyms. All of these work:'), nl,
-    write('  go north  /  walk n  /  north'), nl,
-    write('  take the rusty key  /  pick up key  /  get key'), nl,
+    forall(help_line(Line), (write(Line), nl)),
     nl.
 
 % ----------------------------------------------------------------------------
@@ -168,17 +296,21 @@ look :-
     % Get the current location (pattern matching against the database)
     current_location(Location),
 
-    % Query the room database for this location's info
-    room(Location, Name, Description),
-
-    % Display the information
     nl,
-    write('*** '), write(Name), write(' ***'), nl,
-    write(Description), nl,
+    (   can_see
+    ->  % Query the room database for this location's info
+        room(Location, Name, Description),
 
-    % Call helper predicates to show items and exits
-    list_items_here,
-    list_exits,
+        % Display the information
+        write('*** '), write(Name), write(' ***'), nl,
+        write(Description), nl,
+
+        % Call helper predicates to show items and exits
+        list_items_here,
+        list_exits
+
+    ;   write('Pitch dark. You can feel a stair behind you, going up.'), nl
+    ),
     nl.
 
 % ----------------------------------------------------------------------------
@@ -262,8 +394,7 @@ go(Direction) :-
     ->  % SUCCESS: Valid connection found
         retract(current_location(CurrentLocation)),  % Remove old location
         assertz(current_location(NewLocation)),      % Add new location
-        look,                                        % Show new room
-        check_win_condition                          % Check if player won
+        look                                         % Show new room
 
     ;   % ELSE: Check if it's a locked door (player tried north without key)
         Direction = north, \+ connected(CurrentLocation, Direction, _)
@@ -299,6 +430,8 @@ take(Item) :-
         ->  write('The book reveals a clue: "The key to freedom lies in the kitchen."'), nl
         ;   Item = key
         ->  write('This key might unlock something...'), nl
+        ;   Item = lamp
+        ->  write('It is lit. Somewhere in this house is a room that needs it.'), nl
         ;   true  % No special message for other items
         ),
         nl
@@ -336,21 +469,25 @@ inventory :-
 % ----------------------------------------------------------------------------
 % WIN CONDITION CHECK
 % ----------------------------------------------------------------------------
-% Called after each movement. If the player reaches the master bedroom,
-% they've won! Changes game_state from 'playing' to 'won'.
+% Called after each lever is pulled. The door opens when the levers satisfy all
+% three constraints - whether or not the player has read the notes that state
+% them. The mechanism does not care what you know; only deduce/0 does.
 %
 % Note the if-then-else: the "else" branch is just true. Without it this
-% predicate would FAIL on every ordinary move, and because go/1 calls it last,
-% go/1 would fail too — after having already moved the player and printed the
-% room. A predicate that means "check whether X happened" has to succeed when
-% X did not happen.
+% predicate would FAIL whenever the player has not won, and any caller that
+% runs it last would fail too, after having already done its work. A predicate
+% that means "check whether X happened" has to succeed when X did not happen.
 
 check_win_condition :-
-    (   current_location(master_bedroom)
+    (   current_location(cellar),
+        current_setting(Setting),
+        satisfies([1, 2, 3], Setting)
+
     ->  nl,
         write('========================================'), nl,
-        write('You climb through the window and escape!'), nl,
-        write('*** YOU WIN! ***'), nl,
+        write('The levers seat with a heavy clunk and the'), nl,
+        write('cellar door swings open onto wet grass.'), nl,
+        write('*** YOU ESCAPE! ***'), nl,
         write('========================================'), nl,
         nl,
 
@@ -358,8 +495,235 @@ check_win_condition :-
         retract(game_state(playing)),
         assertz(game_state(won))
 
-    ;   true  % Not in the bedroom yet: nothing to do, but still succeed
+    ;   true  % Not out yet: nothing to do, but still succeed
     ).
+
+% ----------------------------------------------------------------------------
+% EXAMINE COMMAND
+% ----------------------------------------------------------------------------
+% Looking closely at one thing, rather than at the room. Notes are the reason
+% this exists: reading one is how a constraint enters the knowledge base.
+
+examine(note) :-
+    game_state(playing), !,
+    current_location(Location),
+    nl,
+    (   \+ can_see
+    ->  write('Too dark to read anything.')
+
+    ;   note(Location, Id)
+    ->  constraint_text(Id, Text),
+        write('The note reads: "'), write(Text), write('"'), nl,
+        (   known_constraint(Id)
+        ->  write('You had already read this one.')
+        ;   assertz(known_constraint(Id)),
+            write('You commit it to memory.')
+        )
+
+    ;   write('There is no note here.')
+    ),
+    nl, nl.
+
+examine(levers) :-
+    game_state(playing), !,
+    show_levers.
+
+% A lever by name shows the whole panel; asking about one is asking about all.
+examine(Thing) :-
+    game_state(playing),
+    lever(Thing), !,
+    show_levers.
+
+examine(Thing) :-
+    game_state(playing),
+    nl,
+    (   \+ can_see
+    ->  write('Too dark to see anything.')
+
+    ;   description(Thing, Text),
+        thing_at_hand(Thing)
+    ->  write(Text)
+
+    ;   write('You see nothing special about the '), write(Thing), write('.')
+    ),
+    nl, nl.
+
+% A thing is at hand if you are carrying it or it is in this room.
+thing_at_hand(Thing) :-
+    inventory(Thing).
+
+thing_at_hand(Thing) :-
+    current_location(Location),
+    item_in_room(Thing, Location).
+
+thing_at_hand(window) :-
+    current_location(master_bedroom).
+
+show_levers :-
+    nl,
+    (   \+ current_location(cellar)
+    ->  write('There are no levers here.'), nl
+
+    ;   \+ can_see
+    ->  write('Too dark to find them.'), nl
+
+    ;   forall(lever_position(Lever, Position),
+               (   write('  '), write(Lever), write(' is '), write(Position), nl ))
+    ),
+    nl.
+
+% ----------------------------------------------------------------------------
+% PULL COMMAND (Flipping a Lever)
+% ----------------------------------------------------------------------------
+
+pull(Lever) :-
+    game_state(playing),
+    nl,
+    (   \+ current_location(cellar)
+    ->  write('The levers are down in the cellar.'), nl, nl
+
+    ;   \+ can_see
+    ->  write('You grope at the wall but cannot find the levers in the dark.'), nl, nl
+
+    ;   retract(lever_position(Lever, Old)),
+        opposite(Old, New),
+        assertz(lever_position(Lever, New)),
+        write('The '), write(Lever), write(' lever is now '), write(New), write('.'),
+        nl, nl,
+        check_win_condition
+    ).
+
+% "pull the lever" is ambiguous in English, so say so rather than guessing.
+pull_which :-
+    game_state(playing),
+    nl,
+    write('Which lever? There are three: brass, iron and copper.'),
+    nl, nl.
+
+opposite(up, down).
+opposite(down, up).
+
+% ----------------------------------------------------------------------------
+% DEDUCE COMMAND (The Game Solves Its Own Puzzle)
+% ----------------------------------------------------------------------------
+% Generate and test: produce all eight settings, keep the ones consistent with
+% every constraint the player has read, and narrate the eliminations.
+%
+% The interesting part is that this reasons from known_constraint/1, not from
+% the full set. Read one note and most settings survive; read all three and one
+% does. The player's knowledge IS the program's premises.
+
+deduce :-
+    game_state(playing),
+    findall(Id, known_constraint(Id), Known0),
+    msort(Known0, Known),
+    nl,
+    (   Known == []
+    ->  write('You know nothing about the levers yet. Find the notes.'), nl, nl
+
+    ;   write('What you know:'), nl,
+        forall(member(Id, Known),
+               (   constraint_text(Id, Text),
+                   write('  - '), write(Text), nl )),
+        nl,
+        forall(candidate(Setting), report_candidate(Known, Setting)),
+        nl,
+        findall(S, (candidate(S), satisfies(Known, S)), Survivors),
+        report_survivors(Survivors)
+    ).
+
+% Print one candidate setting and the first constraint it violates, if any.
+report_candidate(Known, Setting) :-
+    forall(member(Lever-Position, Setting),
+           format("  ~w=~w", [Lever, Position])),
+    (   first_failure(Known, Setting, Id)
+    ->  constraint_text(Id, Text),
+        format("   -- ruled out by: ~w~n", [Text])
+    ;   format("   -- consistent~n")
+    ).
+
+first_failure(Known, Setting, Id) :-
+    member(Id, Known),
+    \+ holds(Id, Setting),
+    !.  % Only report the first violation, not all of them
+
+report_survivors([]) :-
+    format("Nothing satisfies all of that. Something is wrong.~n~n").
+
+report_survivors([Setting]) :-
+    write('Only one setting survives: '),
+    forall(member(Lever-Position, Setting), format("~w ~w   ", [Lever, Position])),
+    nl, nl.
+
+report_survivors([_, _|Rest]) :-
+    length(Rest, N),
+    Count is N + 2,
+    format("~w settings still fit. Find another note.~n~n", [Count]).
+
+% ----------------------------------------------------------------------------
+% GO TO COMMAND (A Path Planner Over connected/3)
+% ----------------------------------------------------------------------------
+% Depth-first search for a route, then walk it. The visited list is what stops
+% it looping back through rooms it has already tried.
+%
+% Note what is NOT here: any mention of the key. connected/3 has a rule in it,
+% so a route through the bedroom simply does not exist until the key is in
+% inventory, and the planner inherits the puzzle for free. The puzzle was never
+% in the movement code - it is in the world.
+%
+% This takes the first route it finds, not the shortest. On this map they
+% happen to be the same for every pair of rooms; add rooms and that may stop
+% being true, at which point wrapping the call in length/2 to grow the path
+% bound turns it into iterative deepening.
+
+route(Room, Room, _, []).
+
+route(From, To, Visited, [Direction|Rest]) :-
+    connected(From, Direction, Next),
+    \+ memberchk(Next, Visited),
+    route(Next, To, [Next|Visited], Rest).
+
+% The grammar only ever produces real room atoms, so there is no "no such
+% place" case to handle here - an unknown name fails to parse instead.
+goto(Room) :-
+    game_state(playing),
+    current_location(Here),
+    (   Room == Here
+    ->  nl, write('You are already here.'), nl, nl
+
+    ;   route(Here, Room, [Here], Path)
+    ->  walk(Path)
+
+    ;   nl, write('You cannot see a way there from here.'), nl, nl
+    ).
+
+% Walk a route one step at a time, so each room is described on the way.
+walk([]).
+
+walk([Direction|Rest]) :-
+    go(Direction),
+    walk(Rest).
+
+% ----------------------------------------------------------------------------
+% USE COMMAND
+% ----------------------------------------------------------------------------
+% No mechanics behind this one. "use key" is a natural thing to type, and being
+% told how the key works beats being told the sentence was not understood.
+
+use_text(key,  'No keyhole to work at. Carrying the key is enough - the bedroom door gives way when you have it on you.').
+use_text(lamp, 'It is already lit. Carry it somewhere dark.').
+use_text(book, 'You read it again. The margin note has not changed.').
+
+use(Thing) :-
+    game_state(playing),
+    nl,
+    (   \+ thing_at_hand(Thing)
+    ->  write('You do not have that.')
+    ;   use_text(Thing, Text)
+    ->  write(Text)
+    ;   write('You turn it over in your hands to no particular effect.')
+    ),
+    nl, nl.
 
 % ----------------------------------------------------------------------------
 % QUIT COMMAND
@@ -400,13 +764,19 @@ quit :-
 % a sentence has two readings, findall/3 below collects both.
 
 % Top-level command forms. Each produces a goal that already exists above.
-command(look)       --> look_verb.
-command(inventory)  --> inv_verb.
-command(help)       --> help_verb.
-command(quit)       --> quit_verb.
-command(start)      --> [restart].
-command(go(Dir))    --> go_verb, opt_article, direction(Dir).
-command(take(Item)) --> take_verb, noun_phrase(Item).
+command(look)          --> look_verb.
+command(inventory)     --> inv_verb.
+command(help)          --> help_verb.
+command(quit)          --> quit_verb.
+command(deduce)        --> deduce_verb.
+command(start)         --> [restart].
+command(goto(Room))    --> go_verb, [to], opt_article, room_name(Room).
+command(go(Dir))       --> go_verb, opt_article, direction(Dir).
+command(take(Item))    --> take_verb, noun_phrase(Item).
+command(examine(Item)) --> examine_verb, noun_phrase(Item).
+command(use(Item))     --> use_verb, noun_phrase(Item).
+command(pull(Lever))   --> pull_verb, opt_article, lever_name(Lever), opt_lever_word.
+command(pull_which)    --> pull_verb, opt_article, [lever].
 
 % Verb vocabulary. Adding a synonym is one line, not a parser change.
 look_verb --> [look].
@@ -425,6 +795,11 @@ quit_verb --> [quit].
 quit_verb --> [exit].
 quit_verb --> [q].
 
+deduce_verb --> [deduce].
+deduce_verb --> [think].
+deduce_verb --> [reason].
+deduce_verb --> [solve].
+
 go_verb --> [go].
 go_verb --> [walk].
 go_verb --> [move].
@@ -435,6 +810,38 @@ take_verb --> [take].
 take_verb --> [get].
 take_verb --> [grab].
 take_verb --> [pick, up].
+
+examine_verb --> [examine].
+examine_verb --> [inspect].
+examine_verb --> [read].
+examine_verb --> [look, at].
+examine_verb --> [x].
+
+use_verb --> [use].
+use_verb --> [unlock].
+
+pull_verb --> [pull].
+pull_verb --> [flip].
+pull_verb --> [toggle].
+
+% "pull the brass lever" and "pull brass" should both work. The {lever(Name)}
+% guard is what keeps "pull the lever" from parsing two ways, with "the" and
+% "lever" each able to fill a bare slot.
+lever_name(Name) --> [Name], { lever(Name) }.
+
+opt_lever_word --> [lever].
+opt_lever_word --> [].
+
+% Room names for the planner, so "go to the hall" maps to the room's atom.
+room_name(foyer)          --> [foyer].
+room_name(library)        --> [library].
+room_name(kitchen)        --> [kitchen].
+room_name(upstairs_hall)  --> [hall].
+room_name(upstairs_hall)  --> [upstairs].
+room_name(upstairs_hall)  --> [upstairs, hall].
+room_name(master_bedroom) --> [bedroom].
+room_name(master_bedroom) --> [master, bedroom].
+room_name(cellar)         --> [cellar].
 
 % Directions, with abbreviations. The head argument is the atom the game uses,
 % so several spellings can map to one direction.
@@ -580,11 +987,11 @@ run(Command) :-
 %
 % EXTENDING THIS GAME:
 % - Add more rooms to the room/3 facts
-% - Add more items to item_in_room/2 and adjective/2
+% - Add more items to item_in_room/2, adjective/2 and description/2
 % - Add verbs, synonyms, or whole command forms to the DCG rules
-% - Create more complex puzzles with additional game_state facts
+% - Add a fourth note: one note/2 fact, one constraint_text/2 fact and one
+%   holds/2 clause. deduce/0 needs no changes at all
 % - Add NPCs with their own facts and interaction rules
-% - Add a combat system with dynamic health tracking
 % - Save/load game state to files
 %
 % PROLOG CONCEPTS DEMONSTRATED:
@@ -593,8 +1000,11 @@ run(Command) :-
 % - Recursive predicates
 % - Dynamic database (assert/retract)
 % - Backtracking and the cut operator (!)
-% - List processing with findall
+% - List processing with findall and forall
 % - Conditional logic (-> and ;)
-% - Logic as structure (the locked door rule)
+% - Logic as structure (the locked door rule: clause bodies as AND)
+% - Multiple clauses as disjunction (can_see/0: clauses as OR)
+% - Generate and test (candidate/1 with holds/2: the whole of deduce/0)
+% - Search over a fact base (route/4 planning across connected/3)
 % - Definite clause grammars and difference lists (the parser)
 % ============================================================================
