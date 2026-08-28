@@ -40,6 +40,8 @@ they're checked by running them.
 - [`docs/shared-utilities-proposal.md`](docs/shared-utilities-proposal.md) — an
   unimplemented sketch for factoring the duplicated UI plumbing out of the three
   Python demos.
+- [`docs/project-ideas.md`](docs/project-ideas.md) — a backlog of candidate
+  demos, with notes on what suits a terminal.
 
 ## License
 
