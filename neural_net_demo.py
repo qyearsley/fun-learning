@@ -55,7 +55,7 @@ def get_validated_input(prompt: str, default, min_val, max_val, cast=float):
         except ValueError:
             print("  Please enter a valid number")
         except KeyboardInterrupt:
-            print("\n\n👋 Interrupted. Goodbye!")
+            print("\nExiting...")
             sys.exit(0)
 
 
