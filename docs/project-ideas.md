@@ -59,9 +59,9 @@ Suitability of the simulation ideas, given the above:
 
 ## Worked out
 
-### DCG parser for `mansion_escape.pl`
+### DCG parser for `mansion_escape`
 
-**Done.** Implemented in `mansion_escape.pl`; kept here for the write-up.
+**Done.** Implemented in `mansion_escape/parser.pl`; kept here for the write-up.
 
 Replace `go(north).` with `go north` — or `unlock the brass door with the rusty
 key` — using Prolog's definite clause grammars.
@@ -258,7 +258,7 @@ the best payoff-per-line ratios available.
   expression being rewritten and the environment chain. How eval and apply
   actually work.
 - **Tiny Prolog in Python** — unification plus backtracking in ~150 lines.
-  Explains the substrate that `mansion_escape.pl` runs on.
+  Explains the substrate that `mansion_escape` runs on.
 - **Regex → NFA → DFA** — Thompson construction, then subset construction, with
   the state machine drawn at each stage. Explains both why regex engines are
   fast and why backtracking ones sometimes aren't.

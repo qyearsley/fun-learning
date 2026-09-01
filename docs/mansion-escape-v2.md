@@ -84,7 +84,8 @@ the key works by being carried.
 - Not restructuring `connected/3` to need explicit unlocking. That rule is the
   file's best teaching moment and the puzzle gains little.
 - No new rooms beyond the cellar. Rooms are content; content is not the problem.
-- Still one file, still readable in one sitting.
+- ~~Still one file, still readable in one sitting.~~ Held during the v2 build,
+  then abandoned — see the resolution below.
 
 ## Budget
 
@@ -101,3 +102,34 @@ cutting teaching comments, and neither is a good trade for a round number.
 The open question this leaves is the one from before the build: the file no
 longer reads in one sitting. If that matters more than having one file, the
 answer is to split the minimal tutorial and the larger game into two.
+
+## Resolution: split by concern, not tutorial-and-game
+
+Settled 2026-09-01. The 1010-line file became `mansion_escape/`, four files
+that load with `ensure_loaded/1` and declare no modules:
+
+| File | Lines | What is in it |
+|------|-------|---------------|
+| `world.pl` | 189 | Rooms, connections, darkness, items, notes, the lever mechanism |
+| `commands.pl` | 518 | Every player command, plus `deduce` and the path planner |
+| `parser.pl` | 175 | The DCG and `read_words/1` |
+| `mansion_escape.pl` | 199 | Dynamic declarations, `init_game/0`, the game loop, auto-start |
+
+The sketch above proposed the other split — a minimal tutorial file plus the
+full game — which keeps each file readable start to finish but means two
+programs to maintain and a tutorial that drifts from the game. Splitting by
+concern keeps one program, and the seams were already marked in the source: the
+old line 741 said "everything above is the game, everything below turns a typed
+line of English into one of those goals."
+
+What it costs is the linear read, which was the point of a literate program.
+The mitigation is a reading order in the header of `mansion_escape.pl` and in
+the README, and a header on each file saying what argument that file makes.
+
+Not modules. Exports would be one more thing to explain in a program whose
+subject is Prolog rather than packaging, and `user` predicates keep every
+cross-file call looking exactly like a same-file call.
+
+The code did not change: the only new lines are the three `ensure_loaded`
+directives. Everything else moved verbatim, with comments edited where they
+pointed at "the bottom of this file".
