@@ -6,7 +6,7 @@
 
 line-length = 100
 # Matches the `requires-python` in each script's inline metadata block.
-target-version = "py39"
+target-version = "py313"
 
 [lint]
 select = [

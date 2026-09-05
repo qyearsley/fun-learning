@@ -1,8 +1,11 @@
 #!/usr/bin/env -S uv run
 # /// script
-# requires-python = ">=3.9"
+# requires-python = ">=3.13"
 # dependencies = [
-#   "numpy",
+#   # A floor rather than a pin: `uv run` resolves this fresh every time, and an
+#   # unbounded dependency on a library that has already had one breaking major
+#   # is how a script that worked last year stops working today.
+#   "numpy>=2.0,<3",
 # ]
 # ///
 """
@@ -197,7 +200,13 @@ class PerceptronDemo:
                 if 0 <= idx < len(gates):
                     return gates[idx]
                 print(f"Please enter a number between 1 and {len(gates)}")
-            except (ValueError, KeyboardInterrupt):
+            except ValueError:
+                print(f"Please enter a number between 1 and {len(gates)}")
+            except KeyboardInterrupt:
+                # Split from ValueError deliberately. Collapsed together, typing
+                # "abc" at this prompt quit the whole program -- a mistyped
+                # number is not a request to leave. The other two demos get this
+                # right in `get_validated_input`; this one validates inline.
                 print("\nExiting...")
                 sys.exit(0)
 

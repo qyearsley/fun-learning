@@ -1,8 +1,11 @@
 #!/usr/bin/env -S uv run
 # /// script
-# requires-python = ">=3.9"
+# requires-python = ">=3.13"
 # dependencies = [
-#   "numpy",
+#   # A floor rather than a pin: `uv run` resolves this fresh every time, and an
+#   # unbounded dependency on a library that has already had one breaking major
+#   # is how a script that worked last year stops working today.
+#   "numpy>=2.0,<3",
 # ]
 # ///
 """
@@ -57,6 +60,19 @@ def get_validated_input(prompt: str, default, min_val, max_val, cast=float):
         except KeyboardInterrupt:
             print("\nExiting...")
             sys.exit(0)
+
+
+def progress_bar(fraction: float, width: int) -> str:
+    """A filled bar `width` characters wide, for a fraction in [0, 1].
+
+    Three copies of this arithmetic used to sit inline in this file, with three
+    different local variable names. It stays here rather than moving to a shared
+    module: these demos are single files you can drop in a gist and run, which
+    is the point of the PEP 723 block at the top -- see
+    docs/no-shared-utilities.md.
+    """
+    filled = int(max(0.0, min(1.0, fraction)) * width)
+    return "█" * filled + "░" * (width - filled)
 
 
 def sigmoid(x: np.ndarray) -> np.ndarray:
@@ -264,10 +280,7 @@ class NetworkVisualizer:
         pred_binary = 1 if prediction >= DECISION_THRESHOLD else 0
         status = "✓" if abs(target - prediction) < DECISION_THRESHOLD else "✗"
 
-        # Create a visual bar for the prediction confidence
-        bar_length = 20
-        filled = int(prediction * bar_length)
-        bar = "█" * filled + "░" * (bar_length - filled)
+        bar = progress_bar(prediction, 20)
 
         print(
             f"  {status} Input: [{inputs[0]}, {inputs[1]}] → Target: {target} | "
@@ -379,10 +392,7 @@ class NeuralNetDemo:
                     time.sleep(0.5)
                 elif epoch % 100 == 0:
                     # Show progress for non-verbose epochs
-                    bar_length = 30
-                    progress = epoch / max_epochs
-                    filled = int(progress * bar_length)
-                    bar = "█" * filled + "░" * (bar_length - filled)
+                    bar = progress_bar(epoch / max_epochs, 30)
                     print(
                         f"\r  Progress: [{bar}] Epoch {epoch}/{max_epochs} | Avg Error: {avg_error:.4f}",
                         end="",
@@ -420,11 +430,8 @@ class NeuralNetDemo:
             correct += is_correct
             result = "✓" if is_correct else "✗"
 
-            # Confidence bar
             confidence = output if prediction == 1 else (1 - output)
-            bar_length = 10
-            filled = int(confidence * bar_length)
-            bar = "█" * filled + "░" * (bar_length - filled)
+            bar = progress_bar(confidence, 10)
 
             print(
                 f"    {inputs[0]}     |    {inputs[1]}    |    {target}     |     {prediction}     | "

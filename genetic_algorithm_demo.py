@@ -1,6 +1,6 @@
 #!/usr/bin/env -S uv run
 # /// script
-# requires-python = ">=3.9"
+# requires-python = ">=3.13"
 # dependencies = []
 # ///
 """
@@ -82,7 +82,9 @@ class Individual:
 
     def calculate_fitness(self, target: str):
         """Fraction of characters matching the target (0.0 = none, 1.0 = perfect)."""
-        matches = sum(1 for a, b in zip(self.genes, target) if a == b)
+        # `strict`: genes and target are always the same length. Without it a
+        # short individual would score a perfect fitness on its own prefix.
+        matches = sum(1 for a, b in zip(self.genes, target, strict=True) if a == b)
         self.fitness = matches / len(target)
 
     def __repr__(self) -> str:
@@ -259,7 +261,14 @@ class GeneticAlgorithmDemo:
                     print("Please enter a non-empty string")
                 else:
                     print(f"Enter a number between 1 and {len(self.DEFAULT_TARGETS) + 1}")
-            except (ValueError, KeyboardInterrupt):
+            except ValueError:
+                print(f"Enter a number between 1 and {len(self.DEFAULT_TARGETS) + 1}")
+            except KeyboardInterrupt:
+                # Split from ValueError deliberately. Collapsed together, typing
+                # "abc" at this prompt quit the whole program -- a mistyped
+                # number is not a request to leave. `get_validated_input` above
+                # already keeps them apart; this prompt picks from a list, so it
+                # validates inline and had to be fixed separately.
                 print("\nExiting...")
                 sys.exit(0)
 
@@ -286,7 +295,10 @@ class GeneticAlgorithmDemo:
     def format_individual(self, individual: Individual, target: str) -> str:
         """Color-code matching characters for visual feedback."""
         result = []
-        for gene, goal in zip(individual.genes, target):
+        # `strict`: an individual's genes are always as long as the target, and
+        # a silent truncation would show a half-coloured phrase that looked like
+        # progress. Say so rather than assume it.
+        for gene, goal in zip(individual.genes, target, strict=True):
             color = ANSI_GREEN if gene == goal else ANSI_RED
             result.append(f"{color}{gene}{ANSI_RESET}")
         return "".join(result)
