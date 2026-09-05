@@ -10,11 +10,17 @@
   enter a value between…" and the other says "Enter a value between…".
   `perceptron_demo.py` does not have it and validates inline instead, because
   its prompt picks from a list rather than range-checking a number.
-- A filled progress bar, four times: once in `genetic_algorithm_demo.py` and
-  three times in `neural_net_demo.py`.
+- A filled progress bar. It was four copies -- one in
+  `genetic_algorithm_demo.py` and three in `neural_net_demo.py` -- and is now
+  two, because the three in one file were collapsed into a `progress_bar`
+  function there. See "What was done instead".
 - The `if __name__ == "__main__":` block, three times, identical apart from the
   class name.
-- Two one-line helpers, `divider` and `centered`.
+
+The deleted proposal also listed two helpers, `divider` and `centered`. Neither
+has ever existed: they were functions it proposed *writing*, and it conceded in
+its own impact section that they would "remove no lines". They are named here
+only so nobody goes looking for them.
 
 ## Why it stays
 
@@ -26,8 +32,9 @@ takes that away, and it is the property that makes a teaching demo worth having.
 
 **The payoff was small even before that.** The original proposal costed itself
 at "~20–25 lines of duplication removed, nearly all of it the second copy of
-`get_validated_input`", and noted in the same paragraph that `divider` and
-`centered` "remove no lines — they replace one expression with another".
+`get_validated_input`", and noted in the same paragraph that two of its four
+proposed helpers would "remove no lines — they replace one expression with
+another".
 
 **A reader benefits from one file.** The point of these scripts is to be read
 top to bottom. Chasing an import to find out what a prompt does is a cost paid
