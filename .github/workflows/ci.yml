@@ -1,0 +1,32 @@
+name: CI
+
+# Pull requests as well as pushes, because a check that only runs after the
+# push has already landed reports a problem that is already in main.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  python:
+    name: Lint the Python demos
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      # These are standalone PEP 723 scripts, not a package, so there is nothing
+      # to install: `uvx` fetches ruff on its own and `ruff.toml` configures it.
+      - run: uvx ruff check .
+      - run: uvx ruff format --check .
+
+  prolog:
+    name: Test the Prolog game
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install --no-install-recommends -y swi-prolog-nox
+      # `-t halt` makes a failing test a failing exit status; without it the
+      # run reports the failure and then exits 0.
+      - run: swipl -g run_tests -t halt mansion_escape/tests.pl

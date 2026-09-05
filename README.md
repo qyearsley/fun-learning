@@ -32,8 +32,9 @@ file can call any other without an export list. Read them in this order:
 
 ## Requirements
 
-- Python demos: [uv](https://docs.astral.sh/uv/) (dependencies install
-  automatically from each script's inline metadata block; Python 3.9+)
+- Python demos: [uv](https://docs.astral.sh/uv/) (dependencies and the
+  interpreter both install automatically from each script's inline metadata
+  block; Python 3.13+)
 - Prolog demo: [SWI-Prolog](https://www.swi-prolog.org/) (`brew install swi-prolog`)
 
 ## Linting
@@ -47,14 +48,36 @@ uvx ruff check .   # Lint
 uvx ruff format .  # Format
 ```
 
-There are no automated tests — the demos are interactive and print-driven, so
-they're checked by running them.
+## Tests
+
+```bash
+swipl -g run_tests -t halt mansion_escape/tests.pl
+```
+
+Twenty-six [plunit](https://www.swi-prolog.org/pldoc/package/plunit.html) tests
+over the Prolog game's pure predicates: each note's constraint on its own, the
+three of them together, `route/4` across the map, and the world's own
+consistency. The one that earns the file is `exactly_one_solution` — the game's
+whole premise is that reading all three notes narrows eight lever settings to
+one, and nothing in `world.pl` says so directly; it falls out of three separate
+rules. Loosen any one of them and `deduce` starts offering two answers, with no
+error anywhere.
+
+The Python demos have no tests. They are interactive and print-driven, so they
+are checked by running them — though the pure parts (`Perceptron.predict`,
+`sigmoid`, `crossover`, `progress_bar`) would take tests perfectly well if that
+ever seemed worth a `tests/` directory beside three standalone scripts.
+
+Both the lint and the Prolog tests run on every push and every pull request;
+see [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 
 ## Docs
 
-- [`docs/shared-utilities-proposal.md`](docs/shared-utilities-proposal.md) — an
-  unimplemented sketch for factoring the duplicated UI plumbing out of the three
-  Python demos.
+- [`docs/no-shared-utilities.md`](docs/no-shared-utilities.md) — why the three
+  Python demos duplicate their UI plumbing on purpose, and what would reopen
+  the question. Replaces a proposal to extract a `demo_utils.py`, which argued
+  itself out of existence: a shared module ends the standalone-ness that the
+  PEP 723 block at the top of each script exists to provide.
 - [`docs/project-ideas.md`](docs/project-ideas.md) — a backlog of candidate
   demos, with notes on what suits a terminal.
 - [`docs/mansion-escape-v2.md`](docs/mansion-escape-v2.md) — the design sketch
