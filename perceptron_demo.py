@@ -202,11 +202,12 @@ class PerceptronDemo:
                 print(f"Please enter a number between 1 and {len(gates)}")
             except ValueError:
                 print(f"Please enter a number between 1 and {len(gates)}")
-            except KeyboardInterrupt:
+            except (EOFError, KeyboardInterrupt):
                 # Split from ValueError deliberately. Collapsed together, typing
                 # "abc" at this prompt quit the whole program -- a mistyped
                 # number is not a request to leave. The other two demos get this
                 # right in `get_validated_input`; this one validates inline.
+                # Ctrl-C and Ctrl-D both do mean leave, so they share a handler.
                 print("\nExiting...")
                 sys.exit(0)
 
@@ -364,4 +365,9 @@ if __name__ == "__main__":
         demo.run()
     except KeyboardInterrupt:
         print("\n\nInterrupted.")
+        sys.exit(0)
+    except EOFError:
+        # Ctrl-D at the "Press Enter" prompts, which have nothing to validate
+        # and so no handler of their own.
+        print("\nExiting...")
         sys.exit(0)

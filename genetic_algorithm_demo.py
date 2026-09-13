@@ -62,7 +62,7 @@ def get_validated_input(prompt: str, default, min_val, max_val, cast=float):
             print(f"  Enter a value between {min_val} and {max_val}")
         except ValueError:
             print("  Please enter a valid number")
-        except KeyboardInterrupt:
+        except (EOFError, KeyboardInterrupt):
             print("\nExiting...")
             sys.exit(0)
 
@@ -234,6 +234,26 @@ class GeneticAlgorithmDemo:
         print("🎯 This demo evolves random strings toward a target phrase.")
         print("   Watch how the population converges over generations.\n")
 
+    @staticmethod
+    def target_problem(target: str) -> str | None:
+        """Say why this target cannot be evolved, or return None if it can.
+
+        Two separate limits, both from the engine above. `crossover` splits at
+        `randint(1, len(target) - 1)`, an empty range for a single character.
+        And `random_gene` only ever draws from CHARSET, so a character outside
+        it can never be matched: the run would spend all 5000 generations
+        short of fitness 1.0 and never say why.
+        """
+        if len(target) < 2:
+            return "Enter at least two characters"
+        unusable = sorted(set(target) - set(GeneticAlgorithm.CHARSET))
+        if unusable:
+            return (
+                f"Cannot evolve {', '.join(unusable)} -- the alphabet is "
+                "letters, space, and .,!?'\"-:;"
+            )
+        return None
+
     def select_target(self) -> str:
         default_idx = 1
         print("Target phrases:")
@@ -255,20 +275,26 @@ class GeneticAlgorithmDemo:
                 if 1 <= idx <= len(self.DEFAULT_TARGETS):
                     return self.DEFAULT_TARGETS[idx - 1]
                 elif idx == len(self.DEFAULT_TARGETS) + 1:
-                    custom = input("Enter target phrase: ").strip()
-                    if custom:
-                        return custom
-                    print("Please enter a non-empty string")
+                    # Inner loop: a rejected phrase re-asks for the phrase.
+                    # Falling back to the numbered menu would make the user
+                    # type 5 again to get here.
+                    while True:
+                        custom = input("Enter target phrase: ").strip()
+                        problem = self.target_problem(custom)
+                        if problem is None:
+                            return custom
+                        print(f"  {problem}")
                 else:
                     print(f"Enter a number between 1 and {len(self.DEFAULT_TARGETS) + 1}")
             except ValueError:
                 print(f"Enter a number between 1 and {len(self.DEFAULT_TARGETS) + 1}")
-            except KeyboardInterrupt:
+            except (EOFError, KeyboardInterrupt):
                 # Split from ValueError deliberately. Collapsed together, typing
                 # "abc" at this prompt quit the whole program -- a mistyped
                 # number is not a request to leave. `get_validated_input` above
                 # already keeps them apart; this prompt picks from a list, so it
                 # validates inline and had to be fixed separately.
+                # Ctrl-C and Ctrl-D both do mean leave, so they share a handler.
                 print("\nExiting...")
                 sys.exit(0)
 
@@ -458,4 +484,9 @@ if __name__ == "__main__":
         demo.run()
     except KeyboardInterrupt:
         print("\n\nInterrupted.")
+        sys.exit(0)
+    except EOFError:
+        # Ctrl-D at the "Press Enter" prompt, which has nothing to validate
+        # and so no handler of its own.
+        print("\nExiting...")
         sys.exit(0)

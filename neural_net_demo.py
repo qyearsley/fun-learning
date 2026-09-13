@@ -57,7 +57,7 @@ def get_validated_input(prompt: str, default, min_val, max_val, cast=float):
             print(f"  Please enter a value between {min_val} and {max_val}")
         except ValueError:
             print("  Please enter a valid number")
-        except KeyboardInterrupt:
+        except (EOFError, KeyboardInterrupt):
             print("\nExiting...")
             sys.exit(0)
 
@@ -523,4 +523,9 @@ if __name__ == "__main__":
         demo.run()
     except KeyboardInterrupt:
         print("\n\nInterrupted.")
+        sys.exit(0)
+    except EOFError:
+        # Ctrl-D at the "Press Enter" prompts, which have nothing to validate
+        # and so no handler of their own.
+        print("\nExiting...")
         sys.exit(0)

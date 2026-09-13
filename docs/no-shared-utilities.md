@@ -72,3 +72,21 @@ here, and the wording distinguishes them:
 
 The middle row is the one worth keeping distinct: interrupting a training run is
 not the same as leaving.
+
+## On Ctrl-D
+
+Ctrl-D at a prompt raises `EOFError`, not `KeyboardInterrupt`. Until it was
+fixed, every prompt let it escape to the top and the demo ended in a traceback.
+This is the same shape as the `abc` defect above: the handler named one
+exception when two reach it.
+
+Ctrl-D has only one meaning here — there is no more input, so the program
+cannot continue:
+
+| Where | What it prints | What happens next |
+| --- | --- | --- |
+| At a validating prompt | `Exiting...` | The program exits |
+| At a `Press Enter` prompt | `Exiting...` | The program exits, from the top-level handler |
+
+The `Press Enter` prompts validate nothing, so they have no handler of their
+own. The `except EOFError` in each `__main__` block catches those.
