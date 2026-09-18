@@ -78,8 +78,10 @@ see [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
   the question. Replaces a proposal to extract a `demo_utils.py`, which argued
   itself out of existence: a shared module ends the standalone-ness that the
   PEP 723 block at the top of each script exists to provide.
-- [`docs/project-ideas.md`](docs/project-ideas.md) — a backlog of candidate
+- [`docs/ideas.md`](docs/ideas.md) — a backlog of candidate
   demos, with notes on what suits a terminal.
+- [`docs/improvements.md`](docs/improvements.md) — the maintenance backlog:
+  defects, debt and test gaps, and what was turned down.
 - [`docs/mansion-escape-v2.md`](docs/mansion-escape-v2.md) — the design sketch
   behind the Prolog game's lever puzzle, planner, and `deduce`.
 
