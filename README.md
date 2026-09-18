@@ -51,7 +51,8 @@ uvx ruff format .  # Format
 ## Tests
 
 ```bash
-swipl -g run_tests -t halt mansion_escape/tests.pl
+swipl -g run_tests -t halt mansion_escape/tests.pl   # Prolog game, 26 tests
+python3 -m unittest discover -s tests                # Python, 34 tests
 ```
 
 Twenty-six [plunit](https://www.swi-prolog.org/pldoc/package/plunit.html) tests
@@ -63,13 +64,20 @@ one, and nothing in `world.pl` says so directly; it falls out of three separate
 rules. Loosen any one of them and `deduce` starts offering two answers, with no
 error anywhere.
 
-The Python demos have no tests. They are interactive and print-driven, so they
-are checked by running them — though the pure parts (`Perceptron.predict`,
-`sigmoid`, `crossover`, `progress_bar`) would take tests perfectly well if that
-ever seemed worth a `tests/` directory beside three standalone scripts.
+Thirty-four stdlib `unittest` tests over `genetic_algorithm_demo.py` — fitness,
+gene source, tournament selection, crossover, mutation, and the generation cycle
+that composes them, plus target validation and the display helpers. That demo is
+the one declaring `dependencies = []`, so the suite needs nothing installed and
+stays as standalone as the scripts it covers. Run it on any interpreter meeting
+the `>=3.13` floor; a bare `python3` may be older than that, in which case name
+one (`python3.13 -m unittest ...`).
 
-Both the lint and the Prolog tests run on every push and every pull request;
-see [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+The other two demos are untested: both need numpy, and installing it to test
+them would undo the point of the PEP 723 blocks. The interactive orchestrators
+are untested everywhere — they are print-driven and are checked by running them.
+
+The lint, the Python tests and the Prolog tests all run on every push and every
+pull request; see [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 
 ## Docs
 

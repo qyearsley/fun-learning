@@ -10,49 +10,67 @@ proposals are the other files in this directory.
 
 ## At a glance
 
-1. The three Python demos have no tests — M · open
+1. The two numpy demos still have no tests — M · open
 2. No demo's dependencies have ever been checked for currency — S · blocked
 
 ## Working on these
 
 - Run a demo: `uv run perceptron_demo.py` (PEP 723 inline dependencies).
+- Python tests: `python3 -m unittest discover -s tests` from the repo root, on
+  any interpreter meeting the `>=3.13` floor. Stdlib only, nothing to install.
 - Prolog: `swipl -g run_tests -t halt mansion_escape/tests.pl` (26 tests).
 - Lint and CI: `.github/workflows/ci.yml`; ruff config in `ruff.toml`.
 - Public repo. Never commit a work hostname, address, tool name or ticket ID.
 
-## 1. The three Python demos have no tests
+## 1. The two numpy demos still have no tests
 
 **M · open**
 
-The Prolog half has 26 tests. The Python half has none, and the demos are
-print-driven orchestrators that are genuinely awkward to test end to end — but
-they are not all orchestrator. `Perceptron.activation`, `.predict` and
-`.weighted_sum` (`perceptron_demo.py:66-80`), the static
-`decision_bar` (`:215`) and `Individual.calculate_fitness`
-(`genetic_algorithm_demo.py:83`) are pure functions over plain values and would
-take tests fine.
+`genetic_algorithm_demo.py` is covered — 34 tests, see `## Settled`.
+`perceptron_demo.py` and `neural_net_demo.py` are not, and the pure functions
+worth covering are there: `Perceptron.activation`, `.predict` and
+`.weighted_sum` (`perceptron_demo.py:66-80`) and the static `decision_bar`
+(`:215`).
 
-The obstacle is that PEP 723 inline dependencies mean there is no project to
-`uv sync`, so a suite needs its own invocation — `uv run --with pytest --with
-numpy pytest` or similar — and CI needs a line for it.
+The obstacle is numpy. Both scripts declare it as a PEP 723 inline dependency,
+so testing them means either installing numpy in CI — a dependency the scripts
+resolve for themselves at run time, which is the thing this repo's layout
+avoids — or running the tests through `uv run --with numpy --with pytest`, which
+reintroduces a resolve step the genetic algorithm tests deliberately do without.
+Decide which before writing anything.
 
-_Checked 2026-09-18: no `tests/` directory and no `test_*.py` anywhere under the
-repo; `mansion_escape/tests.pl` has 26 `test(` clauses._
+_Checked 2026-09-18: `tests/` holds one file, covering the genetic algorithm
+demo only. The other two demos declare `numpy>=2.0,<3`._
 
 ## 2. No demo's dependencies have ever been checked for currency
 
 **S · blocked on network**
 
 Each demo declares its dependencies inline and nothing pins or audits them. The
-2026-09 pass could not reach PyPI from the sandbox it ran in, so no version was
-checked and nothing was bumped. Run the demos once with a fresh resolve and see
-what moves.
+2026-09 pass could not reach PyPI, and neither could the 2026-09-18 one, so no
+version has been checked and nothing bumped. Run the demos once with a fresh
+resolve and see what moves.
 
-_Not verified. Carried forward from the 2026-09-05 review, which recorded the
-sandbox as the blocker._
+_Not verified. `uvx ruff` and `uv sync` both fail here with a tunnel error
+reaching `files.pythonhosted.org`._
 
 ## Settled
 
+- The genetic algorithm demo had no tests — landed 2026-09-18.
+  `tests/test_genetic_algorithm.py`, 34 tests over fitness, gene source,
+  population sorting, tournament selection, crossover, mutation and the
+  generation cycle, plus target validation and the two display helpers.
+
+  Stdlib `unittest`, no test dependency, no package: `python3 -m unittest
+  discover -s tests`. That demo was picked because it is the one declaring
+  `dependencies = []`, so the suite needs nothing installed — which is also why
+  a third CI job could be added without touching how the scripts resolve.
+
+  _Checked: 34 pass on 3.14.7 and on 3.13.15, in 0.03 s. Verified they bite —
+  removing `strict=True` from `Individual.calculate_fitness` fails
+  `test_a_length_mismatch_raises_rather_than_scoring_the_prefix`, and the source
+  was restored afterwards. `ruff check` and `ruff format --check` pass over the
+  new file._
 - Shared utilities across the three demos — declined, and the reasoning is
   written up in [`no-shared-utilities.md`](no-shared-utilities.md). Do not
   re-propose.
@@ -68,6 +86,15 @@ sandbox as the blocker._
 
 `mansion_escape` beyond the fact that its test suite runs. The demos have not
 been run interactively since `dc95c72`.
+
+There is no `.python-version` here, so a bare `python3` in this directory gets
+whatever pyenv's global is — 3.9 on this machine, which cannot even import
+`genetic_algorithm_demo.py` (it uses `str | None`). That does not affect `uv
+run`, which reads the inline `requires-python`, and it does not affect CI, which
+pins 3.13. It only bites someone running `python3` by hand. Adding a
+`.python-version` would fix it and would also pin a version the repo otherwise
+leaves open; not done, because it is a one-line change with a taste question
+attached.
 
 ---
 

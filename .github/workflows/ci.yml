@@ -21,6 +21,23 @@ jobs:
       - run: uvx ruff check .
       - run: uvx ruff format --check .
 
+  tests:
+    name: Test the genetic algorithm demo
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          # The floor every script's inline metadata declares. Testing the
+          # oldest supported interpreter is the point; a newer one would hide a
+          # syntax or stdlib feature the scripts are not allowed to use yet.
+          python-version: "3.13"
+      # Stdlib unittest, so there is nothing to install. Only the genetic
+      # algorithm demo is covered -- it is the one with `dependencies = []`, and
+      # adding numpy here to reach the other two would mean installing a
+      # dependency that the scripts themselves resolve at run time.
+      - run: python -m unittest discover -s tests
+
   prolog:
     name: Test the Prolog game
     runs-on: ubuntu-latest
