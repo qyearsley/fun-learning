@@ -98,12 +98,6 @@ attached.
 
 ---
 
-**Conventions**
-
-- Size: `S` under an hour · `M` half a day · `L` more, or needs a design
-  decision.
-- State: `open` · `decision owed` · `blocked on <thing>`.
-- `## At a glance` is the only place an item is restated. Renumber it in the same
-  edit that renumbers a section.
-- Every claim carries a `_Checked:_` line. If you change a claim, change its
-  evidence. Say when something was not verified.
+`S` under an hour · `M` half a day · `L` more, or needs a decision. State is
+`open`, `decision owed`, or `blocked on <thing>`. Every claim carries its
+evidence and a date; say so when something was not verified.
