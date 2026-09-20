@@ -49,6 +49,7 @@ Suitability of the simulation ideas, given the above:
 | Cyclic CA | Excellent | ~12 states → 12 colours; spirals are screen-scale features |
 | Wireworld | Excellent | 4 states; circuits are drawn at cell scale, and a text grid is the native save format |
 | Turmites | Excellent | Few states; the interesting event (the "highway") is cell-scale |
+| Maze generation | Excellent | Box-drawing walls, one character per wall cell; a 48×14 maze fits, and carving one wall is a cell-scale event |
 | Abelian sandpile | Good | Exactly 4 states → 4 colours. The famous fractal wants ~500×500, but avalanches animate well at any size |
 | Diffusion-limited aggregation | Good | Binary, and dendrites are one cell thick anyway |
 | Boids | Good | Braille dots; flocking reads clearly even coarse |
@@ -207,6 +208,130 @@ neighbour has it. From pure noise it goes: static, then crystallizing domains,
 then spiral waves that fill the screen indefinitely. Around 40 lines for one of
 the best payoff-per-line ratios available.
 
+### Maze generation
+
+Seven algorithms, one data structure, and the finished maze tells you which
+algorithm made it.
+
+A maze is a spanning tree of the grid graph. Every generator below is a
+different way to build one. The file states that once at the top, then earns it
+six times, in this order:
+
+| Step | What it adds |
+|------|--------------|
+| DFS backtracker | How a person would draw a maze. Long winding corridors, few dead ends |
+| Randomized Prim | Short stubby passages, many dead ends. Same grid, visibly different texture |
+| The collapse | The two differ only in which frontier cell you pick next — newest or random. Pick the oldest and a third generator appears. Three functions become one function with a `pick` argument |
+| Kruskal | No frontier at all. Shuffle the edges, union-find, about 12 lines with path compression, and you watch the forest merge |
+| Wilson's | Loop-erased random walk. Wander at random, and when you cross your own path, erase the loop and carry on. Short, hard to believe, and the best animation here |
+| Recursive division | Adds walls instead of carving passages, and is still a spanning tree |
+| Solving | One BFS distance field gives the colour gradient. Run it twice for the longest path, by the tree-diameter trick. Dead-end filling solves the maze without searching at all |
+
+Wilson's and Aldous-Broder draw from the same distribution — uniform over all
+spanning trees — while looking nothing alike as they run, and both are far
+slower than the biased DFS. Correct costs something, and here you can see the
+price. Binary tree is four lines, and its output is wrong by eye: a diagonal
+grain and two open edges. A correct implementation of a biased algorithm is its
+own lesson.
+
+**Rendering is box-drawing characters.** Draw the maze on a (2w+1)×(2h+1) grid
+of wall and passage cells, then pick each wall character from a 16-entry table
+indexed by a 4-bit mask of which neighbours are also walls. One character per
+wall cell, so a 100×30 terminal holds a maze of about 48×14 cells. It is the
+same trick as marching squares, and the same shape as the rule tables in the
+cellular automata above.
+
+**Two properties carry the reading.** Every generator is a Python generator that
+yields after each carve, so no algorithm contains a line of rendering code and
+animation comes free. And a `c` key prints the source of the algorithm you just
+watched, through `inspect.getsource`, beside its output.
+
+**Export is SVG, not PNG.** A maze is lines on a page, SVG is text, and emitting
+it takes about 15 lines with no dependency. Pillow would cost an install and
+break the property that every demo here runs from anywhere. The terminal keeps
+the process; the SVG keeps the artifact.
+
+Stdlib only — the first demo here with no dependencies at all. It also absorbs
+**union-find percolation** below, since Kruskal's needs the same machinery.
+
+### Text adventure: you are a process
+
+`adventure`, except you are a process inside a computer and the rooms are
+regions of a running program. Python rather than Prolog, for one reason: the
+conceit can be literally true.
+
+The game reads its own runtime. `examine self` prints a real refcount from
+`sys.getrefcount`. `/proc` shows the real PID. Late on, the item that solves a
+puzzle is an actual `weakref`. You spend the first few rooms taking all of it
+for a metaphor.
+
+**Draw that line and say where it is.** Read-only introspection is real: `id`,
+refcounts, `gc.get_referrers`, the PID, file descriptor numbers. Anything that
+would break the game is simulated — no real `os.fork`, no real `exec`. A comment
+says which is which, or the trick becomes a lie.
+
+Rooms, each carrying one rule:
+
+| Room | Its rule |
+|------|----------|
+| The stack | Frames vanish when they return. A timed area |
+| The heap | The hub. Allocated blocks and free holes |
+| The text segment | Read-only. You change nothing here, but you read the code, and the clues are in it |
+| BSS and globals | Anything you leave here outlives everything else |
+| The registers | Four slots, clobbered constantly |
+| `/proc` | A mirror. It shows you your real self |
+| `/dev/null` | A void. Drop something here and it is gone |
+| A pipe | Where you meet another process |
+
+NPCs get one rule each. The **garbage collector** wanders and takes anything
+unreachable. The **OOM killer** takes whoever carries the most, so greed is
+fatal. A **zombie** is already dead and only wants its parent to call `wait`.
+**PID 1** is ancient and adopts orphans.
+
+The puzzles come out of real semantics rather than invented ones:
+
+- Make a reference cycle to hide from the refcounter, then find out that the
+  cycle detector exists.
+- Install a handler and catch SIGTERM before it arrives. SIGKILL cannot be
+  caught, and the game lets you try.
+- Follow a dangling pointer into a freed block to reach a room with no door.
+  Use-after-free as a movement mechanic.
+- Take two mutexes in the wrong order and deadlock. A losing ending you can walk
+  into.
+- Put a value in the environment so a child inherits it.
+
+Target session:
+
+```
+> examine self
+You are process 48211. Three things are holding a reference to you.
+The refcount is real; check it yourself.
+
+> go to the stack
+Frame 0x7ffee4a2. Someone is going to return from this soon.
+
+> take pointer
+Taken. It points at 0x14f0e2c0, which was freed some time ago.
+Nothing stops you from following it.
+```
+
+You are short-lived and about to be reaped, and you want to persist. Several
+endings: exit cleanly, fork a survivor that outlives you, get written to disk,
+or be collected.
+
+The parser is a verb plus an optional noun phrase, with synonyms, in about 60
+lines. Not a port of `parser.pl`. The two-word style is what `adventure` had and
+it suits this.
+
+**The premise does the work that prose would otherwise do.**
+[`mansion-escape-v2.md`](mansion-escape-v2.md) argues that interest per line
+comes from rules and not content, and a game written for fun is the obvious way
+to break that rule. The defence is that every room, NPC and puzzle above is a
+rule with a joke inside it, so the game gets funnier without getting longer.
+
+First cut: eight rooms, ten items, three puzzles, four endings. One file, no
+dependencies, 600–800 lines at the comment density the other demos use.
+
 ## Sketched: rule sets that grow something
 
 - **Abelian sandpile** — drop grains; any cell with 4+ topples into its
@@ -240,7 +365,8 @@ the best payoff-per-line ratios available.
   propagate constraints to generate a tile map. You can hand-place a tile and
   watch the ripple. Same core idea as the Prolog demo, but visible.
 - **Union-find percolation** — fill a grid randomly, watch clusters merge,
-  discover the ~0.593 threshold yourself.
+  discover the ~0.593 threshold yourself. Largely absorbed by **maze
+  generation** above, which needs union-find for Kruskal's anyway.
 
 ## Sketched: machines you build, then run
 
@@ -311,7 +437,11 @@ the best payoff-per-line ratios available.
 
 ## Shortlist
 
-If picking one:
+Chosen 2026-09-20: **maze generation** first, then **you are a process**. The
+maze is the smaller and more contained build. The adventure is the better one to
+write.
+
+The rest, if picking one:
 
 - **Wireworld** — emergence and a machine at once, and the terminal is the
   correct medium for it rather than a compromise.
@@ -322,4 +452,4 @@ If picking one:
 - **Forth** — the largest shift in how you think about what a language is.
 
 Natural pairs: Forth and the toy VM and Subleq share an execution-stepper
-skeleton; Wireworld and cyclic CA share a grid-and-colour renderer.
+skeleton; Wireworld, cyclic CA and the maze share a grid renderer.
