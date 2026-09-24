@@ -256,6 +256,13 @@ Stdlib only — the first demo here with no dependencies at all. It also absorbs
 
 ### Text adventure: you are a process
 
+*(First cut done 2026-09-24: [`process_adventure.py`](../process_adventure.py).
+It has the eight rooms plus the freed block, ten items, three puzzles and four
+endings. The puzzles are the SIGTERM handler, the dangling pointer and the
+environment. Not built yet: the reference cycle, the deadlock, and a use for
+the mutex and BSS beyond their rules. It came out at about 850 lines, over the
+600–800 target, mostly because the formatter expands the item and room tables.)*
+
 `adventure`, except you are a process inside a computer and the rooms are
 regions of a running program. Python rather than Prolog, for one reason: the
 conceit can be literally true.
@@ -439,7 +446,8 @@ dependencies, 600–800 lines at the comment density the other demos use.
 
 Chosen 2026-09-20: **maze generation** first, then **you are a process**. The
 maze is the smaller and more contained build. The adventure is the better one to
-write.
+write. On 2026-09-24 the order was swapped, and the adventure's first cut is
+done.
 
 The rest, if picking one:
 
