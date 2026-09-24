@@ -33,10 +33,24 @@ jobs:
           # syntax or stdlib feature the scripts are not allowed to use yet.
           python-version: "3.13"
       # Stdlib unittest, so there is nothing to install. Only the genetic
-      # algorithm demo is covered -- it is the one with `dependencies = []`, and
-      # adding numpy here to reach the other two would mean installing a
-      # dependency that the scripts themselves resolve at run time.
+      # algorithm demo is covered here -- it is the one with `dependencies = []`.
+      # The numpy demos are the next job, so this one stays dependency-free.
       - run: python -m unittest discover -s tests
+
+  tests-numpy:
+    name: Test the numpy demos
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      # `uv run --with` resolves numpy the way `uv run` does for the scripts
+      # themselves, so nothing is installed into a shared interpreter. The
+      # version range copies the two scripts' own; keep it in step with them.
+      # Because it is a fresh resolve each time, this job is also what notices
+      # when a new numpy inside that range breaks a demo.
+      - run: >-
+          uv run --no-project --python 3.13 --with 'numpy>=2.0,<3'
+          python -m unittest discover -s tests/numpy
 
   prolog:
     name: Test the Prolog game

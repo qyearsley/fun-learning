@@ -53,6 +53,8 @@ uvx ruff format .  # Format
 ```bash
 swipl -g run_tests -t halt mansion_escape/tests.pl   # Prolog game, 26 tests
 python3 -m unittest discover -s tests                # Python, 34 tests
+uv run --no-project --python 3.13 --with 'numpy>=2.0,<3' \
+    python -m unittest discover -s tests/numpy       # numpy demos, 34 tests
 ```
 
 Twenty-six [plunit](https://www.swi-prolog.org/pldoc/package/plunit.html) tests
@@ -72,11 +74,18 @@ stays as standalone as the scripts it covers. Run it on any interpreter meeting
 the `>=3.13` floor; a bare `python3` may be older than that, in which case name
 one (`python3.13 -m unittest ...`).
 
-The other two demos are untested: both need numpy, and installing it to test
-them would undo the point of the PEP 723 blocks. The interactive orchestrators
-are untested everywhere — they are print-driven and are checked by running them.
+The other two demos need numpy, so their 34 tests are a separate suite in
+`tests/numpy/`. That directory has no `__init__.py`, so the stdlib run above
+does not pick it up. `uv run --with` resolves numpy the same way the demos do,
+and nothing gets installed into an interpreter. The perceptron tests cover the
+learning rule and check that the four separable gates converge and XOR does not.
+The neural net tests check `backward` against a finite-difference gradient, so a
+sign error in backprop fails even though the network would still limp along.
 
-The lint, the Python tests and the Prolog tests all run on every push and every
+The interactive orchestrators are untested everywhere — they are print-driven
+and are checked by running them.
+
+The lint, both Python suites and the Prolog tests all run on every push and every
 pull request; see [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 
 ## Docs

@@ -10,52 +10,49 @@ proposals are the other files in this directory.
 
 ## At a glance
 
-1. The two numpy demos still have no tests — M · open
-2. No demo's dependencies have ever been checked for currency — S · blocked
+Nothing open. See `## Not looked at` for what has not been checked.
 
 ## Working on these
 
 - Run a demo: `uv run perceptron_demo.py` (PEP 723 inline dependencies).
 - Python tests: `python3 -m unittest discover -s tests` from the repo root, on
   any interpreter meeting the `>=3.13` floor. Stdlib only, nothing to install.
+- numpy demo tests: `uv run --no-project --python 3.13 --with 'numpy>=2.0,<3'
+  python -m unittest discover -s tests/numpy`.
 - Prolog: `swipl -g run_tests -t halt mansion_escape/tests.pl` (26 tests).
 - Lint and CI: `.github/workflows/ci.yml`; ruff config in `ruff.toml`.
 - Public repo. Never commit a work hostname, address, tool name or ticket ID.
 
-## 1. The two numpy demos still have no tests
-
-**M · open**
-
-`genetic_algorithm_demo.py` is covered — 34 tests, see `## Settled`.
-`perceptron_demo.py` and `neural_net_demo.py` are not, and the pure functions
-worth covering are there: `Perceptron.activation`, `.predict` and
-`.weighted_sum` (`perceptron_demo.py:66-80`) and the static `decision_bar`
-(`:215`).
-
-The obstacle is numpy. Both scripts declare it as a PEP 723 inline dependency,
-so testing them means either installing numpy in CI — a dependency the scripts
-resolve for themselves at run time, which is the thing this repo's layout
-avoids — or running the tests through `uv run --with numpy --with pytest`, which
-reintroduces a resolve step the genetic algorithm tests deliberately do without.
-Decide which before writing anything.
-
-_Checked 2026-09-18: `tests/` holds one file, covering the genetic algorithm
-demo only. The other two demos declare `numpy>=2.0,<3`._
-
-## 2. No demo's dependencies have ever been checked for currency
-
-**S · blocked on network**
-
-Each demo declares its dependencies inline and nothing pins or audits them. The
-2026-09 pass could not reach PyPI, and neither could the 2026-09-18 one, so no
-version has been checked and nothing bumped. Run the demos once with a fresh
-resolve and see what moves.
-
-_Not verified. `uvx ruff` and `uv sync` both fail here with a tunnel error
-reaching `files.pythonhosted.org`._
-
 ## Settled
 
+- The two numpy demos had no tests — landed 2026-09-24. `tests/numpy/`, 17
+  tests for each demo. The perceptron tests cover the activation, the weighted
+  sum, the learning rule, convergence on the four separable gates over 50
+  seeds, and XOR never converging. The neural net tests cover the sigmoid, the
+  forward pass, a finite-difference check of every parameter update in
+  `backward`, one XOR smoke run, and `progress_bar`.
+
+  The suite is separate so the stdlib one still needs nothing installed.
+  `tests/numpy/` has no `__init__.py`, so `discover -s tests` does not recurse
+  into it. It runs through `uv run --with`, which resolves numpy the way the
+  scripts do, as its own CI job. The version range there copies the two scripts'
+  own; keep it in step with them.
+
+  _Checked: 34 pass on 3.13 with numpy 2.5.3. Verified they bite — negating
+  `hidden_error` in `backward` fails the gradient check and the XOR run, and
+  `>=` to `>` in `Perceptron.activation` fails `test_zero_fires`. Both sources
+  were restored afterwards. The stdlib run still reports 34 tests, not 68.
+  `ruff check` and `ruff format --check` pass._
+- No demo's dependencies had been checked for currency — checked 2026-09-24,
+  nothing to bump. PyPI is still unreachable from this machine, but the index
+  uv is configured with here does resolve fresh (`uv run --refresh`). numpy
+  resolves to 2.5.3, inside the declared `>=2.0,<3`, and all three demos ran end
+  to end on it with piped input and no warnings. The new CI job also resolves
+  fresh on every push, so a numpy release inside the range that breaks a demo
+  now shows up there.
+
+  _Not verified: whether that index lags PyPI. A numpy 3 would need the ceiling
+  raised by hand, which is what the ceiling is for._
 - The genetic algorithm demo had no tests — landed 2026-09-18.
   `tests/test_genetic_algorithm.py`, 34 tests over fitness, gene source,
   population sorting, tournament selection, crossover, mutation and the
@@ -85,7 +82,7 @@ reaching `files.pythonhosted.org`._
 ## Not looked at
 
 `mansion_escape` beyond the fact that its test suite runs. The demos have not
-been run interactively since `dc95c72`.
+been run by hand since `dc95c72`, only with piped input (2026-09-24).
 
 There is no `.python-version` here, so a bare `python3` in this directory gets
 whatever pyenv's global is — 3.9 on this machine, which cannot even import
