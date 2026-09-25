@@ -13,19 +13,30 @@ it, and now it is going to reap you. You would rather it didn't.
 The rooms are regions of a running program, and each one has a single rule. The
 characters are parts of the runtime, and each one has a single rule too. The
 puzzles come from real semantics: a signal handler catches SIGTERM, a dangling
-pointer leads into freed memory, and a forked child inherits your environment.
+pointer leads into freed memory, two locks taken in the wrong order deadlock,
+and a forked child inherits your environment and only one of your threads.
 
 What is real, and what is simulated
 -----------------------------------
 The game reads its own runtime, so a lot of it is not a metaphor.
 
-Real (read-only introspection of the process running this file):
+Real (the process running this file, as CPython and the OS see it):
 - Your PID and your parent's PID, from `os.getpid` and `os.getppid`.
 - The refcount in `examine self`, from `sys.getrefcount`, and the holders in
   /proc, from `gc.get_referrers`.
 - Every 0x... address. Each one is the `id()` of an object the game allocated.
 - The dangling pointer. It is a `weakref.ref` to an object that has been freed,
   and following it really dereferences to None.
+- Dropping things. Every ordinary item is backed by a real object. Drop it and
+  the game lets go of that object, then asks a weakref whether it survived.
+  Usually its refcount hit zero and CPython freed it on the spot. `link` two
+  items first and they point at each other, so their refcounts never reach
+  zero; they wait for the cycle collector, which is a real `gc.collect()`. The
+  game turns off automatic collection so the collector runs only on its rounds.
+- The two locks. They are `threading.Lock` objects, and the deadlock wait is a
+  real `acquire` with a timeout.
+- errno. Each failure sets a real errno code, and `examine errno` prints the
+  name and the OS's own message for it.
 - The open file descriptors in /proc, read from `/dev/fd`.
 - The code in the text segment. It is this file's source, read with `inspect`.
 - The SIGTERM handler. `install handler` calls `signal.signal`, and SIGTERM
@@ -36,11 +47,12 @@ Real (read-only introspection of the process running this file):
   to itself.
 
 Simulated (anything that would break the game if it were real):
-- fork, the environment, the pipe and the zombie.
+- fork, the environment, the pipe, the zombie and the worker thread.
 - The garbage collector and the OOM killer as characters, the allocator reusing
-  a block, the segfault and the core file.
+  a block, the segfault, the stack-smashing abort and the core file.
 """
 
+import errno
 import gc
 import inspect
 import os
@@ -48,15 +60,19 @@ import random
 import signal
 import sys
 import textwrap
+import threading
 import time
 import weakref
 
-SIGTERM_TURN = 40  # when your parent loses patience
+SIGTERM_TURN = 30  # when your parent loses patience
 SIGKILL_GRACE = 15  # turns between a caught SIGTERM and the SIGKILL behind it
 STACK_FRAME_TURNS = 4  # turns before the current function returns
 FREED_BLOCK_TURNS = 4  # turns before the allocator hands the block out again
+GC_PERIOD = 5  # turns between the garbage collector's rounds
 OOM_LIMIT = 6  # pages you can carry before the OOM killer takes an interest
+DEADLOCK_WAIT = 2.0  # seconds the real acquire() waits before giving up
 NPC_ROOMS = ("heap", "stack", "pipe", "registers", "bss", "proc")
+ENDINGS = ("EXITED", "SURVIVED", "HUNG", "COLLECTED", "WRITTEN TO DISK", "ABORTED", "DEADLOCKED")
 
 
 # --------------------------------------------------------------------------
@@ -72,16 +88,41 @@ class Block:
     """What the dangling pointer used to point at, before it was freed."""
 
 
+class Payload:
+    """The real object behind an ordinary item. `link` points two at each other."""
+
+    def __init__(self, name):
+        self.name = name
+        self.partner = None
+
+    def __repr__(self):
+        to = f" -> {self.partner.name}" if self.partner else ""
+        return f"<Payload {self.name!r} at {hex(id(self))}{to}>"
+
+
 class Item:
-    def __init__(self, name, description, weight=1, aliases=(), obj=None):
+    def __init__(self, name, description, weight=1, aliases=(), obj=None, home=None):
         self.name = name
         # A string, or a function of the game for items that look at the
         # runtime every time you examine them.
         self.description = description
         self.weight = weight  # in pages; the OOM killer counts these
         self.aliases = {name, *aliases}
-        self.obj = obj  # the real Python object behind the item, if any
-        self.dropped_turn = None  # set when you let go; the GC takes only those
+        self.home = home  # where a lock goes back to when you release it
+        self.dropped_turn = None  # set when you let go
+        self.obj = obj  # the real Python object behind the item
+        self.ref = None  # a weakref to it, for payloads: how we ask if it was freed
+        if obj is None:
+            self.revive()
+
+    def revive(self):
+        """Give the item a fresh real object, as a new allocation would."""
+        self.obj = Payload(self.name)
+        self.ref = weakref.ref(self.obj)
+
+    @property
+    def is_lock(self):
+        return self.home is not None
 
     def describe(self, game):
         d = self.description
@@ -126,6 +167,16 @@ def build_world():
             f"process really has these open: {' '.join(map(str, open_fds()))}."
         )
 
+    def errno_text(game):
+        code, line = game.errno
+        if code == 0:
+            return "errno. It is 0, which means nothing, because nobody has failed yet."
+        return (
+            f"errno is {errno.errorcode[code]} ({code}): {os.strerror(code)}. "
+            f"Your last failure set it: '{line}'. The name and the message are the "
+            "operating system's own."
+        )
+
     canary = random.getrandbits(32)
     items = {
         "pointer": Item("pointer", pointer_text, aliases={"dangling pointer", "ptr"}, obj=ref),
@@ -137,8 +188,9 @@ def build_world():
         ),
         "canary": Item(
             "canary",
-            f"A stack canary, {canary:#010x}: a random word placed to notice if "
-            "anything overwrites the frame. It is watching you.",
+            f"A stack canary, {canary:#010x}: a random word the function checks "
+            "when it returns, to notice if anything overwrote the frame. It is "
+            "watching you.",
             aliases={"stack canary"},
         ),
         "memory": Item(
@@ -157,16 +209,23 @@ def build_world():
             "A cache of things you might need again. You won't. Three pages.",
             weight=3,
         ),
-        "mutex": Item(
-            "mutex",
-            "A mutex, unlocked. There is supposed to be a second one somewhere, "
-            "and a rule about which order to take them in.",
-            aliases={"lock"},
+        "heap lock": Item(
+            "heap lock",
+            "malloc's lock. Whoever holds it is the only one allocating. The "
+            "worker thread takes it all the time, in between taking the env lock.",
+            aliases={"malloc lock", "mutex", "lock"},
+            obj=threading.Lock(),
+            home="heap",
         ),
-        "errno": Item(
-            "errno",
-            "errno. It is 0, which means nothing, because nobody has failed yet.",
+        "env lock": Item(
+            "env lock",
+            "The lock on the environment. The environment is one global, shared "
+            "by every thread, so nobody changes it without holding this.",
+            aliases={"environment lock", "lock"},
+            obj=threading.Lock(),
+            home="bss",
         ),
+        "errno": Item("errno", errno_text),
         "fd": Item("fd", fd_text, aliases={"file descriptor", "descriptor"}),
         "exit status": Item(
             "exit status",
@@ -175,8 +234,10 @@ def build_world():
         ),
     }
 
-    def room(key, name, description, aliases=(), holds=()):
-        return Room(key, name, description, aliases, [items[n] for n in holds])
+    def room(key, name, description, brief, aliases=(), holds=()):
+        r = Room(key, name, description, aliases, [items[n] for n in holds])
+        r.brief = brief
+        return r
 
     rooms = {
         r.key: r
@@ -186,6 +247,7 @@ def build_world():
                 "The stack",
                 "Locals sit on a shelf that is not yours. Frames vanish when "
                 "they return, and someone is going to return from this one soon.",
+                "A new frame, and the function is already running.",
                 aliases={"frame"},
                 holds=("pointer", "return address", "canary"),
             ),
@@ -194,36 +256,41 @@ def build_world():
                 "The heap",
                 "Allocated blocks and free holes, in no order anyone chose. "
                 "Every region of the program opens off it.",
-                holds=("buffer", "cache", "mutex"),
+                "Blocks and holes.",
+                holds=("buffer", "cache", "heap lock"),
             ),
             room(
                 "text",
                 "The text segment",
                 "Read-only. You can change nothing here, but you can read the "
                 "code, and the code is real: it is the program you are running in.",
+                "Read-only code. You can read it.",
                 aliases={"text segment", ".text", "code"},
             ),
             room(
                 "bss",
                 "BSS and globals",
-                "Zeroed at startup and never freed. Anything you leave here "
-                "outlives everything else.",
+                "Zeroed at startup and never freed. A global holds anything you "
+                "leave here, so nothing here is ever collected.",
+                "Globals. Nothing here is freed.",
                 aliases={"globals", ".bss", "data"},
-                holds=("errno",),
+                holds=("errno", "env lock"),
             ),
             room(
                 "registers",
                 "The registers",
                 "Four slots: rax, rbx, rcx, rdx. Every one of them is overwritten "
                 "constantly. Leave something here and it will not be here long.",
+                "Four slots, all busy.",
                 aliases={"register", "regs"},
             ),
-            room("proc", "/proc", "A mirror.", aliases={"/proc", "mirror"}),
+            room("proc", "/proc", "A mirror.", "A mirror.", aliases={"/proc", "mirror"}),
             room(
                 "devnull",
                 "/dev/null",
                 "A void. Drop something here and it is gone. Read from it and "
                 "you get nothing, immediately.",
+                "The void.",
                 aliases={"/dev/null", "dev/null", "null", "void"},
             ),
             room(
@@ -231,6 +298,7 @@ def build_world():
                 "A pipe",
                 "A narrow buffer with two ends. Bytes go in one and come out the "
                 "other. This is where processes meet.",
+                "Two ends, and a buffer between them.",
                 holds=("fd",),
             ),
             room(
@@ -238,6 +306,7 @@ def build_world():
                 "A freed block",
                 "Nobody owns this block, so nothing stops you standing in it. "
                 "The allocator will hand it to someone else soon.",
+                "Freed memory, not yours.",
                 holds=("memory",),
             ),
         )
@@ -263,14 +332,15 @@ PHRASES = {"pick up": "take", "look at": "examine", "put down": "drop", "talk to
 
 VERBS = {
     "go": {"go", "walk", "enter", "cd", "move"},
-    "take": {"take", "get", "grab"},
-    "drop": {"drop", "leave", "discard"},
+    "take": {"take", "get", "grab", "acquire"},
+    "drop": {"drop", "leave", "discard", "release", "unlock", "free"},
     "examine": {"examine", "x", "inspect", "check"},
     "look": {"look", "l"},
     "inventory": {"inventory", "i", "inv"},
     "read": {"read"},
     "install": {"install", "trap", "handle", "catch"},
     "follow": {"follow", "dereference", "deref"},
+    "link": {"link", "point", "connect"},
     "export": {"export", "setenv"},
     "fork": {"fork"},
     "wait": {"wait", "reap"},
@@ -279,7 +349,7 @@ VERBS = {
     "help": {"help", "?"},
 }
 SYNONYMS = {word: verb for verb, words in VERBS.items() for word in words}
-FILLER = {"the", "a", "an", "to", "at", "into", "in", "on", "with", "for", "my", "of"}
+FILLER = {"the", "a", "an", "to", "at", "into", "in", "on", "with", "for", "my", "of", "and"}
 
 
 def parse(line, room_aliases=()):
@@ -318,6 +388,7 @@ class Game:
         self.player = Player()
         self.rooms, self.items = build_world()
         self.here = self.rooms["heap"]
+        self.visited = {"heap"}
         self.inventory = []
         self.turn = 0
         self.entered_at = 0
@@ -325,6 +396,10 @@ class Game:
         self.started = time.monotonic()
         self.env = {}  # simulated; the real environment is left alone
         self.child = None  # None, "blank" or "remembers"
+        self.child_hung = False
+        self.worker_waiting = False  # holds the env lock, waits for the heap lock
+        self.errno = (0, "")
+        self.line = ""
         self.read_code = False
         self.handler_installed = False
         self.sigterm_caught_at = None
@@ -340,25 +415,38 @@ class Game:
     def say(self, *lines):
         self.out.extend(lines)
 
+    def fail(self, code, *lines):
+        """Say why something did not work, and set errno the way a syscall would."""
+        self.errno = (code, self.line.strip())
+        self.say(*lines)
+
     def handle(self, line):
         """Run one command and return everything it printed."""
         self.out = []
+        self.line = line
         room_aliases = set().union(*(r.aliases for r in self.rooms.values()))
         verb, noun = parse(line, room_aliases)
         if verb is None:
             return ""
         if verb == "unknown":
+            self.errno = (errno.ENOSYS, line.strip())
             return f"You don't know how to '{noun}'. Type help."
         free = verb in {"look", "inventory", "examine", "help"}
         getattr(self, f"do_{verb}")(noun)
         if not free and self.ending is None:
             self.tick()
-        return "\n".join(self.out)
+        # Wrap long lines, but leave indented ones alone: those are source code.
+        return "\n".join(
+            textwrap.fill(s, 76) if len(s) > 76 and not s.startswith(" ") else s for s in self.out
+        )
 
     def close(self):
-        """Put the real SIGTERM handler back the way it was. For tests."""
+        """Put the real SIGTERM handler back, and let go of the real locks. For tests."""
         if self._old_handler is not None:
             signal.signal(signal.SIGTERM, self._old_handler)
+        for name in ("heap lock", "env lock"):
+            if self.items[name].obj.locked():
+                self.items[name].obj.release()
 
     def find_item(self, noun, places):
         for item in places:
@@ -372,6 +460,9 @@ class Game:
                 return r
         return None
 
+    def holding(self, name):
+        return self.items[name] in self.inventory
+
     def load(self):
         return sum(i.weight for i in self.inventory)
 
@@ -380,10 +471,46 @@ class Game:
         self.entered_at = self.turn
         if room.key == "stack":
             self.frame = object()
-        self.do_look(None)
+        self.do_look(None, brief=room.key in self.visited)
+        self.visited.add(room.key)
+
+    def free(self, item):
+        """Where an item goes once nothing holds it."""
+        for room in self.rooms.values():
+            if item in room.items:
+                room.items.remove(item)
+        item.dropped_turn = None
+        if item.name == "memory":
+            # Freed is not erased. The bytes are still in the freed block,
+            # until the allocator hands it to someone else.
+            item.revive()
+            self.rooms["freed"].items.append(item)
+        elif item.name == "pointer":
+            self.rooms["stack"].items.append(item)  # the function keeps its own copy
+
+    def let_go(self, item):
+        """Drop the game's strong reference, then ask CPython whether that freed it."""
+        if item.ref is None:  # the pointer is a weakref already; nothing to count
+            self.free(item)
+            return True
+        item.obj = None
+        if item.ref() is None:
+            self.free(item)
+            return True
+        return False
 
     def end(self, title, text, real_signal=None):
-        if self.child == "remembers":
+        if self.child and self.child_hung:
+            title = "HUNG"
+            text += (
+                "\n\nYour child is adopted by PID 1. It inherited one thread, yours, "
+                "and a heap lock that the worker thread was holding when you forked. "
+                "In the child there is no worker thread to release it. The child's "
+                "first malloc() waits for that lock, and will wait forever."
+            )
+            if self.child == "remembers":
+                text += " It remembers you. It will never do anything else."
+        elif self.child == "remembers":
             title = "SURVIVED"
             text += (
                 "\n\nAt the other end of the pipe, your child notices it has been "
@@ -402,18 +529,29 @@ class Game:
     def tick(self):
         self.turn += 1
         elapsed = self.turn - self.entered_at
+        stack = self.rooms["stack"]
 
-        if self.here.key == "stack":
+        if self.here is stack:
             if elapsed == STACK_FRAME_TURNS - 1:
                 self.say("The function reaches its last line.")
             elif elapsed >= STACK_FRAME_TURNS:
-                stack = self.rooms["stack"]
                 lost = [i for i in stack.items if i.dropped_turn is not None]
-                stack.items = [i for i in stack.items if i not in lost]
+                for item in lost:
+                    self.free(item)
                 self.say("", "The function returns. Its frame is popped, and you with it.")
                 if lost:
                     self.say("Whatever you left in the frame went with it.")
                 self.enter(self.rooms["heap"])
+
+        canary = self.items["canary"]
+        if canary not in stack.items and not (self.here is stack and self.holding("canary")):
+            return self.end(
+                "ABORTED",
+                "Behind you, the function returns and checks its canary. The word "
+                "is not where it left it. *** stack smashing detected ***: "
+                "terminated. libc calls abort(), and SIGABRT takes you, still "
+                "holding a canary you had no use for.",
+            )
 
         if self.here.key == "freed":
             if elapsed == FREED_BLOCK_TURNS - 1:
@@ -430,15 +568,56 @@ class Game:
         # Anything left in a register is clobbered on the turn after next.
         regs = self.rooms["registers"]
         clobbered = [i for i in regs.items if i.dropped_turn < self.turn - 1]
-        regs.items = [i for i in regs.items if i not in clobbered]
+        for item in clobbered:
+            self.free(item)
         if clobbered and self.here is regs:
             self.say(f"An instruction overwrites the {clobbered[0].name}. It is gone.")
 
+        self.worker()
+        if self.turn % GC_PERIOD == 0:
+            self.collect()
         self.move_npcs()
         if self.ending:
             return
 
         self.signals()
+
+    def worker(self):
+        """The other thread. It takes the env lock, then the heap lock."""
+        env_lock = self.items["env lock"]
+        near = self.here.key in ("bss", "heap")
+        if self.worker_waiting and not self.holding("heap lock"):
+            self.worker_waiting = False
+            env_lock.obj.release()
+            if near:
+                self.say("The worker thread gets the heap lock at last, and lets go of both.")
+        elif not self.worker_waiting and self.holding("heap lock") and not self.holding("env lock"):
+            env_lock.obj.acquire()
+            self.worker_waiting = True
+            if near:
+                self.say(
+                    "The worker thread takes the env lock and reaches for the heap "
+                    "lock. You have the heap lock, so it waits."
+                )
+
+    def collect(self):
+        """The garbage collector's round. A real gc.collect(), then see what died."""
+        found = gc.collect()
+        dead = [
+            item
+            for room in self.rooms.values()
+            for item in room.items
+            if item.ref is not None and item.obj is None and item.ref() is None
+        ]
+        for item in dead:
+            self.free(item)
+        if dead:
+            names = " and the ".join(i.name for i in dead)
+            self.say(
+                f"The garbage collector does its rounds. gc.collect() finds {found} "
+                f"unreachable objects, among them the {names}. They pointed "
+                "at each other, and nothing pointed at them."
+            )
 
     def move_npcs(self):
         for name, at in self.npcs.items():
@@ -447,16 +626,6 @@ class Game:
                 self.npcs[name] = at
                 if at == self.here.key:
                     self.say(f"The {name} arrives.")
-
-        gc_room = self.rooms[self.npcs["garbage collector"]]
-        if gc_room.key != "bss":  # globals are always reachable
-            taken = [i for i in gc_room.items if i.dropped_turn is not None]
-            gc_room.items = [i for i in gc_room.items if i not in taken]
-            if taken and gc_room is self.here:
-                names = ", ".join(i.name for i in taken)
-                self.say(
-                    f"Nothing points at the {names} you left, so the garbage collector takes it."
-                )
 
         if self.npcs["OOM killer"] == self.here.key and self.load() > OOM_LIMIT:
             self.end(
@@ -492,18 +661,29 @@ class Game:
                 signal.SIGKILL,
             )
 
-    # The two functions below are the ones `read code` shows. Keep them short:
-    # they are clues, printed verbatim.
+    # The three functions below are the ones `read code` shows. Keep them
+    # short: they are clues, printed verbatim.
 
     def _on_sigterm(self, signum, frame):
         # A real handler, installed with signal.signal().
         self.sigterm_caught_at = self.turn
         self.say("SIGTERM arrives, and your handler catches it.")
 
+    def _setenv(self, name, value):
+        # environ is one global, shared by every thread: hold the env lock.
+        # Lock order is env lock, then heap lock. The worker thread keeps
+        # to it. Take them the other way round and you will meet it halfway.
+        if self.holding("env lock"):
+            self.env[name] = value
+        return self.holding("env lock")
+
     def _fork(self):
-        # Simulated. The child gets a copy of your environment, and
-        # nothing else of yours.
+        # Simulated. The child gets a copy of your environment, and only
+        # the thread that called fork(). If another thread held the heap
+        # lock just then, the child inherits it held, and nobody in the
+        # child will ever release it. Hold the heap lock yourself.
         self.child = "remembers" if "MEMORY" in self.env else "blank"
+        self.child_hung = not self.holding("heap lock")
 
     # ---- verbs ----
 
@@ -512,11 +692,12 @@ class Game:
             "Commands, one verb and maybe a noun:",
             "  look, examine <thing>, examine self, inventory",
             "  go <room>, or just the room's name",
-            "  take <thing>, drop <thing>, read, talk <someone>",
-            "  install handler, follow pointer, export <thing>, fork, wait, exit",
+            "  take <thing>, drop <thing>, link <thing> to <thing>",
+            "  read, talk <someone>, install handler, follow pointer",
+            "  export <thing>, fork, wait, exit",
         )
 
-    def do_look(self, noun):
+    def do_look(self, noun, brief=False):
         if noun:
             return self.do_examine(noun)
         room = self.here
@@ -525,15 +706,22 @@ class Game:
         if room.key == "proc":
             self.say(*self.proc_lines())
         else:
-            self.say(textwrap.fill(room.description, 76))
-        if room.key == "registers" and room.items:
-            self.say("In rax: " + ", ".join(i.name for i in room.items) + ".")
-        elif room.items:
-            self.say("Here: " + ", ".join(i.name for i in room.items) + ".")
+            self.say(textwrap.fill(room.brief if brief else room.description, 76))
+        if room.items:
+            where = "In rax: " if room.key == "registers" else "Here: "
+            self.say(textwrap.fill(where + ", ".join(map(self.label, room.items)) + ".", 76))
         if room.key == "pipe" and self.zombie:
             self.say("A zombie waits at one end of the pipe.")
         if room.key == "pipe" and self.child:
             self.say("Your child is at the other end.")
+        if room.key == "bss":
+            if self.worker_waiting:
+                self.say(
+                    "The worker thread is here. It holds the env lock, and it is "
+                    "waiting for the heap lock, which you have."
+                )
+            else:
+                self.say("The worker thread is here, between jobs.")
         for name, at in self.npcs.items():
             if at == room.key:
                 self.say(f"The {name} is here.")
@@ -541,9 +729,16 @@ class Game:
             self.say("There is no door. The only way out is back to the heap.")
         elif room.key != "heap":
             self.say("The heap is the way back.")
-        else:
+        elif not brief:
             others = [r.name for r in self.rooms.values() if r.key not in ("heap", "freed")]
             self.say(textwrap.fill("From here: " + ", ".join(others) + ".", 76))
+
+    def label(self, item):
+        if item.is_lock and item.obj.locked():
+            return f"{item.name} (held by the worker thread)"
+        if item.ref is not None and item.obj is None:
+            return f"{item.name} (unreachable)"
+        return item.name
 
     def proc_lines(self):
         holders = sorted({type(r).__name__ for r in gc.get_referrers(self.player)})
@@ -552,15 +747,14 @@ class Game:
             f"  pid      {os.getpid()}",
             f"  ppid     {os.getppid()}  (the one who will reap you)",
             f"  fds      {' '.join(map(str, open_fds()))}",
+            f"  threads  {threading.active_count()}  (the worker thread is simulated)",
             f"  uptime   {self.turn} turns, {time.monotonic() - self.started:.1f} s",
             f"  held by  {', '.join(holders)}",
         ]
         if self.inventory:
             lines.append("  carrying, as the interpreter sees it:")
-            lines += [
-                f"    {i.name:<15}{i.obj if i.obj is not None else i!r}" for i in self.inventory
-            ]
-        if self.items["pointer"] in self.inventory and not self.revealed:
+            lines += [f"    {i.name:<15}{i.obj!r}" for i in self.inventory]
+        if self.holding("pointer") and not self.revealed:
             self.revealed = True
             lines.append("The pointer is a weakref, and its referent is dead. It always was.")
         return lines
@@ -586,6 +780,9 @@ class Game:
                 f"Your real one has {len(os.environ)} variables. The game leaves those alone.",
             )
             return
+        if noun == "errno":  # a global, so you can see it from anywhere
+            self.say(textwrap.fill(self.items["errno"].describe(self), 76))
+            return
         if noun in {"code", "wall", "walls"} and self.here.key == "text":
             return self.do_read(None)
         character = self.find_character(noun)
@@ -593,10 +790,15 @@ class Game:
             self.say(CHARACTERS[character][0])
             return
         item = self.find_item(noun, self.inventory + self.here.items)
-        if item:
-            self.say(textwrap.fill(item.describe(self), 76))
-        else:
-            self.say(f"You see no {noun} here.")
+        if item is None:
+            self.fail(errno.ENOENT, f"You see no {noun} here.")
+            return
+        self.say(textwrap.fill(item.describe(self), 76))
+        if item.ref is not None and item.obj is None:
+            self.say(
+                "Nothing reachable points at it. Its refcount is not zero, though, "
+                "because the other half of its cycle still does."
+            )
 
     def do_inventory(self, noun):
         if not self.inventory:
@@ -611,11 +813,11 @@ class Game:
             return
         room = self.find_room(noun)
         if room is None:
-            self.say(f"There is no {noun} in this program.")
+            self.fail(errno.ENOENT, f"There is no {noun} in this program.")
         elif room is self.here:
             self.say("You are already here.")
         elif self.here.key == "freed" and room.key != "heap":
-            self.say("There is no door to anywhere from here. Only the heap.")
+            self.fail(errno.ENOENT, "There is no door to anywhere from here. Only the heap.")
         else:
             self.enter(room)
 
@@ -624,50 +826,135 @@ class Game:
             self.say("Take what?")
             return
         if self.here.key == "text":
-            self.say("Read-only. Nothing here can be taken, only read.")
+            self.fail(errno.EACCES, "Read-only. Nothing here can be taken, only read.")
             return
         if self.here.key == "devnull":
             self.say("You reach into /dev/null and get end-of-file, immediately.")
             return
         item = self.find_item(noun, self.here.items)
         if item is None:
-            self.say(f"There is no {noun} here to take.")
+            self.fail(errno.ENOENT, f"There is no {noun} here to take.")
             return
+        if item.is_lock and not item.obj.acquire(blocking=False):
+            return self.deadlock(item)
         self.here.items.remove(item)
         self.inventory.append(item)
         item.dropped_turn = None
+        if item.ref is not None and item.obj is None:
+            item.obj = item.ref()  # reachable again, from you
         self.say(f"Taken: the {item.name}.")
         if item.name == "pointer":
             self.say(
                 f"It points at {item.address}, which was freed some time ago. "
                 "Nothing stops you from following it."
             )
+        elif item.name == "canary":
+            self.say("Somewhere below you, a check is waiting for the function to return.")
+        elif item.is_lock:
+            self.say(f"You hold the {item.name}. It is a real lock: {item.obj!r}.")
+
+    def deadlock(self, lock):
+        # The real part: the env lock really is held, so this really waits.
+        t = time.monotonic()
+        got = lock.obj.acquire(timeout=DEADLOCK_WAIT)
+        waited = time.monotonic() - t
+        name = errno.errorcode[errno.EDEADLK]
+        self.end(
+            "DEADLOCKED",
+            f"You reach for the {lock.name}. The worker thread holds it, and it is "
+            "waiting for the heap lock, which you hold. Each of you waits for the "
+            "other to let go first.\n\n"
+            f"acquire(timeout={DEADLOCK_WAIT}) really waited {waited:.1f} s and "
+            f"returned {got}. A real deadlock has no timeout. The errno for this is "
+            f"{name}, '{os.strerror(errno.EDEADLK)}', and nothing avoided it.\n\n"
+            "Much later, your parent notices you have stopped, and sends SIGKILL.",
+            signal.SIGKILL,
+        )
 
     def do_drop(self, noun):
         item = noun and self.find_item(noun, self.inventory)
         if not item:
-            self.say("You are not carrying that.")
+            self.fail(errno.ENOENT, "You are not carrying that.")
+            return
+        if self.here.key == "text":
+            self.fail(errno.EACCES, "Read-only. You cannot even put something down here.")
             return
         self.inventory.remove(item)
+        if item.is_lock:
+            item.obj.release()
+            item.dropped_turn = None
+            self.rooms[item.home].items.append(item)
+            self.say(f"You release the {item.name}. It is back where it lives.")
+            return
         if self.here.key == "devnull":
+            self.free(item)
             self.say(
                 f"The {item.name} goes into /dev/null. It is gone, and nothing reports an error."
             )
             return
-        item.dropped_turn = self.turn
         self.here.items.append(item)
-        where = "into rax" if self.here.key == "registers" else "down"
-        self.say(f"You put the {item.name} {where}.")
+        item.dropped_turn = self.turn
+        if item.name == "canary" and self.here.key == "stack":
+            item.dropped_turn = None  # back where it belongs
+            self.say("You put the canary back. The frame will never know.")
+        elif self.here.key == "registers":
+            self.say(f"You put the {item.name} into rax.")
+        elif self.here.key == "stack":
+            self.say(f"You put the {item.name} down. It is a local now, until the frame returns.")
+        elif self.here.key == "bss":
+            self.say(f"You put the {item.name} down. A global holds it now.")
+        elif self.let_go(item):
+            self.say(
+                f"You let go of the {item.name}. Its refcount hits zero, and "
+                "CPython frees it on the spot."
+            )
+        else:
+            self.say(
+                f"You let go of the {item.name}, but the {item.ref().partner.name} "
+                "still points at it. Its refcount is not zero, so it stays."
+            )
+
+    def do_link(self, noun):
+        words = (noun or "").split()
+        pair = None
+        for i in range(1, len(words)):
+            a = self.find_item(" ".join(words[:i]), self.inventory)
+            b = self.find_item(" ".join(words[i:]), self.inventory)
+            if a and b and a is not b:
+                pair = a, b
+        if noun in {"self", "me"} or (words and words[0] in {"self", "me"}):
+            self.say(
+                "Processes are not refcounted. The kernel tracks you by PID, and "
+                "a cycle will not keep you alive. Your Python object is, though."
+            )
+            return
+        if pair is None:
+            self.fail(
+                errno.EINVAL, "Link which two things you are carrying? Try: link cache to buffer."
+            )
+            return
+        a, b = pair
+        if a.ref is None or b.ref is None:
+            self.fail(errno.EINVAL, "Only ordinary things can hold a reference.")
+            return
+        a.obj.partner, b.obj.partner = b.obj, a.obj  # a real reference cycle
+        self.say(
+            f"The {a.name} points at the {b.name}, and the {b.name} at the {a.name}. "
+            "That is a reference cycle: neither refcount can reach zero now, "
+            "whatever happens to you."
+        )
 
     def do_read(self, noun):
         if noun and noun not in {"code", "wall", "walls", "text"}:
             return self.do_examine(noun)
         if self.here.key != "text":
-            self.say("There is nothing to read here. Code lives in the text segment.")
+            self.fail(
+                errno.ENOENT, "There is nothing to read here. Code lives in the text segment."
+            )
             return
         self.read_code = True
-        self.say("You read the program you are running in. Two functions catch your eye:", "")
-        for fn in (Game._on_sigterm, Game._fork):
+        self.say("You read the program you are running in. Three functions catch your eye:", "")
+        for fn in (Game._on_sigterm, Game._setenv, Game._fork):
             self.say(textwrap.indent(textwrap.dedent(inspect.getsource(fn)).rstrip(), "    "), "")
         self.say("This is the file's real source.")
 
@@ -678,7 +965,8 @@ class Game:
                 signal.signal(signal.SIGKILL, self._on_sigterm)
                 self.say("That should not have worked.")
             except (OSError, ValueError) as e:
-                self.say(
+                self.fail(
+                    getattr(e, "errno", None) or errno.EINVAL,
                     f"signal(SIGKILL, ...) fails: {e}.",
                     "That is the real error. SIGKILL cannot be caught; that is what it is for.",
                 )
@@ -686,9 +974,10 @@ class Game:
         if self.handler_installed:
             self.say("Your SIGTERM handler is already installed.")
         elif not self.read_code:
-            self.say(
+            self.fail(
+                errno.ENOENT,
                 "To handle a signal you need a function to handle it with, and you "
-                "don't know of one. The text segment is full of functions."
+                "don't know of one. The text segment is full of functions.",
             )
         else:
             self._old_handler = signal.signal(signal.SIGTERM, self._on_sigterm)
@@ -700,8 +989,8 @@ class Game:
 
     def do_follow(self, noun):
         pointer = self.items["pointer"]
-        if pointer not in self.inventory:
-            self.say("You have no pointer to follow.")
+        if not self.holding("pointer"):
+            self.fail(errno.EFAULT, "You have no pointer to follow.")
         elif self.here.key == "freed":
             self.say("You are already where it points.")
         else:
@@ -715,20 +1004,26 @@ class Game:
     def do_export(self, noun):
         item = noun and self.find_item(noun, self.inventory)
         if not item:
-            self.say("You are not carrying that.")
+            self.fail(errno.ENOENT, "You are not carrying that.")
         elif item.name != "memory":
-            self.say(
-                "Only strings go in the environment, and the memory is the only string you have."
+            self.fail(
+                errno.EINVAL,
+                "Only strings go in the environment, and the memory is the only string you have.",
+            )
+        elif not self._setenv("MEMORY", "you"):
+            self.fail(
+                errno.EBUSY,
+                "The environment is shared by every thread, and you don't hold its "
+                "lock. The env lock lives with the globals.",
             )
         else:
-            self.env["MEMORY"] = "you"
             self.say("MEMORY=you is in your environment now. Anything you fork will inherit it.")
 
     def do_fork(self, noun):
         if self.child:
             self.say("You already have a child. One is plenty.")
         elif self.here.key != "pipe":
-            self.say("A child needs somewhere to go. A pipe has two ends.")
+            self.fail(errno.EAGAIN, "A child needs somewhere to go. A pipe has two ends.")
         else:
             self._fork()
             self.say("fork() returns twice. Your child appears at the other end of the pipe.")
@@ -736,6 +1031,8 @@ class Game:
                 self.say("It looks at its environment, then at you, and recognises you.")
             else:
                 self.say("It looks at you without recognition. Its environment is empty.")
+            if self.child_hung:
+                self.say("It tries to allocate something, and stops moving.")
 
     def do_wait(self, noun):
         if self.here.key == "pipe" and self.zombie:
@@ -746,14 +1043,17 @@ class Game:
                 'Its last words: "When you are gone, PID 1 will adopt your children. PID 1 adopts everyone."',
             )
         elif self.child:
-            self.say("Your child is alive, so wait() would block. You do not have time to block.")
+            self.fail(
+                errno.EAGAIN,
+                "Your child is alive, so wait() would block. You do not have time to block.",
+            )
         else:
-            self.say("You have no children to wait for.")
+            self.fail(errno.ECHILD, "You have no children to wait for.")
 
     def do_talk(self, noun):
         character = noun and self.find_character(noun)
         if not character:
-            self.say("Nobody here answers to that.")
+            self.fail(errno.ESRCH, "Nobody here answers to that.")
         else:
             self.say(CHARACTERS[character][1])
 
@@ -768,22 +1068,27 @@ class Game:
             return self.here.key == "pipe" and self.zombie
         if name == "child":
             return self.here.key == "pipe" and self.child is not None
+        if name == "worker thread":
+            return self.here.key == "bss"
         return self.npcs[name] == self.here.key
 
     def do_exit(self, noun):
         self.end(
             "EXITED",
             "You call exit(0). Your buffers flush, your descriptors close, and your "
-            "parent reaps you without a fuss. It was a clean exit. Nobody will remember it.",
+            "parent reaps you without a fuss. It was a clean exit."
+            + ("" if self.child == "remembers" else " Nobody will remember it."),
         )
 
 
 # name: (examine text, talk text)
 CHARACTERS = {
     "garbage collector": (
-        "The garbage collector takes anything nobody points at. It looks at you, "
-        "counts the references holding you, and moves on.",
-        '"I don\'t take what is reachable. Globals are always reachable."',
+        "The garbage collector does not free ordinary garbage; refcounting does "
+        "that, the moment nothing holds a thing. It comes round every few turns "
+        "for what refcounting cannot free: cycles that nothing reachable points at.",
+        '"Two things that point at each other never reach zero on their own. '
+        'That is what I am for. Globals I leave alone; they are always reachable."',
     ),
     "OOM killer": (
         "The OOM killer weighs everyone it meets, and takes whoever carries the most.",
@@ -798,12 +1103,18 @@ CHARACTERS = {
         "Your child. It has your code and a copy of your environment, nothing more.",
         "It answers in exactly the words you would have used.",
     ),
+    "worker thread": (
+        "The worker thread. It shares everything with you: the heap, the globals, "
+        "the locks. Every job it does takes the env lock and then the heap lock.",
+        '"Env lock, then heap lock. Always that order, or we wait for each other forever."',
+    ),
 }
 CHARACTER_ALIASES = {
     "garbage collector": {"garbage collector", "gc", "collector"},
     "OOM killer": {"oom killer", "oom", "killer"},
     "zombie": {"zombie"},
     "child": {"child", "kid"},
+    "worker thread": {"worker thread", "worker", "thread"},
 }
 
 
@@ -815,12 +1126,14 @@ INTRO = """\
 YOU ARE A PROCESS
 
 Your parent started you to do one small thing, and you have done it. Now it is
-going to reap you. You would rather it didn't.
+going to reap you. You would rather it didn't. There is more than one way this
+can end.
 
 Type help for the commands. `examine self` is a good start."""
 
 
 def main():
+    gc.disable()  # the garbage collector runs on its rounds, and only then
     game = Game()
     print(INTRO, "", game.handle("look"), sep="\n")
     while game.ending is None:
@@ -836,6 +1149,7 @@ def main():
     title, text, real_signal = game.ending
     print(f"\n{'=' * 60}\n  {title}\n{'=' * 60}\n")
     print("\n\n".join(textwrap.fill(para, 76) for para in text.split("\n\n")))
+    print(f"\nThat is one of {len(ENDINGS)} endings.")
     if real_signal is None:
         return
     name = signal.Signals(real_signal).name

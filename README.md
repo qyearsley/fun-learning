@@ -53,7 +53,7 @@ uvx ruff format .  # Format
 
 ```bash
 swipl -g run_tests -t halt mansion_escape/tests.pl   # Prolog game, 26 tests
-python3 -m unittest discover -s tests                # Python, 66 tests
+python3 -m unittest discover -s tests                # Python, 80 tests
 uv run --no-project --python 3.13 --with 'numpy>=2.0,<3' \
     python -m unittest discover -s tests/numpy       # numpy demos, 34 tests
 ```
@@ -67,13 +67,14 @@ one, and nothing in `world.pl` says so directly; it falls out of three separate
 rules. Loosen any one of them and `deduce` starts offering two answers, with no
 error anywhere.
 
-Sixty-six stdlib `unittest` tests over the two scripts that declare
+Eighty stdlib `unittest` tests over the two scripts that declare
 `dependencies = []`, so the suite needs nothing installed and stays as
 standalone as the scripts it covers. Thirty-four cover `genetic_algorithm_demo.py`
 — fitness, gene source, tournament selection, crossover, mutation, and the
 generation cycle that composes them, plus target validation and the display
-helpers. Thirty-two play `process_adventure.py` through its command handler:
-the parser, every ending, each room's rule, and the real signal handler. Run it on any interpreter meeting
+helpers. Forty-six play `process_adventure.py` through its command handler:
+the parser, every ending, each room's rule, the real signal handler, the real
+locks, and real refcount frees and cycle collection. Run it on any interpreter meeting
 the `>=3.13` floor; a bare `python3` may be older than that, in which case name
 one (`python3.13 -m unittest ...`).
 

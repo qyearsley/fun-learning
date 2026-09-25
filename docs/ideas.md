@@ -256,12 +256,18 @@ Stdlib only — the first demo here with no dependencies at all. It also absorbs
 
 ### Text adventure: you are a process
 
-*(First cut done 2026-09-24: [`process_adventure.py`](../process_adventure.py).
-It has the eight rooms plus the freed block, ten items, three puzzles and four
-endings. The puzzles are the SIGTERM handler, the dangling pointer and the
-environment. Not built yet: the reference cycle, the deadlock, and a use for
-the mutex and BSS beyond their rules. It came out at about 850 lines, over the
-600–800 target, mostly because the formatter expands the item and room tables.)*
+*(Finished 2026-09-25: [`process_adventure.py`](../process_adventure.py).
+The first cut on 2026-09-24 had three puzzles and four endings. A gameplay
+review found the SIGTERM clock had no teeth, most items did nothing, and
+dropping an item waited for the GC instead of freeing it. The finished game
+adds two real locks and a worker thread, so taking them in the wrong order
+deadlocks and forking without the heap lock hangs the child. Drops are now
+real refcount frees, and `link` makes a real cycle that waits for
+`gc.collect()`. The canary aborts the game if you carry it out of its frame,
+and errno holds the real code of your last failure. The game has seven
+endings, SIGTERM comes at turn 30 instead of 40, and a revisited room gets a
+brief description. It came out at about 1,170 lines, well over the target.
+PID 1 is still only mentioned, not met.)*
 
 `adventure`, except you are a process inside a computer and the rooms are
 regions of a running program. Python rather than Prolog, for one reason: the
