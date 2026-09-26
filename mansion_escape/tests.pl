@@ -14,8 +14,9 @@
 % constraint rules. Loosen any one of them and `deduce` starts offering the
 % player two answers, with no error anywhere.
 %
-% `world.pl` and `commands.pl` are loaded directly rather than through
-% `mansion_escape.pl`, because that file carries `:- initialization(play, main)`
+% `world.pl`, `commands.pl` and `parser.pl` are loaded directly rather than
+% through `mansion_escape.pl`, because that file carries
+% `:- initialization(play, main)`
 % and loading it starts the game. What it also carries is the five `:- dynamic`
 % declarations, and `route/4` reads one of them (`inventory/1`, for the locked
 % bedroom door), so this file re-declares the ones it needs. That is the one
@@ -28,6 +29,7 @@
 
 :- ensure_loaded('world.pl').
 :- ensure_loaded('commands.pl').
+:- ensure_loaded('parser.pl').
 
 :- begin_tests(levers).
 
@@ -190,3 +192,60 @@ test(room_ids_are_unique) :-
     length(Sorted, Count).
 
 :- end_tests(world).
+
+:- begin_tests(parser).
+
+% `phrase(command(C), Words)` is the grammar's own entry point (see
+% parser.pl), so these drive it the same way mansion_escape.pl does, on
+% cases pulled from the grammar's own rules: an adjective that disambiguates
+% a noun phrase, the empty `go_verb` that lets a bare direction stand alone,
+% `goto`'s literal "to", a lever named and left unnamed, a synonym on each of
+% `start` and `quit`, and a line the grammar has no rule for at all.
+%
+% Each is wrapped in once/1: a phrase/2 goal leaves a choicepoint (there is
+% usually a second, failing way to split the words), and plunit warns about
+% that unless the test resolves it itself.
+
+test(take_with_adjective) :-
+    once(phrase(command(C), [take, the, rusty, key])),
+    C == take(key).
+
+test(bare_direction_shorthand) :-
+    % go_verb --> [] lets "n" alone mean "go north".
+    once(phrase(command(C), [n])),
+    C == go(north).
+
+test(go_to_room) :-
+    once(phrase(command(C), [go, to, the, cellar])),
+    C == goto(cellar).
+
+test(pull_named_lever) :-
+    once(phrase(command(C), [pull, the, brass, lever])),
+    C == pull(brass).
+
+test(pull_named_lever_without_the_word_lever) :-
+    once(phrase(command(C), [pull, brass])),
+    C == pull(brass).
+
+test(pull_with_no_name_asks_which) :-
+    % "lever" is not itself a lever/1 fact, so lever_name/1 fails and this
+    % falls through to the pull_which rule instead.
+    once(phrase(command(C), [pull, the, lever])),
+    C == pull_which.
+
+test(restart_synonym) :-
+    once(phrase(command(C), [restart])),
+    C == start.
+
+test(quit_synonym) :-
+    once(phrase(command(C), [exit])),
+    C == quit.
+
+test(examine_synonym_look_at) :-
+    once(phrase(command(C), [look, at, the, old, book])),
+    C == examine(book).
+
+test(unknown_input_fails) :-
+    \+ phrase(command(_), [flibbertigibbet]).
+
+:- end_tests(parser).

@@ -19,7 +19,7 @@ Nothing open. See `## Not looked at` for what has not been checked.
   -s tests` from the repo root. Stdlib only, nothing to install.
 - numpy demo tests: `uv run --no-project --python 3.13 --with 'numpy>=2.0,<3'
   python -m unittest discover -s tests/numpy`.
-- Prolog: `swipl -g run_tests -t halt mansion_escape/tests.pl` (26 tests).
+- Prolog: `swipl -g run_tests -t halt mansion_escape/tests.pl` (36 tests).
 - Lint and CI: `.github/workflows/ci.yml`; ruff config in `ruff.toml`.
 - Public repo. Never commit a work hostname, address, tool name or ticket ID.
 

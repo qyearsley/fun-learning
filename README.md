@@ -54,21 +54,24 @@ uvx ruff format .  # Format
 ## Tests
 
 ```bash
-swipl -g run_tests -t halt mansion_escape/tests.pl   # Prolog game, 26 tests
+swipl -g run_tests -t halt mansion_escape/tests.pl   # Prolog game, 36 tests
 uv run --no-project --python 3.13 \
     python -m unittest discover -s tests             # Python, 150 tests
 uv run --no-project --python 3.13 --with 'numpy>=2.0,<3' \
     python -m unittest discover -s tests/numpy       # numpy demos, 34 tests
 ```
 
-Twenty-six [plunit](https://www.swi-prolog.org/pldoc/package/plunit.html) tests
+Thirty-six [plunit](https://www.swi-prolog.org/pldoc/package/plunit.html) tests
 over the Prolog game's pure predicates: each note's constraint on its own, the
-three of them together, `route/4` across the map, and the world's own
-consistency. The one that earns the file is `exactly_one_solution` — the game's
-whole premise is that reading all three notes narrows eight lever settings to
-one, and nothing in `world.pl` says so directly; it falls out of three separate
-rules. Loosen any one of them and `deduce` starts offering two answers, with no
-error anywhere.
+three of them together, `route/4` across the map, the world's own
+consistency, and ten cases of `phrase(command(C), Words)` against the DCG
+parser — a disambiguating adjective, a bare direction, `go to`, a lever named
+and left unnamed, two synonyms, and a line the grammar has no rule for. The
+one that earns the file is `exactly_one_solution` — the game's whole premise
+is that reading all three notes narrows eight lever settings to one, and
+nothing in `world.pl` says so directly; it falls out of three separate rules.
+Loosen any one of them and `deduce` starts offering two answers, with no error
+anywhere.
 
 150 stdlib `unittest` tests over the four scripts that declare
 `dependencies = []`, so the suite needs nothing installed and stays as
