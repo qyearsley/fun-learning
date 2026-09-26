@@ -55,7 +55,8 @@ uvx ruff format .  # Format
 
 ```bash
 swipl -g run_tests -t halt mansion_escape/tests.pl   # Prolog game, 26 tests
-python3 -m unittest discover -s tests                # Python, 150 tests
+uv run --no-project --python 3.13 \
+    python -m unittest discover -s tests             # Python, 150 tests
 uv run --no-project --python 3.13 --with 'numpy>=2.0,<3' \
     python -m unittest discover -s tests/numpy       # numpy demos, 34 tests
 ```
@@ -80,9 +81,9 @@ locks, and real refcount frees and cycle collection. Twenty-seven check that eve
 maze generator builds a spanning tree, that the growing tree reproduces the DFS and
 Prim generators edge for edge, and the solver and SVG export. Forty-three cover the
 Wireworld rules, signal travel, the clock's period, each gate's truth table, and
-the diode by simulation. Run it on any interpreter meeting
-the `>=3.13` floor; a bare `python3` may be older than that, in which case name
-one (`python3.13 -m unittest ...`).
+the diode by simulation. The command runs it through uv on 3.13, because a bare
+`python3` may be older than the `>=3.13` floor and fail to import three of the
+test modules.
 
 The other two demos need numpy, so their 34 tests are a separate suite in
 `tests/numpy/`. That directory has no `__init__.py`, so the stdlib run above

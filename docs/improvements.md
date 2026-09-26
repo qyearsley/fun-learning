@@ -15,8 +15,8 @@ Nothing open. See `## Not looked at` for what has not been checked.
 ## Working on these
 
 - Run a demo: `uv run perceptron_demo.py` (PEP 723 inline dependencies).
-- Python tests: `python3 -m unittest discover -s tests` from the repo root, on
-  any interpreter meeting the `>=3.13` floor. Stdlib only, nothing to install.
+- Python tests: `uv run --no-project --python 3.13 python -m unittest discover
+  -s tests` from the repo root. Stdlib only, nothing to install.
 - numpy demo tests: `uv run --no-project --python 3.13 --with 'numpy>=2.0,<3'
   python -m unittest discover -s tests/numpy`.
 - Prolog: `swipl -g run_tests -t halt mansion_escape/tests.pl` (26 tests).
