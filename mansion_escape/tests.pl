@@ -16,8 +16,7 @@
 %
 % `world.pl`, `commands.pl` and `parser.pl` are loaded directly rather than
 % through `mansion_escape.pl`, because that file carries
-% `:- initialization(play, main)`
-% and loading it starts the game. What it also carries is the five `:- dynamic`
+% `:- initialization(play, main)` and loading it starts the game. What it also carries is the five `:- dynamic`
 % declarations, and `route/4` reads one of them (`inventory/1`, for the locked
 % bedroom door), so this file re-declares the ones it needs. That is the one
 % place the game's "every mutable predicate is declared in mansion_escape.pl"
