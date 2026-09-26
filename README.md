@@ -44,11 +44,12 @@ file can call any other without an export list. Read them in this order:
 
 Lint settings live in [`ruff.toml`](ruff.toml) rather than a `pyproject.toml`,
 since these are standalone [PEP 723](https://peps.python.org/pep-0723/) scripts
-rather than a package.
+rather than a package. The version is pinned, so a new ruff release can't
+change lint results out from under CI.
 
 ```bash
-uvx ruff check .   # Lint
-uvx ruff format .  # Format
+uvx ruff@0.16.9 check .   # Lint
+uvx ruff@0.16.9 format .  # Format
 ```
 
 ## Tests

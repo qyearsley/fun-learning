@@ -18,8 +18,10 @@ jobs:
           enable-cache: true
       # These are standalone PEP 723 scripts, not a package, so there is nothing
       # to install: `uvx` fetches ruff on its own and `ruff.toml` configures it.
-      - run: uvx ruff check .
-      - run: uvx ruff format --check .
+      # Pinned so a new ruff release can't fail CI on its own; bump the version
+      # here, in ruff.toml's header comment, and in README.md together.
+      - run: uvx ruff@0.16.9 check .
+      - run: uvx ruff@0.16.9 format --check .
 
   tests:
     name: Test the dependency-free scripts

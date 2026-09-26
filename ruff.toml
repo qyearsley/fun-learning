@@ -1,8 +1,11 @@
 # These are standalone PEP 723 scripts run with `uv run`, not a package, so the
 # ruff config lives here rather than in a pyproject.toml.
 #
-# Lint:   uvx ruff check .
-# Format: uvx ruff format .
+# Lint:   uvx ruff@0.16.9 check .
+# Format: uvx ruff@0.16.9 format .
+#
+# The version is pinned (also in ci.yml and README.md) so a new ruff release
+# can't fail CI or a local run on its own. Bump all three together.
 
 line-length = 100
 # Matches the `requires-python` in each script's inline metadata block.
