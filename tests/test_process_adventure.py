@@ -15,6 +15,7 @@ Automatic garbage collection is off during each test, as it is in `main`, so a
 reference cycle lives exactly until the game's own collector runs.
 """
 
+import errno
 import gc
 import signal
 import sys
@@ -199,7 +200,8 @@ class TestEndings(GameTest):
         title, text, real_signal = self.game.ending
         self.assertEqual(title, "DEADLOCKED")
         self.assertIn("returned False", text)  # the real acquire() timed out
-        self.assertIn("EDEADLK", text)
+        # Linux names errno 35 EDEADLOCK, an alias of EDEADLK; macOS has no alias.
+        self.assertIn(errno.errorcode[errno.EDEADLK], text)
         self.assertEqual(real_signal, signal.SIGKILL)
 
     def test_carrying_the_canary_out_of_the_frame_aborts(self):
