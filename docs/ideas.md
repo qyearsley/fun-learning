@@ -10,8 +10,9 @@ ceremony.
 ## What fits this repo
 
 Existing demos are single-file, interactive, terminal-based, and teach one
-concept each. Three of the four are ML/optimization (perceptron, neural net,
-genetic algorithm) and the fourth is a Prolog text adventure.
+concept each. Three of the seven are ML/optimization (perceptron, neural net,
+genetic algorithm), two are text adventures (one Prolog, one Python), and two
+are grid simulations (maze generation, Wireworld).
 
 A good candidate here:
 
