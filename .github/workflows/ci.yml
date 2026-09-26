@@ -32,10 +32,10 @@ jobs:
           # oldest supported interpreter is the point; a newer one would hide a
           # syntax or stdlib feature the scripts are not allowed to use yet.
           python-version: "3.13"
-      # Stdlib unittest, so there is nothing to install. It covers the two
-      # scripts with `dependencies = []`: the genetic algorithm demo and the
-      # process adventure. The numpy demos are the next job, so this one stays
-      # dependency-free.
+      # Stdlib unittest, so there is nothing to install. It covers the four
+      # scripts with `dependencies = []`: the genetic algorithm demo, the
+      # process adventure, the maze demo and Wireworld. The numpy demos are the
+      # next job, so this one stays dependency-free.
       - run: python -m unittest discover -s tests
 
   tests-numpy:

@@ -154,6 +154,16 @@ A key that shows the data stack after every token turns it into a stepper.
 
 ### Wireworld
 
+*(Proof of concept 2026-09-25: [`wireworld_demo.py`](../wireworld_demo.py),
+about 740 lines. It has a curses editor, a headless `--demo` mode, and a
+`--truth-table` mode. The library has a wire, a clock, OR, a diode, AND-NOT
+and XOR, and every one is checked by simulation. The diode is the passive
+blob-and-gap shape, found by a brute-force search over small shapes. The first
+draft claimed no passive diode could exist and used a one-shot primer
+instead, which was wrong. The AND-NOT and XOR are timed: their inputs must
+arrive on the same tick. Not built: the flip-flop and the 2-bit adder, and
+tidier gate shapes. The editor was smoke-tested through a pty only.)*
+
 A four-state cellular automaton that is also a machine you build circuits in.
 
 - empty → empty
@@ -209,6 +219,14 @@ then spiral waves that fill the screen indefinitely. Around 40 lines for one of
 the best payoff-per-line ratios available.
 
 ### Maze generation
+
+*(Proof of concept 2026-09-25: [`maze_demo.py`](../maze_demo.py), about 750
+lines. It has DFS, Prim, the growing-tree collapse, Kruskal, Wilson's and
+binary tree, plus the BFS gradient, the longest path, the `c` source view and
+SVG export. Not built: recursive division, Aldous-Broder, and dead-end
+filling. The biggest gap is that Wilson's walk is not animated. Generators
+yield only finished carves, so the wandering and the loop erasure, which this
+section calls the best animation here, are never drawn.)*
 
 Seven algorithms, one data structure, and the finished maze tells you which
 algorithm made it.

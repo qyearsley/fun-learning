@@ -12,8 +12,10 @@ These are toy projects, not production code.
 | `genetic_algorithm_demo.py` | Genetic algorithm evolving toward a target string | `./genetic_algorithm_demo.py` |
 | `mansion_escape/` | Text adventure game in Prolog | `./mansion_escape/mansion_escape.pl` |
 | `process_adventure.py` | Text adventure where you are a process, and much of it is real | `./process_adventure.py` |
+| `maze_demo.py` | Six maze generators animated, solved, and shown as source (proof of concept) | `./maze_demo.py` |
+| `wireworld_demo.py` | Wireworld circuit editor, with a diode and gates checked by simulation (proof of concept) | `./wireworld_demo.py` |
 
-All five are interactive and run in the terminal. The Prolog game takes plain
+All seven are interactive and run in the terminal. The Prolog game takes plain
 English — `go north`, `take the rusty key`, `go to the cellar` — parsed by a
 definite clause grammar. Its central puzzle is a lever mechanism constrained by
 notes you find; `deduce` makes the game solve it in front of you, reasoning only
@@ -53,7 +55,7 @@ uvx ruff format .  # Format
 
 ```bash
 swipl -g run_tests -t halt mansion_escape/tests.pl   # Prolog game, 26 tests
-python3 -m unittest discover -s tests                # Python, 80 tests
+python3 -m unittest discover -s tests                # Python, 150 tests
 uv run --no-project --python 3.13 --with 'numpy>=2.0,<3' \
     python -m unittest discover -s tests/numpy       # numpy demos, 34 tests
 ```
@@ -67,14 +69,18 @@ one, and nothing in `world.pl` says so directly; it falls out of three separate
 rules. Loosen any one of them and `deduce` starts offering two answers, with no
 error anywhere.
 
-Eighty stdlib `unittest` tests over the two scripts that declare
+150 stdlib `unittest` tests over the four scripts that declare
 `dependencies = []`, so the suite needs nothing installed and stays as
 standalone as the scripts it covers. Thirty-four cover `genetic_algorithm_demo.py`
 — fitness, gene source, tournament selection, crossover, mutation, and the
 generation cycle that composes them, plus target validation and the display
 helpers. Forty-six play `process_adventure.py` through its command handler:
 the parser, every ending, each room's rule, the real signal handler, the real
-locks, and real refcount frees and cycle collection. Run it on any interpreter meeting
+locks, and real refcount frees and cycle collection. Twenty-seven check that every
+maze generator builds a spanning tree, that the growing tree reproduces the DFS and
+Prim generators edge for edge, and the solver and SVG export. Forty-three cover the
+Wireworld rules, signal travel, the clock's period, each gate's truth table, and
+the diode by simulation. Run it on any interpreter meeting
 the `>=3.13` floor; a bare `python3` may be older than that, in which case name
 one (`python3.13 -m unittest ...`).
 
