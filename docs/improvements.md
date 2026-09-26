@@ -3,6 +3,12 @@
 > **Status: audited 2026-09-18 against `main` @ `dc95c72`.** Migrated from the
 > unversioned `~/hobby/IMPROVEMENTS.md`, which covered seven repos at once and
 > had drifted; every claim below was re-checked on this date.
+>
+> **2026-09-26:** landed the five fixes below (see Settled). These were
+> targeted fixes, each checked on its own — this was not a re-audit of the
+> rest of the file, and the three demos added since the audit (`maze_demo.py`,
+> `process_adventure.py`, `wireworld_demo.py`) still have not been looked at
+> beyond their tests passing; see `## Not looked at`.
 
 This file is the maintenance backlog: defects, debt, test gaps and doc drift.
 Candidate new demos live in [`ideas.md`](ideas.md). Design sketches and closed
@@ -84,11 +90,49 @@ Nothing open. See `## Not looked at` for what has not been checked.
   since `04004fc`, the scripts use `uv run` shebangs, and CI pins 3.13. A pin
   would also narrow the scripts' `>=3.13` to exactly 3.13. Revisit only if 3.13
   is installed through pyenv.
+- `mansion_escape/parser.pl` had no tests — landed 2026-09-26. Ten plunit cases
+  in a new `parser` unit, driving `phrase(command(C), Words)` directly: an
+  adjective that disambiguates a noun phrase, the empty `go_verb` that lets a
+  bare direction stand alone, `go to`, a lever named and one left unnamed, a
+  synonym on `start` and on `quit`, and a line the grammar has no rule for.
+  36 Prolog tests total, up from 26.
+
+  _Checked: all 36 pass. Verified they bite — removing the `{ lever(Name) }`
+  guard from `lever_name/1` turns `pull_with_no_name_asks_which` into a
+  failure, and the source was restored afterwards._
+- CI ran `uvx ruff check .` unpinned, so a new ruff release could change lint
+  results with no code change — landed 2026-09-26. CI, `ruff.toml` and the
+  README's lint commands all pin `ruff@0.16.9` now; bump the three together.
+
+  _Checked: `uvx ruff@0.16.9 check .` and `uvx ruff@0.16.9 format --check .`
+  both pass._
+- `ideas.md` said "three of the four" demos were ML/optimization, stale since
+  three more demos landed — fixed to seven, landed 2026-09-26.
+- `no-shared-utilities.md` and the README described "the three Python demos"
+  as if that were the whole repo; there are six now — landed 2026-09-26. Scoped
+  the doc to the three it actually covers (`perceptron_demo.py`,
+  `neural_net_demo.py`, `genetic_algorithm_demo.py`) and added a note that the
+  other three each have their own, unshared input/EOF handling, so the
+  duplication it describes does not apply to them.
+- `commands.pl`'s start banner listed six commands and omitted `pull` (needed
+  for the main puzzle), `go to`, `inventory` and `restart` — landed 2026-09-26.
+  Now matches `help_line/1`.
+
+  _Checked: 36 Prolog tests still pass; piped input into `mansion_escape.pl`
+  shows the corrected banner._
 
 ## Not looked at
 
-`mansion_escape` beyond the fact that its test suite runs. The demos have not
-been run by hand since `dc95c72`, only with piped input (2026-09-24).
+- `mansion_escape` beyond the fact that its test suite runs (the parser is now
+  in that suite too, but the game has not been played by hand since `dc95c72`,
+  only with piped input, 2026-09-24).
+- `maze_demo.py`, `process_adventure.py` and `wireworld_demo.py`: each has a
+  passing test suite (27, 46 and 43 tests respectively, per the README), but
+  none of the three has been read for correctness or exercised by hand beyond
+  piped input (2026-09-24).
+- Known gaps in those three are feature ideas, not maintenance debt, and stay
+  in [`ideas.md`](ideas.md): the maze demo's Wilson's walk is not animated, and
+  recursive division, Aldous-Broder and dead-end filling are not built.
 
 ---
 
