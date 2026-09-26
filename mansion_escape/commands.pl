@@ -30,7 +30,8 @@ start :-
     write('You wake up in a mysterious mansion.'), nl,
     write('Find a way to escape!'), nl,
     nl,
-    write('Commands: look, examine, go <direction>, take <item>, deduce, help, quit'), nl,
+    write('Commands: look, examine, go <direction>, go to <room>, take <item>,'), nl,
+    write('          pull <lever>, deduce, inventory, restart, help, quit'), nl,
     nl,
 
     % Show the starting room description
