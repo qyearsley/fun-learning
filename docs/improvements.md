@@ -78,20 +78,17 @@ Nothing open. See `## Not looked at` for what has not been checked.
 - Python floor raised from `>=3.9` to `>=3.13` — landed 2026-09-05. The
   dependency-free demo was run end to end on 3.14 to check. All three files
   still declare `>=3.13`.
+- No `.python-version` — declined 2026-09-26. pyenv here has only 3.9.x, so
+  a `3.13` pin makes a bare `python3` fail with "not installed" instead of
+  running old Python. The docs run the tests through `uv run --python 3.13`
+  since `04004fc`, the scripts use `uv run` shebangs, and CI pins 3.13. A pin
+  would also narrow the scripts' `>=3.13` to exactly 3.13. Revisit only if 3.13
+  is installed through pyenv.
 
 ## Not looked at
 
 `mansion_escape` beyond the fact that its test suite runs. The demos have not
 been run by hand since `dc95c72`, only with piped input (2026-09-24).
-
-There is no `.python-version` here, so a bare `python3` in this directory gets
-whatever pyenv's global is — 3.9 on this machine, which cannot even import
-`genetic_algorithm_demo.py` (it uses `str | None`). That does not affect `uv
-run`, which reads the inline `requires-python`, and it does not affect CI, which
-pins 3.13. It only bites someone running `python3` by hand. Adding a
-`.python-version` would fix it and would also pin a version the repo otherwise
-leaves open; not done, because it is a one-line change with a taste question
-attached.
 
 ---
 
