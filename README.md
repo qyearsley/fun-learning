@@ -105,11 +105,11 @@ pull request; see [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 
 ## Docs
 
-- [`docs/no-shared-utilities.md`](docs/no-shared-utilities.md) — why the three
-  Python demos duplicate their UI plumbing on purpose, and what would reopen
-  the question. Replaces a proposal to extract a `demo_utils.py`, which argued
-  itself out of existence: a shared module ends the standalone-ness that the
-  PEP 723 block at the top of each script exists to provide.
+- [`docs/no-shared-utilities.md`](docs/no-shared-utilities.md) — why three of
+  the six Python demos duplicate their UI plumbing on purpose, and what would
+  reopen the question. Replaces a proposal to extract a `demo_utils.py`, which
+  argued itself out of existence: a shared module ends the standalone-ness that
+  the PEP 723 block at the top of each script exists to provide.
 - [`docs/ideas.md`](docs/ideas.md) — a backlog of candidate
   demos, with notes on what suits a terminal.
 - [`docs/improvements.md`](docs/improvements.md) — the maintenance backlog:

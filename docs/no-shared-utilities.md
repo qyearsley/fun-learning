@@ -1,7 +1,16 @@
-# The three Python demos duplicate their UI plumbing, on purpose
+# Three Python demos duplicate their UI plumbing, on purpose
 
 **Decided 2026-09-05. Closed.** This replaces a proposal to extract a
 `demo_utils.py`; that document is deleted, and this records why.
+
+**Scope.** This covers `perceptron_demo.py`, `neural_net_demo.py` and
+`genetic_algorithm_demo.py` — the repo's original three, and the only ones
+that share the helpers below. The repo has six Python demos now.
+`maze_demo.py`, `process_adventure.py` and `wireworld_demo.py` each handle
+their own input and EOF in their own, unshared way (see each script's
+`prompt_choice`, its `input()` call, or its curses loop), so none of the
+duplication this page describes applies to them. The reasoning under "Why it
+stays" would apply just the same if that ever changed.
 
 ## What is duplicated
 
@@ -54,7 +63,9 @@ by every reader to save a cost paid once by the author.
 
 ## What would reopen this
 
-A fourth demo, or a helper that grows past a few lines. At that point the trade
+Another demo duplicating these same helpers, or one of them growing past a few
+lines. Three more demos have been added since this was decided, and none of
+them reopened it — see "Scope" above. At the point one does, the trade
 changes: the duplication stops being three short functions and starts being a
 maintenance surface, and a `demo_utils.py` beside the scripts — with the
 standalone property consciously given up — becomes the better answer.
