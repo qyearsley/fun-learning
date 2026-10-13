@@ -64,3 +64,19 @@ jobs:
       # `-t halt` makes a failing test a failing exit status; without it the
       # run reports the failure and then exits 0.
       - run: swipl -g run_tests -t halt mansion_escape/tests.pl
+
+  assembly:
+    name: Test the assembly tour
+    # asm_tour.s makes raw arm64 macOS syscalls, so its test skips on the
+    # Ubuntu jobs above. macos-latest runs on arm64, and has clang installed.
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      # ASM_TOUR_REQUIRED makes the test fail instead of skip if this runner
+      # cannot build it, so the job cannot pass with nothing run.
+      - run: python -m unittest -v tests.test_asm_tour
+        env:
+          ASM_TOUR_REQUIRED: "1"

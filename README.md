@@ -14,9 +14,11 @@ These are toy projects, not production code.
 | `process_adventure.py` | Text adventure where you are a process, and much of it is real | `./process_adventure.py` |
 | `maze_demo.py` | Six maze generators animated, solved, and shown as source (proof of concept) | `./maze_demo.py` |
 | `wireworld_demo.py` | Wireworld circuit editor, with a diode and gates checked by simulation (proof of concept) | `./wireworld_demo.py` |
+| `asm_tour.s` | A literate tour of ARM64 assembly: syscalls, functions, ifs, loops, printing numbers | `clang -o asm_tour asm_tour.s && ./asm_tour` |
 
-All seven are interactive and run in the terminal. The Prolog game takes plain
-English — `go north`, `take the rusty key`, `go to the cellar` — parsed by a
+All run in the terminal, and all but the assembly tour are interactive. The
+tour is meant to be read, or stepped through in lldb. The Prolog game takes
+plain English — `go north`, `take the rusty key`, `go to the cellar` — parsed by a
 definite clause grammar. Its central puzzle is a lever mechanism constrained by
 notes you find; `deduce` makes the game solve it in front of you, reasoning only
 from the notes you have actually read.
@@ -39,6 +41,7 @@ file can call any other without an export list. Read them in this order:
   interpreter both install automatically from each script's inline metadata
   block; Python 3.13+)
 - Prolog demo: [SWI-Prolog](https://www.swi-prolog.org/) (`brew install swi-prolog`)
+- Assembly tour: an arm64 Mac with `clang` (`xcode-select --install`)
 
 ## Linting
 
@@ -57,10 +60,13 @@ uvx ruff@0.16.9 format .  # Format
 ```bash
 swipl -g run_tests -t halt mansion_escape/tests.pl   # Prolog game, 36 tests
 uv run --no-project --python 3.13 \
-    python -m unittest discover -s tests             # Python, 150 tests
+    python -m unittest discover -s tests             # Python, 153 tests*
 uv run --no-project --python 3.13 --with 'numpy>=2.0,<3' \
     python -m unittest discover -s tests/numpy       # numpy demos, 34 tests
 ```
+
+\* Three of those build and run `asm_tour.s`, and skip unless the host is an
+arm64 Mac with `clang`.
 
 Thirty-six [plunit](https://www.swi-prolog.org/pldoc/package/plunit.html) tests
 over the Prolog game's pure predicates: each note's constraint on its own, the

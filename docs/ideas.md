@@ -366,7 +366,13 @@ dependencies, 600–800 lines at the comment density the other demos use.
 
 ### A literate tour of ARM64 assembly
 
-*(Chosen 2026-10-13. Not built yet.)*
+*(Built 2026-10-13: [`asm_tour.s`](../asm_tour.s), 662 lines, about 200 of
+them instructions. That is double the estimate below; most of the extra is the
+three-line "load an address, call print" pattern, which is left unrolled on
+purpose rather than hidden in a macro. Section 3 describes the `x30` bug
+instead of running it, since running it hangs the program. Section 6 gained an
+array, so it prints five numbers including both 64-bit extremes. Tested by
+`tests/test_asm_tour.py`, which a `macos-latest` CI job runs.)*
 
 One `.s` file that you read from top to bottom. Each section shows what one
 familiar idea looks like when there is no compiler: an `if`, a loop, a function
