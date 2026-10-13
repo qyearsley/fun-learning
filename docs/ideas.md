@@ -366,13 +366,15 @@ dependencies, 600–800 lines at the comment density the other demos use.
 
 ### A literate tour of ARM64 assembly
 
-*(Built 2026-10-13: [`asm_tour.s`](../asm_tour.s), 662 lines, about 200 of
-them instructions. That is double the estimate below; most of the extra is the
-three-line "load an address, call print" pattern, which is left unrolled on
-purpose rather than hidden in a macro. Section 3 describes the `x30` bug
-instead of running it, since running it hangs the program. Section 6 gained an
-array, so it prints five numbers including both 64-bit extremes. Tested by
-`tests/test_asm_tour.py`, which a `macos-latest` CI job runs.)*
+*(Built 2026-10-13: [`asm_tour.s`](../asm_tour.s). The first version was
+662 lines, double the estimate below. The same day, section 7 (FizzBuzz) and
+an array in section 6 were cut to shorten it, which brought it to about 550.
+FizzBuzz added no new idea, since every line pointed back to an earlier
+section. Most of the remaining length is the three-line "load an address,
+call print" pattern, which is left unrolled on purpose rather than hidden in
+a macro. Section 3 describes the `x30` bug instead of running it, since
+running it hangs the program. Tested by `tests/test_asm_tour.py`, which a
+`macos-latest` CI job runs.)*
 
 One `.s` file that you read from top to bottom. Each section shows what one
 familiar idea looks like when there is no compiler: an `if`, a loop, a function
@@ -430,7 +432,7 @@ plan adds a `macos-latest` job (arm64) that runs this one test.
 **Size.** 250–350 lines, about three comment lines per instruction. The
 comments are the product.
 
-**Not in the first cut.** Reading a number from stdin and FizzBuzzing up to it.
+**Not in the first cut.** Reading a number from stdin and printing it back.
 Parsing decimal is section 6 in reverse, and it would make the program
 interactive, but it is one more loop for a reader who has already seen two.
 

@@ -8,8 +8,8 @@ being arm64 fails the job instead of passing it with nothing run.
 
 Each section of the tour prints one line, so checking the whole output checks
 every section: the string lengths the assembler computes, both paths through
-the conditionals, both loops, number printing including the most negative
-64-bit value, and FizzBuzz.
+the conditionals, both loops, and number printing including zero and the most
+negative 64-bit value.
 """
 
 import os
@@ -30,8 +30,7 @@ EXPECTED = """\
 4. Conditionals, with csel:     42 is not negative.
 5. Loops: strlen measured this line.
 5. Loops, counted: **********
-6. Numbers: 0 42 -7 9223372036854775807 -9223372036854775808
-7. FizzBuzz: 1 2 Fizz 4 Buzz Fizz 7 8 Fizz Buzz 11 Fizz 13 14 FizzBuzz
+6. Numbers: 0 -7 -9223372036854775808
 """
 
 

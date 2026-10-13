@@ -95,7 +95,6 @@ _main:
         bl      section_conditionals    // section 4
         bl      section_loops           // section 5
         bl      section_numbers         // section 6
-        bl      section_fizzbuzz        // section 7
 
 // -----------------------------------------------------------------------------
 // Section 1: exit
@@ -509,154 +508,46 @@ Lno_sign:
         ldp     x29, x30, [sp], #48
         ret
 
-// An array is consecutive values in memory. Each `.quad` is 8 bytes, so
-// element i is at the array's address plus i * 8:
-//
-//   ldr  x0, [x19, x20, lsl #3]      x0 = the 8 bytes at x19 + (x20 << 3)
-//
-// Shifting left by 3 multiplies by 8, and ldr does it as part of the load.
-// `.p2align 3` puts the array on an 8-byte boundary.
-//
-// numbers_size is the array's size in bytes, so the element count is
-// numbers_size / 8. The parentheses around that in the `cmp` matter: this
-// assembler rejects `cmp x20, #numbers_size` outright, but accepts the same
-// symbol inside a parenthesized expression.
+// Each number is one call. `mov` can put the most negative number in a
+// register in one instruction, because its bits are a single 1 followed by
+// 63 zeros, and mov can place a 16-bit chunk anywhere in the register.
 
         .data
 numbers_msg:
         .asciz  "6. Numbers:"
 space:
         .asciz  " "
-        .p2align 3
-numbers:
-        .quad   0, 42, -7, 9223372036854775807, -9223372036854775808
-        .equ    numbers_size, . - numbers
         .text
 
 section_numbers:
-        stp     x29, x30, [sp, #-32]!
+        stp     x29, x30, [sp, #-16]!
         mov     x29, sp
-        stp     x19, x20, [sp, #16]     // two callee-saved registers this time
 
         adrp    x0, numbers_msg@PAGE
         add     x0, x0, numbers_msg@PAGEOFF
         bl      print_cstr
 
-        adrp    x19, numbers@PAGE       // x19 = the array
-        add     x19, x19, numbers@PAGEOFF
-        mov     x20, #0                 // x20 = i
-Lnumbers_loop:
         adrp    x0, space@PAGE
         add     x0, x0, space@PAGEOFF
         bl      print_cstr
-        ldr     x0, [x19, x20, lsl #3]  // x0 = numbers[i]
+        mov     x0, #0
         bl      print_number
-        add     x20, x20, #1            // i++
-        cmp     x20, #(numbers_size / 8)
-        b.lt    Lnumbers_loop           // while i < count
+
+        adrp    x0, space@PAGE
+        add     x0, x0, space@PAGEOFF
+        bl      print_cstr
+        mov     x0, #-7
+        bl      print_number
+
+        adrp    x0, space@PAGE
+        add     x0, x0, space@PAGEOFF
+        bl      print_cstr
+        mov     x0, #0x8000000000000000         // -9223372036854775808
+        bl      print_number
 
         adrp    x0, newline@PAGE
         add     x0, x0, newline@PAGEOFF
         bl      print_cstr
 
-        ldp     x19, x20, [sp, #16]
-        ldp     x29, x30, [sp], #32
-        ret
-
-
-// -----------------------------------------------------------------------------
-// Section 7: FizzBuzz
-// -----------------------------------------------------------------------------
-//
-// Count from 1 to 15. Print Fizz for multiples of 3, Buzz for multiples of 5,
-// FizzBuzz for multiples of both, and the number otherwise. In C:
-//
-//   for (i = 1; i <= 15; i++)
-//       if      (i % 15 == 0) print("FizzBuzz");
-//       else if (i % 3 == 0)  print("Fizz");
-//       else if (i % 5 == 0)  print("Buzz");
-//       else                  print_number(i);
-//
-// Nothing here is new. A loop from section 5, a chain of ifs from section 4,
-// remainders from section 6, and calls from section 3. Each `else if`
-// becomes one cbz that jumps to its own case, and each case jumps to the
-// end of the loop body when it is done.
-
-// remainder(x0 = n, x1 = d) -> x0 = n % d
-remainder:
-        udiv    x2, x0, x1
-        msub    x0, x2, x1, x0
-        ret
-
-        .data
-fizzbuzz_msg:
-        .asciz  "7. FizzBuzz:"
-fizz:
-        .asciz  "Fizz"
-buzz:
-        .asciz  "Buzz"
-fizzbuzz:
-        .asciz  "FizzBuzz"
-        .text
-
-section_fizzbuzz:
-        stp     x29, x30, [sp, #-32]!
-        mov     x29, sp
-        str     x19, [sp, #16]
-
-        adrp    x0, fizzbuzz_msg@PAGE
-        add     x0, x0, fizzbuzz_msg@PAGEOFF
-        bl      print_cstr
-
-        mov     x19, #1                 // i = 1
-Lfizz_loop:
-        adrp    x0, space@PAGE
-        add     x0, x0, space@PAGEOFF
-        bl      print_cstr
-
-        mov     x0, x19                 // if (i % 15 == 0)
-        mov     x1, #15
-        bl      remainder
-        cbz     x0, Lsay_fizzbuzz
-
-        mov     x0, x19                 // else if (i % 3 == 0)
-        mov     x1, #3
-        bl      remainder
-        cbz     x0, Lsay_fizz
-
-        mov     x0, x19                 // else if (i % 5 == 0)
-        mov     x1, #5
-        bl      remainder
-        cbz     x0, Lsay_buzz
-
-        mov     x0, x19                 // else
-        bl      print_number
-        b       Lfizz_next
-
-Lsay_fizzbuzz:
-        adrp    x0, fizzbuzz@PAGE
-        add     x0, x0, fizzbuzz@PAGEOFF
-        bl      print_cstr
-        b       Lfizz_next
-Lsay_fizz:
-        adrp    x0, fizz@PAGE
-        add     x0, x0, fizz@PAGEOFF
-        bl      print_cstr
-        b       Lfizz_next
-Lsay_buzz:
-        adrp    x0, buzz@PAGE
-        add     x0, x0, buzz@PAGEOFF
-        bl      print_cstr
-
-Lfizz_next:
-        add     x19, x19, #1            // i++
-        cmp     x19, #15
-        b.le    Lfizz_loop              // while i <= 15
-
-        adrp    x0, newline@PAGE
-        add     x0, x0, newline@PAGEOFF
-        bl      print_cstr
-
-        ldr     x19, [sp, #16]
-        ldp     x29, x30, [sp], #32
+        ldp     x29, x30, [sp], #16
         ret
