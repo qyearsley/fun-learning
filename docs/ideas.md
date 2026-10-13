@@ -364,6 +364,70 @@ rule with a joke inside it, so the game gets funnier without getting longer.
 First cut: eight rooms, ten items, three puzzles, four endings. One file, no
 dependencies, 600–800 lines at the comment density the other demos use.
 
+### A literate tour of ARM64 assembly
+
+*(Chosen 2026-10-13. Not built yet.)*
+
+One `.s` file that you read from top to bottom. Each section shows what one
+familiar idea looks like when there is no compiler: an `if`, a loop, a function
+call, printing a number. Each section prints a line when it runs, so the
+program's output is its own table of contents.
+
+It breaks two of the rules above on purpose. It is not Python or Prolog, and it
+is not interactive while it runs. The interactive part is the debugger: the
+header ends with an lldb session that steps through the program one instruction
+at a time, with the registers on screen. That is "watch it think" at the lowest
+level there is.
+
+**Target: arm64 macOS, raw syscalls.** The program never calls libc. It talks to
+the kernel directly: the syscall number goes in `x16`, the arguments in
+`x0`–`x5`, then `svc #0x80`. macOS does not promise that those numbers stay the
+same, and real programs go through libSystem instead. The file says so near the
+top. For a program meant to be read, seeing the kernel boundary is the point. A
+short comment lists what changes on Linux (`x8` instead of `x16`, `svc #0`,
+different numbers, no leading underscore on symbols), but the file targets one
+platform.
+
+Sections, in order. Each one uses only what the earlier ones introduced:
+
+| Section | Concept | What it does |
+|---------|---------|--------------|
+| 1. Exit | Registers, one syscall | The smallest program that runs: 0 in `x0`, the `exit` number in `x16`, trap. Three instructions |
+| 2. Hello | Code vs data, addresses | `write` a string from the data section. `adrp` and `add` build its address, and the assembler computes its length with `. - msg` |
+| 3. Functions | `bl`, `ret`, the link register | Wrap section 2 in `print(ptr, len)`. Call it from inside another function and watch the program lose its way home, because `bl` overwrote `x30`. The fix is a stack frame. The calling convention is explained here, once |
+| 4. Conditionals | Flags, `cmp`, `b.cond` | `if (n < 0)` becomes a compare that sets flags and a branch that reads them. Then the same `if` with no branch at all, using `csel` |
+| 5. Loops | Counters, loading memory | `strlen`: load a byte, stop at zero, move the pointer on. A `while` loop is a conditional branch that jumps backwards. `print` now takes a C string |
+| 6. Numbers | Division, building backwards | Print an integer without `printf`. Divide by 10, turn the remainder into the last digit, and fill a stack buffer from the end. There is no remainder instruction: `udiv`, then `msub`. Negative numbers reuse section 4 |
+| 7. FizzBuzz | All of it | 1 to 100: a loop, two conditionals, function calls, number printing. Chosen because every line of it points back to an earlier section |
+
+The surprises are small but real. The stack exists because of section 3's
+bug. An `if` does not need a jump. Remainder is not an instruction. And
+`objdump -d` shows that some instructions you wrote are not the ones the CPU
+gets: `mov` is often an alias that the assembler rewrites.
+
+**Build and run.** The program is a normal `_main` linked by `clang`, so the
+loader starts it like any other program. libSystem is linked but never called.
+
+```
+clang -o asm_tour asm_tour.s
+./asm_tour
+lldb ./asm_tour      # b main, run, si, register read
+objdump -d asm_tour
+```
+
+**Tests.** `tests/test_asm_tour.py` builds the file with `clang` in a temp dir,
+runs it, and checks the output line by line. It skips unless the host is arm64
+macOS. CI runs only on `ubuntu-latest` today, so the test would always skip
+there, which is the gate-that-never-runs problem from the 2026-09-05 pass. The
+plan adds a `macos-latest` job (arm64) that runs this one test.
+
+**Size.** 250–350 lines, about three comment lines per instruction. The
+comments are the product.
+
+**Not in the first cut.** Reading a number from stdin and FizzBuzzing up to it.
+Parsing decimal is section 6 in reverse, and it would make the program
+interactive, but it is one more loop for a reader who has already seen two.
+
 ## Sketched: rule sets that grow something
 
 - **Abelian sandpile** — drop grains; any cell with 4+ topples into its
@@ -473,6 +537,9 @@ Chosen 2026-09-20: **maze generation** first, then **you are a process**. The
 maze is the smaller and more contained build. The adventure is the better one to
 write. On 2026-09-24 the order was swapped, and the adventure's first cut is
 done.
+
+Chosen 2026-10-13: the **ARM64 assembly tour**, as a literate program rather
+than a simulation.
 
 The rest, if picking one:
 
