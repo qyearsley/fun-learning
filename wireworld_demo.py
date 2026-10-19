@@ -507,8 +507,8 @@ def _next_state(cell: str) -> str:
 class Editor:
     """Holds all editor state. `run` is the only method that touches curses
     directly; everything else is plain data manipulation, testable without a
-    terminal (though it isn't exercised by the stdlib test suite, per the
-    house convention of leaving interactive orchestrators untested)."""
+    terminal. Only `load_from` is tested; the rest follows the house
+    convention of leaving interactive orchestrators untested."""
 
     def __init__(self, grid: Grid | None = None):
         self.grid: Grid = grid if grid is not None else make_grid(60, 24)
@@ -546,7 +546,11 @@ class Editor:
         self.message = f"saved {path}"
 
     def load_from(self, path: str) -> None:
-        self.grid = load(path)
+        # Unknown characters become empty cells, an empty file a 1x1 grid, and
+        # the cursor moves onto the new grid if it was left off it.
+        grid = [[c if c in STATES else EMPTY for c in row] for row in load(path)]
+        self.grid = grid if grid[0] else make_grid(1, 1)
+        self.move_cursor(0, 0)
         self.steps = 0
         self.message = f"loaded {path}"
 

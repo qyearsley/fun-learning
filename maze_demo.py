@@ -37,7 +37,7 @@ Six generators, one data structure:
                          spanning tree of the grid -- being correct costs
                          something, and this is the price.
   - Binary tree        -- four lines, deliberately biased: every cell carves
-                         a passage north or east, never south or west. The
+                         a passage south or east, never north or west. The
                          result is a maze with a visible diagonal grain and
                          two dead-straight open edges. Wrong by eye, and a
                          lesson in what "correct" was buying the others.
@@ -321,12 +321,11 @@ def wilsons(maze: Maze, rng: random.Random):
 def binary_tree(maze: Maze, rng: random.Random):
     """Four lines, and deliberately biased.
 
-    For every cell, carve north or east -- whichever are available -- and
-    nothing else. It's a spanning tree (every cell but the top row and
-    right column gains exactly one link, and those two gain their one link
-    from a neighbour), but the bias is visible on sight: a diagonal grain,
-    and the top row and right column are one dead-straight open corridor
-    each. A correct implementation of a biased algorithm is its own lesson
+    For every cell, carve south or east -- whichever are available -- and
+    nothing else. It's a spanning tree (every cell but the bottom-right
+    corner carves exactly one link), but the bias is visible on sight: a
+    diagonal grain, and the bottom row and right column are one
+    dead-straight open corridor each. A correct implementation of a biased algorithm is its own lesson
     in what the other five are paying for.
     """
     for y in range(maze.height):
@@ -720,14 +719,27 @@ class MazeDemo:
             self.post_menu()
 
 
+def positive_int(text: str) -> int:
+    value = int(text)
+    if value < 1:
+        raise argparse.ArgumentTypeError(f"must be at least 1, got {value}")
+    return value
+
+
 def main():
     parser = argparse.ArgumentParser(description="Maze generation and solving demo.")
     parser.add_argument("--seed", type=int, default=None, help="RNG seed, for a reproducible maze")
     parser.add_argument(
-        "--width", type=int, default=DEFAULT_WIDTH, help=f"cells wide (default {DEFAULT_WIDTH})"
+        "--width",
+        type=positive_int,
+        default=DEFAULT_WIDTH,
+        help=f"cells wide (default {DEFAULT_WIDTH})",
     )
     parser.add_argument(
-        "--height", type=int, default=DEFAULT_HEIGHT, help=f"cells tall (default {DEFAULT_HEIGHT})"
+        "--height",
+        type=positive_int,
+        default=DEFAULT_HEIGHT,
+        help=f"cells tall (default {DEFAULT_HEIGHT})",
     )
     args = parser.parse_args()
 

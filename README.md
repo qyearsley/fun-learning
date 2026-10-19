@@ -60,7 +60,7 @@ uvx ruff@0.16.9 format .  # Format
 ```bash
 swipl -g run_tests -t halt mansion_escape/tests.pl   # Prolog game, 36 tests
 uv run --no-project --python 3.13 \
-    python -m unittest discover -s tests             # Python, 153 tests*
+    python -m unittest discover -s tests             # Python, 157 tests*
 uv run --no-project --python 3.13 --with 'numpy>=2.0,<3' \
     python -m unittest discover -s tests/numpy       # numpy demos, 34 tests
 ```

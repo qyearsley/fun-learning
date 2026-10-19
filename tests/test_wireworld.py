@@ -30,6 +30,7 @@ from wireworld_demo import (  # noqa: E402
     HEAD,
     TAIL,
     Component,
+    Editor,
     _inject,
     count_head_neighbours,
     electron_count,
@@ -378,6 +379,35 @@ class TestComponentRegistry(unittest.TestCase):
         # Two different components should not somehow alias the same grid.
         self.assertIsNot(COMPONENTS["or"].grid, COMPONENTS["and_not"].grid)
         self.assertIsInstance(COMPONENTS["wire"], Component)
+
+
+class TestEditorLoad(unittest.TestCase):
+    """After a load, the cursor is on the grid and every cell is a state."""
+
+    def load(self, text: str) -> Editor:
+        editor = Editor()
+        editor.cursor = (30, 10)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "circuit.txt"
+            path.write_text(text, encoding="utf-8")
+            editor.load_from(str(path))
+        return editor
+
+    def test_a_smaller_file_moves_the_cursor_onto_the_grid(self):
+        editor = self.load("##\n")
+        self.assertEqual(editor.cursor, (1, 0))
+        editor.cycle_cell()
+        self.assertEqual(editor.grid[0][1], HEAD)
+
+    def test_an_empty_file_gives_a_one_cell_grid(self):
+        editor = self.load("")
+        self.assertEqual(grid_size(editor.grid), (1, 1))
+        editor.cycle_cell()
+        self.assertEqual(editor.grid[0][0], CONDUCTOR)
+
+    def test_unknown_characters_load_as_empty_cells(self):
+        editor = self.load("#x #\n")
+        self.assertEqual(editor.grid, [[CONDUCTOR, EMPTY, EMPTY, CONDUCTOR]])
 
 
 if __name__ == "__main__":

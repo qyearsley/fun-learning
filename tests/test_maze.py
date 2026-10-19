@@ -81,6 +81,21 @@ class TestEveryGeneratorProducesASpanningTree(unittest.TestCase):
                         self.assertEqual(set(distances), set(cells), "not every cell is reachable")
 
 
+class TestBinaryTreeBias(unittest.TestCase):
+    """Every cell carves south or east, so the bottom row and the right
+    column are each one straight open corridor."""
+
+    def test_the_bottom_row_and_right_column_are_fully_open(self):
+        for seed in SEEDS:
+            with self.subTest(seed=seed):
+                maze = Maze(8, 4)
+                list(binary_tree(maze, random.Random(seed)))
+                for x in range(7):
+                    self.assertTrue(maze.is_linked((x, 3), (x + 1, 3)))
+                for y in range(3):
+                    self.assertTrue(maze.is_linked((7, y), (7, y + 1)))
+
+
 class TestTheCollapse(unittest.TestCase):
     """`growing_tree` claims to generalize `dfs_backtracker` and
     `randomized_prim`. Prove it: given the same seed, the pick-based
