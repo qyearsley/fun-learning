@@ -19,7 +19,13 @@ proposals are the other files in this directory.
 
 ## At a glance
 
-Nothing open. See `## Not looked at` for what has not been checked.
+- **README per-suite test counts are stale** (found 2026-11-05). The Tests
+  section says 150 stdlib tests, with 27 maze and 43 Wireworld tests. The suites
+  hold 28 and 46, for 154 total. The 157 in the command comment is correct.
+  The 2026-10-19 fixes added the four tests. Fix the numbers, or drop the
+  per-suite counts so they cannot drift again.
+
+See `## Not looked at` for what has not been checked.
 
 ## Working on these
 
