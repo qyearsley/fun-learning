@@ -80,16 +80,16 @@ nothing in `world.pl` says so directly; it falls out of three separate rules.
 Loosen any one of them and `deduce` starts offering two answers, with no error
 anywhere.
 
-150 stdlib `unittest` tests over the four scripts that declare
+154 stdlib `unittest` tests over the four scripts that declare
 `dependencies = []`, so the suite needs nothing installed and stays as
 standalone as the scripts it covers. Thirty-four cover `genetic_algorithm_demo.py`
 — fitness, gene source, tournament selection, crossover, mutation, and the
 generation cycle that composes them, plus target validation and the display
 helpers. Forty-six play `process_adventure.py` through its command handler:
 the parser, every ending, each room's rule, the real signal handler, the real
-locks, and real refcount frees and cycle collection. Twenty-seven check that every
+locks, and real refcount frees and cycle collection. Twenty-eight check that every
 maze generator builds a spanning tree, that the growing tree reproduces the DFS and
-Prim generators edge for edge, and the solver and SVG export. Forty-three cover the
+Prim generators edge for edge, and the solver and SVG export. Forty-six cover the
 Wireworld rules, signal travel, the clock's period, each gate's truth table, and
 the diode by simulation. The command runs it through uv on 3.13, because a bare
 `python3` may be older than the `>=3.13` floor and fail to import three of the
